@@ -307,7 +307,7 @@ export default function HomePage() {
                 <span className="ml-3 text-xl font-bold">PharmaTrack</span>
               </div>
               <p className="text-gray-400">
-                Modern pharmacy inventory management for the digital age.
+                Modern pharmacy inventory management for the digital age. Connected to GitHub!
               </p>
             </div>
 
