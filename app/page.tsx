@@ -7,40 +7,29 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header / Navigation */}
-      <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-100">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo */}
             <div className="flex items-center">
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-teal-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">💊</span>
-                </div>
-                <span className="ml-3 text-xl font-bold text-gray-900">PharmaTrack</span>
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">💊</span>
               </div>
+              <span className="ml-3 text-xl font-bold text-gray-900">PharmaTrack</span>
             </div>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              <a href="#home" className="text-gray-700 hover:text-blue-600 font-medium">Home</a>
-              <a href="#features" className="text-gray-700 hover:text-blue-600 font-medium">Features</a>
-              <a href="#pricing" className="text-gray-700 hover:text-blue-600 font-medium">Pricing</a>
-              <a href="#about" className="text-gray-700 hover:text-blue-600 font-medium">About</a>
-              <a href="#contact" className="text-gray-700 hover:text-blue-600 font-medium">Contact</a>
-            </nav>
-
-            {/* CTA Buttons */}
-            <div className="hidden md:flex items-center space-x-4">
-              <button className="text-gray-700 hover:text-blue-600 font-medium">Login</button>
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+            
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#features" className="text-gray-600 hover:text-gray-900">Features</a>
+              <a href="#pricing" className="text-gray-600 hover:text-gray-900">Pricing</a>
+              <a href="#about" className="text-gray-600 hover:text-gray-900">About</a>
+              <a href="/login" className="text-gray-600 hover:text-gray-900">Sign In</a>
+              <a href="/register" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
                 Get Started
-              </button>
+              </a>
             </div>
 
-            {/* Mobile menu button */}
             <button 
-              className="md:hidden p-2"
+              className="md:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <span className="text-2xl">☰</span>
@@ -51,89 +40,103 @@ export default function HomePage() {
           {mobileMenuOpen && (
             <div className="md:hidden py-4 border-t border-gray-100">
               <div className="flex flex-col space-y-4">
-                <a href="#home" className="text-gray-700 hover:text-blue-600 font-medium">Home</a>
-                <a href="#features" className="text-gray-700 hover:text-blue-600 font-medium">Features</a>
-                <a href="#pricing" className="text-gray-700 hover:text-blue-600 font-medium">Pricing</a>
-                <a href="#about" className="text-gray-700 hover:text-blue-600 font-medium">About</a>
-                <a href="#contact" className="text-gray-700 hover:text-blue-600 font-medium">Contact</a>
-                <div className="flex flex-col space-y-2 pt-4 border-t border-gray-100">
-                  <button className="text-gray-700 hover:text-blue-600 font-medium text-left">Login</button>
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                <a href="#features" className="text-gray-600 hover:text-gray-900 px-4">Features</a>
+                <a href="#pricing" className="text-gray-600 hover:text-gray-900 px-4">Pricing</a>
+                <a href="#about" className="text-gray-600 hover:text-gray-900 px-4">About</a>
+                <div className="flex flex-col space-y-2 pt-4 border-t border-gray-100 px-4">
+                  <a href="/login" className="text-gray-600 hover:text-gray-900 text-center py-2">Sign In</a>
+                  <a href="/register" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-center">
                     Get Started
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>
           )}
         </div>
-      </header>
+      </nav>
 
       {/* Hero Section */}
-      <section id="home" className="py-20 bg-gradient-to-br from-blue-50 to-teal-50">
+      <section className="pt-24 pb-20 bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Side - Text */}
-            <div>
-              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
-                Smart Pharmacy Inventory Management 
-                <span className="text-blue-600"> Made Simple</span>
-              </h1>
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Track stock, manage expiries, monitor sales, and control your pharmacy operations 
-                in one secure cloud-based platform designed for modern pharmacies.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
-                  Start Free Trial
-                </button>
-                <button className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
-                  Request a Demo
-                </button>
-              </div>
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="inline-flex items-center px-4 py-2 bg-blue-100 rounded-full text-blue-800 text-sm font-medium mb-8">
+              <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
+              Trusted by 1000+ Pharmacies Worldwide
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+              Modern Pharmacy
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Management</span>
+            </h1>
+            
+            <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+              Streamline your pharmacy operations with our comprehensive inventory management system. 
+              Track stock, manage prescriptions, and grow your business with confidence.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+              <a href="/register" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 text-center">
+                Start Free Trial
+              </a>
+              <a href="/login" className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 px-12 py-4 rounded-xl font-semibold text-lg transition-all text-center">
+                Sign In
+              </a>
             </div>
 
-            {/* Right Side - Dashboard Mockup */}
-            <div className="relative">
-              <div className="bg-white rounded-2xl shadow-2xl p-6 border border-gray-100">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">Dashboard Overview</h3>
-                  <div className="flex space-x-2">
+            {/* Dashboard Preview */}
+            <div className="relative max-w-5xl mx-auto">
+              <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                  <div className="flex items-center space-x-2">
                     <div className="w-3 h-3 bg-red-400 rounded-full"></div>
                     <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
                     <div className="w-3 h-3 bg-green-400 rounded-full"></div>
                   </div>
                 </div>
                 
-                {/* Mock Dashboard Content */}
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">1,247</div>
-                      <div className="text-sm text-gray-600">Total Items</div>
+                <div className="p-8">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-xl text-white">
+                      <div className="text-3xl font-bold">2,847</div>
+                      <div className="text-blue-100">Total Products</div>
                     </div>
-                    <div className="bg-red-50 p-4 rounded-lg">
-                      <div className="text-2xl font-bold text-red-600">23</div>
-                      <div className="text-sm text-gray-600">Low Stock</div>
+                    <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-xl text-white">
+                      <div className="text-3xl font-bold">$12.4K</div>
+                      <div className="text-green-100">Monthly Revenue</div>
                     </div>
-                  </div>
-                  
-                  <div className="bg-yellow-50 p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-semibold text-yellow-800">Expiry Alerts</div>
-                        <div className="text-sm text-yellow-600">5 items expiring this month</div>
-                      </div>
-                      <div className="text-2xl">⚠️</div>
+                    <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-6 rounded-xl text-white">
+                      <div className="text-3xl font-bold">156</div>
+                      <div className="text-purple-100">Low Stock Items</div>
                     </div>
                   </div>
                   
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-semibold text-green-800">Today's Sales</div>
-                        <div className="text-sm text-green-600">$2,847.50</div>
+                  <div className="bg-gray-50 rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
+                      <span className="text-sm text-gray-500">Last 24 hours</span>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between py-2">
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                          <span className="text-gray-700">Paracetamol 500mg - Stock Updated</span>
+                        </div>
+                        <span className="text-sm text-gray-500">2 min ago</span>
                       </div>
-                      <div className="text-2xl">📊</div>
+                      <div className="flex items-center justify-between py-2">
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
+                          <span className="text-gray-700">Amoxicillin - Low Stock Alert</span>
+                        </div>
+                        <span className="text-sm text-gray-500">15 min ago</span>
+                      </div>
+                      <div className="flex items-center justify-between py-2">
+                        <div className="flex items-center">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                          <span className="text-gray-700">New Prescription Added</span>
+                        </div>
+                        <span className="text-sm text-gray-500">1 hour ago</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -143,154 +146,328 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Key Features Section */}
+      {/* Features Section */}
       <section id="features" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Everything You Need to Manage Your Pharmacy
+            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full text-blue-800 text-sm font-medium mb-6">
+              ✨ Powerful Features
+            </div>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Everything you need to run your pharmacy
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Comprehensive features designed specifically for pharmacy operations, 
-              from inventory tracking to sales reporting.
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Powerful features designed specifically for modern pharmacy operations
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature Cards */}
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                <span className="text-2xl">📦</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Real-Time Inventory Tracking</h3>
-              <p className="text-gray-600">
-                Monitor stock levels in real-time with automatic updates for every sale, 
-                purchase, and adjustment across all locations.
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
-                <span className="text-2xl">⏰</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Expiry Date & Batch Management</h3>
-              <p className="text-gray-600">
-                Track expiration dates and batch numbers with automated alerts 
-                to prevent losses and ensure medication safety.
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
-                <span className="text-2xl">🔔</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Low Stock Alerts</h3>
-              <p className="text-gray-600">
-                Receive instant notifications when inventory levels drop below 
-                your defined thresholds to avoid stockouts.
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                <span className="text-2xl">👥</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Role-Based Access Control</h3>
-              <p className="text-gray-600">
-                Secure access management with different permission levels for 
-                administrators, pharmacists, and cashiers.
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+            <div className="group p-8 rounded-2xl border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-blue-200 transition-colors">
                 <span className="text-2xl">📊</span>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Sales & Purchase Reports</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Real-time Analytics</h3>
               <p className="text-gray-600">
-                Generate comprehensive reports on sales performance, 
-                purchase history, and profitability analysis.
+                Get instant insights into your pharmacy performance with comprehensive dashboards and reports.
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-              <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center mb-4">
-                <span className="text-2xl">☁️</span>
+            <div className="group p-8 rounded-2xl border border-gray-200 hover:border-green-300 hover:shadow-lg transition-all">
+              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-green-200 transition-colors">
+                <span className="text-2xl">💊</span>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Cloud-Based & Secure</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Inventory Management</h3>
               <p className="text-gray-600">
-                Access your data anywhere with enterprise-grade security, 
-                automatic backups, and 99.9% uptime guarantee.
+                Track stock levels, expiry dates, and automate reordering to never run out of essential medicines.
+              </p>
+            </div>
+
+            <div className="group p-8 rounded-2xl border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all">
+              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-purple-200 transition-colors">
+                <span className="text-2xl">🔒</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Secure & Compliant</h3>
+              <p className="text-gray-600">
+                HIPAA-compliant security with role-based access control to protect sensitive patient data.
+              </p>
+            </div>
+
+            <div className="group p-8 rounded-2xl border border-gray-200 hover:border-orange-300 hover:shadow-lg transition-all">
+              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-orange-200 transition-colors">
+                <span className="text-2xl">⚡</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Lightning Fast</h3>
+              <p className="text-gray-600">
+                Cloud-based system with 99.9% uptime and lightning-fast response times for seamless operations.
+              </p>
+            </div>
+
+            <div className="group p-8 rounded-2xl border border-gray-200 hover:border-teal-300 hover:shadow-lg transition-all">
+              <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-teal-200 transition-colors">
+                <span className="text-2xl">📱</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Mobile Ready</h3>
+              <p className="text-gray-600">
+                Access your pharmacy data anywhere with our responsive web app and mobile applications.
+              </p>
+            </div>
+
+            <div className="group p-8 rounded-2xl border border-gray-200 hover:border-red-300 hover:shadow-lg transition-all">
+              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-6 group-hover:bg-red-200 transition-colors">
+                <span className="text-2xl">🎯</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Smart Alerts</h3>
+              <p className="text-gray-600">
+                Automated notifications for low stock, expiring medicines, and important pharmacy events.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* How It Works Section */}
+      {/* Stats Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">
+              Trusted by pharmacies worldwide
+            </h2>
+            <p className="text-xl text-blue-100">
+              Join thousands of satisfied customers who trust PharmaTrack
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">1000+</div>
+              <div className="text-blue-100">Active Pharmacies</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">50M+</div>
+              <div className="text-blue-100">Prescriptions Managed</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">99.9%</div>
+              <div className="text-blue-100">Uptime Guarantee</div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">24/7</div>
+              <div className="text-blue-100">Customer Support</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              How It Works
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              What our customers say
             </h2>
             <p className="text-xl text-gray-600">
-              Get started in minutes with our simple 4-step process
+              Real feedback from real pharmacy owners
             </p>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
-                1
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white p-8 rounded-2xl shadow-lg">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                  S
+                </div>
+                <div className="ml-4">
+                  <div className="font-semibold text-gray-900">Sarah Johnson</div>
+                  <div className="text-gray-600 text-sm">Pharmacy Owner</div>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Create Account</h3>
-              <p className="text-gray-600">Register your pharmacy and set up your account in under 2 minutes</p>
+              <p className="text-gray-600 mb-4">
+                "PharmaTrack has revolutionized how we manage our inventory. The automated alerts have saved us from stockouts multiple times."
+              </p>
+              <div className="flex text-yellow-400">
+                ⭐⭐⭐⭐⭐
+              </div>
             </div>
 
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
-                2
+            <div className="bg-white p-8 rounded-2xl shadow-lg">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold">
+                  M
+                </div>
+                <div className="ml-4">
+                  <div className="font-semibold text-gray-900">Michael Chen</div>
+                  <div className="text-gray-600 text-sm">Head Pharmacist</div>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Add Medicines</h3>
-              <p className="text-gray-600">Import or manually add your inventory with stock levels and batch details</p>
+              <p className="text-gray-600 mb-4">
+                "The reporting features are incredible. We can now track our performance and make data-driven decisions for our business."
+              </p>
+              <div className="flex text-yellow-400">
+                ⭐⭐⭐⭐⭐
+              </div>
             </div>
 
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
-                3
+            <div className="bg-white p-8 rounded-2xl shadow-lg">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                  A
+                </div>
+                <div className="ml-4">
+                  <div className="font-semibold text-gray-900">Amanda Rodriguez</div>
+                  <div className="text-gray-600 text-sm">Pharmacy Manager</div>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Sell & Track</h3>
-              <p className="text-gray-600">Process sales with automatic stock deduction and real-time updates</p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
-                4
+              <p className="text-gray-600 mb-4">
+                "Easy to use, reliable, and excellent customer support. PharmaTrack has made our daily operations so much smoother."
+              </p>
+              <div className="flex text-yellow-400">
+                ⭐⭐⭐⭐⭐
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Monitor & Report</h3>
-              <p className="text-gray-600">Get real-time insights and generate reports for better decision making</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Call-to-Action Section */}
-      <section className="py-20 bg-blue-600">
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Simple, transparent pricing
+            </h2>
+            <p className="text-xl text-gray-600">
+              Choose the plan that's right for your pharmacy
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {/* Starter Plan */}
+            <div className="bg-white p-8 rounded-2xl border-2 border-gray-200 hover:border-blue-300 transition-all">
+              <div className="text-center">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Starter</h3>
+                <div className="text-4xl font-bold text-gray-900 mb-4">$29<span className="text-lg text-gray-600">/month</span></div>
+                <p className="text-gray-600 mb-8">Perfect for small pharmacies</p>
+              </div>
+              
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-center">
+                  <span className="text-green-500 mr-3">✓</span>
+                  Up to 1,000 products
+                </li>
+                <li className="flex items-center">
+                  <span className="text-green-500 mr-3">✓</span>
+                  Basic inventory tracking
+                </li>
+                <li className="flex items-center">
+                  <span className="text-green-500 mr-3">✓</span>
+                  Email support
+                </li>
+                <li className="flex items-center">
+                  <span className="text-green-500 mr-3">✓</span>
+                  Mobile app access
+                </li>
+              </ul>
+              
+              <a href="/register" className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-3 rounded-xl font-semibold transition-colors text-center block">
+                Start Free Trial
+              </a>
+            </div>
+
+            {/* Professional Plan */}
+            <div className="bg-white p-8 rounded-2xl border-2 border-blue-500 relative transform scale-105">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium">Most Popular</span>
+              </div>
+              
+              <div className="text-center">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Professional</h3>
+                <div className="text-4xl font-bold text-gray-900 mb-4">$79<span className="text-lg text-gray-600">/month</span></div>
+                <p className="text-gray-600 mb-8">For growing pharmacies</p>
+              </div>
+              
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-center">
+                  <span className="text-green-500 mr-3">✓</span>
+                  Up to 10,000 products
+                </li>
+                <li className="flex items-center">
+                  <span className="text-green-500 mr-3">✓</span>
+                  Advanced analytics
+                </li>
+                <li className="flex items-center">
+                  <span className="text-green-500 mr-3">✓</span>
+                  Priority support
+                </li>
+                <li className="flex items-center">
+                  <span className="text-green-500 mr-3">✓</span>
+                  API access
+                </li>
+                <li className="flex items-center">
+                  <span className="text-green-500 mr-3">✓</span>
+                  Custom reports
+                </li>
+              </ul>
+              
+              <a href="/register" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors text-center block">
+                Start Free Trial
+              </a>
+            </div>
+
+            {/* Enterprise Plan */}
+            <div className="bg-white p-8 rounded-2xl border-2 border-gray-200 hover:border-purple-300 transition-all">
+              <div className="text-center">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Enterprise</h3>
+                <div className="text-4xl font-bold text-gray-900 mb-4">$199<span className="text-lg text-gray-600">/month</span></div>
+                <p className="text-gray-600 mb-8">For large pharmacy chains</p>
+              </div>
+              
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-center">
+                  <span className="text-green-500 mr-3">✓</span>
+                  Unlimited products
+                </li>
+                <li className="flex items-center">
+                  <span className="text-green-500 mr-3">✓</span>
+                  Multi-location support
+                </li>
+                <li className="flex items-center">
+                  <span className="text-green-500 mr-3">✓</span>
+                  24/7 phone support
+                </li>
+                <li className="flex items-center">
+                  <span className="text-green-500 mr-3">✓</span>
+                  Custom integrations
+                </li>
+                <li className="flex items-center">
+                  <span className="text-green-500 mr-3">✓</span>
+                  Dedicated account manager
+                </li>
+              </ul>
+              
+              <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold transition-colors">
+                Contact Sales
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
-            Ready to digitize your pharmacy inventory?
+          <h2 className="text-4xl font-bold text-white mb-6">
+            Ready to transform your pharmacy?
           </h2>
           <p className="text-xl text-blue-100 mb-8">
             Join thousands of pharmacies already using PharmaTrack to streamline their operations
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
-              Get Started Now
-            </button>
-            <button className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
-              Contact Sales
-            </button>
+            <a href="/register" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 text-center">
+              Start Free Trial
+            </a>
+            <a href="/login" className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-12 py-4 rounded-xl font-semibold text-lg transition-all text-center">
+              Sign In
+            </a>
           </div>
         </div>
       </section>
@@ -301,46 +478,44 @@ export default function HomePage() {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center mb-4">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-teal-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">💊</span>
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold">💊</span>
                 </div>
                 <span className="ml-3 text-xl font-bold">PharmaTrack</span>
               </div>
               <p className="text-gray-400">
-                Modern pharmacy inventory management for the digital age. Connected to GitHub!
+                Modern pharmacy management for the digital age.
               </p>
             </div>
 
             <div>
-              <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+              <h4 className="text-lg font-semibold mb-4">Product</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#features" className="hover:text-white">Features</a></li>
-                <li><a href="#pricing" className="hover:text-white">Pricing</a></li>
-                <li><a href="#about" className="hover:text-white">About</a></li>
-                <li><a href="#contact" className="hover:text-white">Contact</a></li>
+                <li><a href="#" className="hover:text-white">Features</a></li>
+                <li><a href="#" className="hover:text-white">Pricing</a></li>
+                <li><a href="#" className="hover:text-white">Security</a></li>
+                <li><a href="#" className="hover:text-white">Integrations</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="text-lg font-semibold mb-4">Legal</h4>
+              <h4 className="text-lg font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white">Terms & Conditions</a></li>
-                <li><a href="#" className="hover:text-white">Support</a></li>
+                <li><a href="#" className="hover:text-white">About</a></li>
+                <li><a href="#" className="hover:text-white">Blog</a></li>
+                <li><a href="#" className="hover:text-white">Careers</a></li>
+                <li><a href="#" className="hover:text-white">Contact</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="text-lg font-semibold mb-4">Contact</h4>
-              <div className="space-y-2 text-gray-400">
-                <p>support@pharmatrack.com</p>
-                <p>+1 (555) 123-4567</p>
-                <div className="flex space-x-4 mt-4">
-                  <a href="#" className="text-gray-400 hover:text-white">📘</a>
-                  <a href="#" className="text-gray-400 hover:text-white">🐦</a>
-                  <a href="#" className="text-gray-400 hover:text-white">💼</a>
-                </div>
-              </div>
+              <h4 className="text-lg font-semibold mb-4">Support</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#" className="hover:text-white">Help Center</a></li>
+                <li><a href="#" className="hover:text-white">Documentation</a></li>
+                <li><a href="#" className="hover:text-white">API Reference</a></li>
+                <li><a href="#" className="hover:text-white">Status</a></li>
+              </ul>
             </div>
           </div>
 
