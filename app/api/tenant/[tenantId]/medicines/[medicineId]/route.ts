@@ -7,7 +7,6 @@ export async function GET(
 ) {
   try {
     const { tenantId, medicineId } = await params;
-    const { tenantId, medicineId } = params;
     
     const medicine = await multiTenantDb.getMedicineById(tenantId, medicineId);
     
@@ -34,7 +33,6 @@ export async function PUT(
 ) {
   try {
     const { tenantId, medicineId } = await params;
-    const { tenantId, medicineId } = params;
     const updates = await request.json();
 
     const medicine = await multiTenantDb.updateMedicine(tenantId, medicineId, {
@@ -65,7 +63,6 @@ export async function DELETE(
 ) {
   try {
     const { tenantId, medicineId } = await params;
-    const { tenantId, medicineId } = params;
     
     const success = await multiTenantDb.deleteMedicine(tenantId, medicineId);
     

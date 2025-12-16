@@ -20,6 +20,7 @@
     "test-branding": "node scripts/test-pharmacy-branding.js",
     "test-subdomain": "node scripts/test-subdomain-api.js",
     "test-routing": "node scripts/test-tenant-dashboard-routing.js",
+    "verify-build": "node scripts/verify-build-ready.js",
     "inspect-super-admin": "node scripts/inspect-super-admin.js",
 
     "ensure-tenant-admins": "node scripts/ensure-tenant-admins.js",

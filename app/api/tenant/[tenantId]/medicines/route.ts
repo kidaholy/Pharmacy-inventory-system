@@ -7,7 +7,6 @@ export async function GET(
 ) {
   try {
     const { tenantId } = await params;
-    const { tenantId } = params;
     const { searchParams } = new URL(request.url);
     
     // Extract query parameters
@@ -58,7 +57,6 @@ export async function POST(
 ) {
   try {
     const { tenantId } = await params;
-    const { tenantId } = params;
     const medicineData = await request.json();
 
     // Validate required fields

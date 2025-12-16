@@ -8,7 +8,6 @@ export async function GET(
 ) {
   try {
     const { tenantId } = await params;
-    const { tenantId } = params;
     const tenant = await multiTenantDb.getTenantById(tenantId);
 
     if (!tenant) {
@@ -39,7 +38,6 @@ export async function PUT(
 ) {
   try {
     const { tenantId } = await params;
-    const { tenantId } = params;
     const updateData = await request.json();
 
     // Get the tenant to check if it's the demo tenant
@@ -84,7 +82,6 @@ export async function DELETE(
 ) {
   try {
     const { tenantId } = await params;
-    const { tenantId } = params;
 
     // Get the tenant to check if it's the demo tenant
     const tenant = await multiTenantDb.getTenantById(tenantId);
