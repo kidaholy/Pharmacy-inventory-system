@@ -1,4 +1,15 @@
-import { User, db } from './database-safe';
+import { multiTenantDb } from './services/multi-tenant-db';
+
+export interface User {
+  _id: string;
+  tenantId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: 'super_admin' | 'admin' | 'pharmacist' | 'cashier' | 'viewer' | 'tenant_admin' | 'user';
+  permissions: string[];
+  isActive: boolean;
+}
 
 export interface AuthSession {
   user: User;
@@ -42,26 +53,36 @@ class AuthManager {
     this.currentSession = null;
   }
 
-  async login(username: string, password: string): Promise<{ success: boolean; user?: User; error?: string }> {
-    const user = await db.getUserByCredentials(username, password);
-    
-    if (!user) {
-      return { success: false, error: 'Invalid credentials' };
+  async login(email: string, password: string): Promise<{ success: boolean; user?: User; error?: string }> {
+    try {
+      // Use API route for authentication to avoid client-side MongoDB connection
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.user) {
+        // Create session
+        const session: AuthSession = {
+          user: result.user,
+          token: `token_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
+        };
+
+        this.saveSession(session);
+        return { success: true, user: result.user };
+      }
+
+      return { success: false, error: result.error || 'Login failed' };
+    } catch (error) {
+      console.error('Login error:', error);
+      return { success: false, error: 'Login failed. Please try again.' };
     }
-
-    if (!user.isActive) {
-      return { success: false, error: 'Account is deactivated' };
-    }
-
-    // Create session
-    const session: AuthSession = {
-      user,
-      token: `token_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
-    };
-
-    this.saveSession(session);
-    return { success: true, user };
   }
 
   logout() {
@@ -80,7 +101,7 @@ class AuthManager {
     return this.currentSession?.user?.role === 'super_admin';
   }
 
-  hasRole(role: User['role']): boolean {
+  hasRole(role: 'super_admin' | 'admin' | 'pharmacist' | 'cashier' | 'viewer' | 'tenant_admin' | 'user'): boolean {
     return this.currentSession?.user?.role === role;
   }
 

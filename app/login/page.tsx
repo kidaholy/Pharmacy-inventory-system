@@ -248,11 +248,11 @@ export default function LoginPage() {
               </div>
               <p className="text-sm text-blue-600">
                 <strong>Super Admin:</strong><br />
-                Email: superadmin@pharmatrack.com<br />
-                Password: SuperAdmin123!<br /><br />
-                <strong>Demo User:</strong><br />
-                Email: admin@pharmatrack.com<br />
-                Password: password
+                Email: kidayos2014@gmail.com<br />
+                Password: password<br /><br />
+                <strong>Regular Admin:</strong><br />
+                Email: pharmacist@demopharmacy.com<br />
+                Password: pharmacist123
               </p>
               
               <div className="mt-4 pt-4 border-t border-blue-200">
@@ -278,8 +278,8 @@ export default function LoginPage() {
                 <div className="flex gap-2 justify-center mt-2">
                   <button
                     onClick={() => {
-                      setEmail('superadmin@pharmatrack.com');
-                      setPassword('SuperAdmin123!');
+                      setEmail('kidayos2014@gmail.com');
+                      setPassword('password');
                     }}
                     className="text-xs bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-1 rounded-lg transition-colors"
                   >
@@ -287,12 +287,12 @@ export default function LoginPage() {
                   </button>
                   <button
                     onClick={() => {
-                      setEmail('admin@pharmatrack.com');
-                      setPassword('password');
+                      setEmail('pharmacist@demopharmacy.com');
+                      setPassword('pharmacist123');
                     }}
                     className="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded-lg transition-colors"
                   >
-                    👤 Fill Demo User
+                    👤 Fill Regular Admin
                   </button>
                 </div>
               </div>

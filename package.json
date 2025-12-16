@@ -7,9 +7,12 @@
     "dev": "next dev",
     "lint": "eslint .",
     "start": "next start",
-    "setup-mongodb": "node scripts/setup-mongodb.js",
-    "db:reset": "node scripts/setup-mongodb.js",
-    "test-atlas": "node scripts/test-atlas.js"
+    "setup-database": "node scripts/setup-database.js",
+    "db:setup": "node scripts/setup-database-mongoose.js",
+    "test-connection": "node scripts/test-connection.js",
+    "create-super-admin": "node scripts/create-super-admin.js",
+    "debug-users": "node scripts/debug-users.js",
+    "fix-users": "node scripts/fix-users.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
