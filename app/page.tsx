@@ -22,6 +22,7 @@ export default function HomePage() {
               <a href="#features" className="text-gray-600 hover:text-gray-900">Features</a>
               <a href="#pricing" className="text-gray-600 hover:text-gray-900">Pricing</a>
               <a href="#about" className="text-gray-600 hover:text-gray-900">About</a>
+              <a href="/debug" className="text-red-600 hover:text-red-800 text-sm">🔧 Debug</a>
               <a href="/login" className="text-gray-600 hover:text-gray-900">Sign In</a>
               <a href="/register" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
                 Get Started

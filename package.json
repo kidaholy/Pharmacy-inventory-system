@@ -6,7 +6,10 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
-    "start": "next start"
+    "start": "next start",
+    "setup-mongodb": "node scripts/setup-mongodb.js",
+    "db:reset": "node scripts/setup-mongodb.js",
+    "test-atlas": "node scripts/test-atlas.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -46,6 +49,8 @@
     "embla-carousel-react": "8.5.1",
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
+    "mongodb": "^6.21.0",
+    "mongoose": "^8.20.3",
     "next": "16.0.10",
     "next-themes": "^0.4.6",
     "postcss-import": "^16.1.1",

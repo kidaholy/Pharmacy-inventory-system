@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { auth } from '../../lib/auth';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -21,13 +22,28 @@ export default function LoginPage() {
       return;
     }
 
-    // Simulate login (replace with real authentication later)
-    setTimeout(() => {
-      if (email === 'admin@pharmatrack.com' && password === 'password') {
-        // Redirect to dashboard
-        window.location.href = '/dashboard';
-      } else {
-        setError('Invalid email or password');
+    // Authenticate with database (MongoDB or localStorage fallback)
+    setTimeout(async () => {
+      console.log('Attempting login with:', email, password);
+      try {
+        const result = await auth.login(email, password);
+        console.log('Login result:', result);
+        
+        if (result.success && result.user) {
+          console.log('Login successful, redirecting user with role:', result.user.role);
+          // Redirect based on user role
+          if (result.user.role === 'super_admin') {
+            window.location.href = '/super-admin';
+          } else {
+            window.location.href = '/dashboard';
+          }
+        } else {
+          console.log('Login failed:', result.error);
+          setError(result.error || 'Invalid email or password');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        setError('Login failed. Please try again.');
       }
       setIsLoading(false);
     }, 1500);
@@ -231,9 +247,55 @@ export default function LoginPage() {
                 <span className="text-sm font-semibold text-blue-700">Demo Account</span>
               </div>
               <p className="text-sm text-blue-600">
-                <strong>Email:</strong> admin@pharmatrack.com<br />
-                <strong>Password:</strong> password
+                <strong>Super Admin:</strong><br />
+                Email: superadmin@pharmatrack.com<br />
+                Password: SuperAdmin123!<br /><br />
+                <strong>Demo User:</strong><br />
+                Email: admin@pharmatrack.com<br />
+                Password: password
               </p>
+              
+              <div className="mt-4 pt-4 border-t border-blue-200">
+                <p className="text-xs text-blue-600 mb-2">Having login issues?</p>
+                <div className="flex gap-2 justify-center">
+                  <button
+                    onClick={() => {
+                      const { db } = require('../../lib/database');
+                      db.resetDatabase();
+                      alert('Database reset! Please try logging in again.');
+                    }}
+                    className="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-lg transition-colors"
+                  >
+                    🔄 Reset DB
+                  </button>
+                  <a
+                    href="/debug"
+                    className="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded-lg transition-colors"
+                  >
+                    🔧 Debug
+                  </a>
+                </div>
+                <div className="flex gap-2 justify-center mt-2">
+                  <button
+                    onClick={() => {
+                      setEmail('superadmin@pharmatrack.com');
+                      setPassword('SuperAdmin123!');
+                    }}
+                    className="text-xs bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-1 rounded-lg transition-colors"
+                  >
+                    👑 Fill Super Admin
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEmail('admin@pharmatrack.com');
+                      setPassword('password');
+                    }}
+                    className="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded-lg transition-colors"
+                  >
+                    👤 Fill Demo User
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
