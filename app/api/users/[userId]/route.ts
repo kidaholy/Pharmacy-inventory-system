@@ -8,7 +8,6 @@ export async function GET(
 ) {
   try {
     const { userId } = await params;
-    const { userId } = params;
     const { searchParams } = new URL(request.url);
     const tenantId = searchParams.get('tenantId');
 
@@ -70,7 +69,6 @@ export async function PUT(
 ) {
   try {
     const { userId } = await params;
-    const { userId } = params;
     const updateData = await request.json();
     const { tenantId } = updateData;
 
@@ -169,7 +167,6 @@ export async function DELETE(
   try {
     const { userId } = await params;
     console.log('🗑️ Delete user request:', { userId });
-    const { searchParams } = new URL(request.url);
     const { searchParams } = new URL(request.url);
     const tenantId = searchParams.get('tenantId');
 

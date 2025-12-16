@@ -8,7 +8,6 @@ export async function PUT(
 ) {
   try {
     const { userId } = await params;
-    const { userId } = params;
     const { tenantId, currentPassword, newPassword } = await request.json();
 
     if (!tenantId || !currentPassword || !newPassword) {

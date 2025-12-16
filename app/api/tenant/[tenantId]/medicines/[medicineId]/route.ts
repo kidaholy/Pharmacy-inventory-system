@@ -3,9 +3,10 @@ import { multiTenantDb } from '../../../../../../lib/services/multi-tenant-db';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { tenantId: string; medicineId: string } }
+  { params }: { params: Promise<{ tenantId: string; medicineId: string }> }
 ) {
   try {
+    const { tenantId, medicineId } = await params;
     const { tenantId, medicineId } = params;
     
     const medicine = await multiTenantDb.getMedicineById(tenantId, medicineId);
@@ -29,9 +30,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { tenantId: string; medicineId: string } }
+  { params }: { params: Promise<{ tenantId: string; medicineId: string }> }
 ) {
   try {
+    const { tenantId, medicineId } = await params;
     const { tenantId, medicineId } = params;
     const updates = await request.json();
 
@@ -59,9 +61,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { tenantId: string; medicineId: string } }
+  { params }: { params: Promise<{ tenantId: string; medicineId: string }> }
 ) {
   try {
+    const { tenantId, medicineId } = await params;
     const { tenantId, medicineId } = params;
     
     const success = await multiTenantDb.deleteMedicine(tenantId, medicineId);

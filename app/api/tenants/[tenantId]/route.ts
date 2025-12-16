@@ -4,9 +4,10 @@ import { multiTenantDb } from '../../../../lib/services/multi-tenant-db';
 // GET - Get a specific tenant
 export async function GET(
   request: NextRequest,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
+    const { tenantId } = await params;
     const { tenantId } = params;
     const tenant = await multiTenantDb.getTenantById(tenantId);
 
@@ -34,9 +35,10 @@ export async function GET(
 // PUT - Update a tenant
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
+    const { tenantId } = await params;
     const { tenantId } = params;
     const updateData = await request.json();
 
@@ -78,9 +80,10 @@ export async function PUT(
 // DELETE - Delete a tenant (protected for demo)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
+    const { tenantId } = await params;
     const { tenantId } = params;
 
     // Get the tenant to check if it's the demo tenant

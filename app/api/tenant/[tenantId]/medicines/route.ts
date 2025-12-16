@@ -3,9 +3,10 @@ import { multiTenantDb } from '../../../../../lib/services/multi-tenant-db';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
+    const { tenantId } = await params;
     const { tenantId } = params;
     const { searchParams } = new URL(request.url);
     
@@ -53,9 +54,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
+    const { tenantId } = await params;
     const { tenantId } = params;
     const medicineData = await request.json();
 
