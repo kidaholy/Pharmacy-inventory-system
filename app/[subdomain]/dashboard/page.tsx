@@ -4,6 +4,31 @@ import { useState, useEffect } from 'react';
 import { auth, User } from '../../../lib/auth';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { 
+  ChartBarIcon, 
+  CubeIcon, 
+  ShoppingCartIcon, 
+  TruckIcon, 
+  UsersIcon, 
+  BuildingStorefrontIcon, 
+  DocumentChartBarIcon, 
+  Cog6ToothIcon,
+  MagnifyingGlassIcon,
+  BellIcon,
+  ChevronLeftIcon,
+  PlusIcon,
+  DocumentTextIcon,
+  ArrowPathIcon,
+  EyeIcon,
+  ExclamationTriangleIcon,
+  ArrowTrendingUpIcon,
+  CurrencyDollarIcon,
+  Bars3Icon,
+  SunIcon,
+  MoonIcon,
+  ChevronDownIcon
+} from '@heroicons/react/24/outline';
+import ChartPlaceholder from '../../../components/ui/chart-placeholder';
 
 interface TenantStats {
   totalMedicines: number;
@@ -36,6 +61,9 @@ export default function TenantDashboardPage() {
   const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
   const [stats, setStats] = useState<TenantStats | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     // Check authentication
@@ -127,8 +155,28 @@ export default function TenantDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl">Loading {subdomain} dashboard...</div>
+      <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} flex items-center justify-center`}>
+        <div className="text-center">
+          <div className="relative">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse shadow-xl">
+              <span className="text-white font-bold text-2xl">💊</span>
+            </div>
+            <div className="absolute inset-0 w-16 h-16 bg-gradient-to-br from-blue-500 via-teal-500 to-cyan-500 rounded-2xl animate-ping opacity-20 mx-auto"></div>
+          </div>
+          <h3 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-2`}>
+            Loading Dashboard
+          </h3>
+          <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            Preparing {subdomain} management system...
+          </p>
+          <div className="flex justify-center mt-4">
+            <div className="flex space-x-1">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+              <div className="w-2 h-2 bg-cyan-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -139,10 +187,18 @@ export default function TenantDashboardPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-600 text-xl mb-4">{error}</div>
-          <Link href="/login" className="text-blue-600 hover:text-blue-800">
+      <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'} flex items-center justify-center`}>
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <ExclamationTriangleIcon className="w-8 h-8 text-red-600" />
+          </div>
+          <h3 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-2`}>
+            Access Denied
+          </h3>
+          <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-6`}>
+            {error}
+          </p>
+          <Link href="/login" className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg">
             Return to Login
           </Link>
         </div>
@@ -151,257 +207,446 @@ export default function TenantDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">💊</span>
-              </div>
-              <h1 className="ml-3 text-xl font-bold text-gray-900">
-                {tenantInfo ? `${tenantInfo.name} - Dashboard` : `${subdomain} - Dashboard`}
-              </h1>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Welcome, {user.firstName} {user.lastName}</span>
-              <Link href={`/${subdomain}/help`}>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                  Help
-                </button>
-              </Link>
-              <Link href={`/${subdomain}/settings`}>
-                <button className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                  Settings
-                </button>
-              </Link>
+    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+      <div className="flex">
+        {/* Left Sidebar */}
+        <div className={`${sidebarCollapsed ? 'w-16' : 'w-72'} ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-r transition-all duration-300 flex flex-col shadow-lg`}>
+          {/* Sidebar Header */}
+          <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+            <div className="flex items-center justify-between">
+              {!sidebarCollapsed && (
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-teal-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <span className="text-white font-bold text-lg">💊</span>
+                  </div>
+                  <div className="ml-3">
+                    <h1 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {tenantInfo ? tenantInfo.name : subdomain}
+                    </h1>
+                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      Pharmacy Management
+                    </p>
+                  </div>
+                </div>
+              )}
               <button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className={`p-2 rounded-lg ${darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-500'} transition-colors`}
               >
-                Logout
+                <ChevronLeftIcon className={`w-5 h-5 transition-transform ${sidebarCollapsed ? 'rotate-180' : ''}`} />
               </button>
             </div>
           </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {tenantInfo ? `${tenantInfo.name} Dashboard` : `${subdomain} Dashboard`}
-          </h2>
-          <p className="text-gray-600">
-            {tenantInfo ? `Welcome to ${tenantInfo.name} management system` : `Welcome to ${subdomain} management system`}
-          </p>
-        </div>
+          {/* Navigation Menu */}
+          <nav className="flex-1 p-4 space-y-2">
+            <Link href={`/${subdomain}/dashboard`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-blue-400 bg-blue-900/20' : 'text-blue-600 bg-blue-50'} rounded-xl font-medium transition-colors`}>
+              <ChartBarIcon className="w-5 h-5" />
+              {!sidebarCollapsed && <span className="ml-3">Dashboard</span>}
+            </Link>
+            <Link href={`/${subdomain}/inventory`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} rounded-xl transition-colors`}>
+              <CubeIcon className="w-5 h-5" />
+              {!sidebarCollapsed && <span className="ml-3">Inventory</span>}
+            </Link>
+            <Link href={`/${subdomain}/sales`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} rounded-xl transition-colors`}>
+              <ShoppingCartIcon className="w-5 h-5" />
+              {!sidebarCollapsed && <span className="ml-3">Sales</span>}
+            </Link>
+            <Link href={`/${subdomain}/purchases`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} rounded-xl transition-colors`}>
+              <TruckIcon className="w-5 h-5" />
+              {!sidebarCollapsed && <span className="ml-3">Purchases</span>}
+            </Link>
+            <Link href={`/${subdomain}/customers`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} rounded-xl transition-colors`}>
+              <UsersIcon className="w-5 h-5" />
+              {!sidebarCollapsed && <span className="ml-3">Customers</span>}
+            </Link>
+            <Link href={`/${subdomain}/suppliers`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} rounded-xl transition-colors`}>
+              <BuildingStorefrontIcon className="w-5 h-5" />
+              {!sidebarCollapsed && <span className="ml-3">Suppliers</span>}
+            </Link>
+            <Link href={`/${subdomain}/reports`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} rounded-xl transition-colors`}>
+              <DocumentChartBarIcon className="w-5 h-5" />
+              {!sidebarCollapsed && <span className="ml-3">Reports</span>}
+            </Link>
+            <Link href={`/${subdomain}/settings`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} rounded-xl transition-colors`}>
+              <Cog6ToothIcon className="w-5 h-5" />
+              {!sidebarCollapsed && <span className="ml-3">Settings</span>}
+            </Link>
+          </nav>
 
-        {/* Error Display */}
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg mb-8">
-            <div className="flex items-center">
-              <svg className="h-5 w-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-              <span className="text-red-700 text-sm font-medium">{error}</span>
+          {/* Sidebar Footer */}
+          {!sidebarCollapsed && (
+            <div className={`p-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <div className={`p-4 rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Storage Used</span>
+                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>68%</span>
+                </div>
+                <div className={`w-full bg-gray-200 rounded-full h-2 ${darkMode ? 'bg-gray-600' : ''}`}>
+                  <div className="bg-gradient-to-r from-blue-500 to-teal-500 h-2 rounded-full" style={{ width: '68%' }}></div>
+                </div>
+                <p className={`text-xs mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  2.1 GB of 3 GB used
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Tenant Information */}
-        {tenantInfo && (
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow p-6 mb-8 text-white">
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col">
+          {/* Top Navigation Bar */}
+          <header className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b px-6 py-4 shadow-sm`}>
             <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-2xl font-bold mb-2">{tenantInfo.name}</h3>
-                <p className="text-blue-100">
-                  {tenantInfo.subdomain}.pharmatrack.com • {tenantInfo.subscriptionPlan} plan
-                </p>
-                <p className="text-blue-100 text-sm mt-1">
-                  {tenantInfo.contact.city}, {tenantInfo.contact.country}
-                </p>
+              <div className="flex items-center space-x-4">
+                <div>
+                  <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    Dashboard
+                  </h1>
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    Welcome back, {user?.firstName}
+                  </p>
+                </div>
               </div>
-              <div className="text-right">
-                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                  <span className="text-3xl">🏥</span>
+              
+              <div className="flex items-center space-x-4">
+                {/* Search Bar */}
+                <div className="relative">
+                  <MagnifyingGlassIcon className={`w-5 h-5 ${darkMode ? 'text-gray-400' : 'text-gray-400'} absolute left-3 top-1/2 transform -translate-y-1/2`} />
+                  <input
+                    type="text"
+                    placeholder="Search anything..."
+                    className={`pl-10 pr-4 py-2.5 w-80 ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
+                  />
+                </div>
+                
+                {/* Dark Mode Toggle */}
+                <button
+                  onClick={() => setDarkMode(!darkMode)}
+                  className={`p-2.5 rounded-xl ${darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} transition-colors`}
+                >
+                  {darkMode ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
+                </button>
+                
+                {/* Notifications */}
+                <button className={`relative p-2.5 rounded-xl ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'} transition-colors`}>
+                  <BellIcon className="w-5 h-5" />
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+                
+                {/* User Avatar Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserDropdown(!showUserDropdown)}
+                    className={`flex items-center space-x-3 p-2 rounded-xl ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-colors`}
+                  >
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
+                      <span className="text-white text-sm font-bold">{user?.firstName?.[0]}</span>
+                    </div>
+                    <div className="text-left">
+                      <p className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {user?.firstName} {user?.lastName}
+                      </p>
+                      <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'} capitalize`}>
+                        {user?.role}
+                      </p>
+                    </div>
+                    <ChevronDownIcon className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                  </button>
+                  
+                  {showUserDropdown && (
+                    <div className={`absolute right-0 mt-2 w-56 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl shadow-xl border py-2 z-50`}>
+                      <Link href={`/${subdomain}/profile`} className={`block px-4 py-3 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50'} transition-colors`}>
+                        Profile Settings
+                      </Link>
+                      <Link href={`/${subdomain}/billing`} className={`block px-4 py-3 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50'} transition-colors`}>
+                        Billing & Plans
+                      </Link>
+                      <hr className={`my-2 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+                      <button
+                        onClick={handleLogout}
+                        className={`block w-full text-left px-4 py-3 text-sm ${darkMode ? 'text-red-400 hover:bg-red-900/20' : 'text-red-600 hover:bg-red-50'} transition-colors`}
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          </header>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">💊</span>
+          {/* Main Dashboard Content */}
+          <main className="flex-1 p-8 overflow-auto">
+            {/* Error Display */}
+            {error && (
+              <div className={`${darkMode ? 'bg-red-900/20 border-red-800' : 'bg-red-50 border-red-200'} border-l-4 p-4 rounded-xl mb-8`}>
+                <div className="flex items-center">
+                  <ExclamationTriangleIcon className={`h-5 w-5 ${darkMode ? 'text-red-400' : 'text-red-500'} mr-3`} />
+                  <span className={`${darkMode ? 'text-red-300' : 'text-red-700'} text-sm font-medium`}>{error}</span>
                 </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Medicines</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loading ? '...' : (stats?.totalMedicines || 0)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">💰</span>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Inventory Value</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loading ? '...' : `${(stats?.totalInventoryValue || 0).toLocaleString()}`}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">⚠️</span>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Low Stock Items</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loading ? '...' : (stats?.lowStockCount || 0)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">📋</span>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pending Prescriptions</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loading ? '...' : (stats?.pendingPrescriptions || 0)}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Welcome Card */}
-        <div className="bg-white rounded-lg shadow p-8 text-center mb-8">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            Welcome back, {user.firstName}!
-          </h3>
-          <p className="text-gray-600 mb-6">
-            {tenantInfo ? 
-              `Managing ${tenantInfo.name} • Role: ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}` :
-              `Managing ${subdomain} • Role: ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}`
-            }
-          </p>
-          <div className="flex justify-center space-x-4">
-            <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-              ✅ System Online
-            </div>
-            {tenantInfo && (
-              <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                🏥 {tenantInfo.subscriptionPlan.charAt(0).toUpperCase() + tenantInfo.subscriptionPlan.slice(1)} Plan
               </div>
             )}
-          </div>
-        </div>
 
-        {/* Navigation Menu */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Navigation</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <Link href={`/${subdomain}/inventory`} className="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-              <span className="text-xl mr-3">💊</span>
-              <span className="font-medium">Inventory</span>
-            </Link>
-            <Link href={`/${subdomain}/prescriptions`} className="flex items-center p-3 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
-              <span className="text-xl mr-3">📋</span>
-              <span className="font-medium">Prescriptions</span>
-            </Link>
-            <Link href={`/${subdomain}/patients`} className="flex items-center p-3 text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors">
-              <span className="text-xl mr-3">👥</span>
-              <span className="font-medium">Patients</span>
-            </Link>
-            <Link href={`/${subdomain}/reports`} className="flex items-center p-3 text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
-              <span className="text-xl mr-3">📊</span>
-              <span className="font-medium">Reports</span>
-            </Link>
-            <Link href={`/${subdomain}/settings`} className="flex items-center p-3 text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-              <span className="text-xl mr-3">⚙️</span>
-              <span className="font-medium">Settings</span>
-            </Link>
-            <Link href={`/${subdomain}/help`} className="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-              <span className="text-xl mr-3">❓</span>
-              <span className="font-medium">Help</span>
-            </Link>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">💊</span>
+            {/* Hero Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {/* Total Products */}
+              <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>Total Products</p>
+                    <p className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {loading ? '...' : (stats?.totalMedicines || 0)}
+                    </p>
+                    <div className="flex items-center mt-3">
+                      <ArrowTrendingUpIcon className="w-4 h-4 text-emerald-500 mr-1" />
+                      <span className="text-sm text-emerald-600 font-medium">+12%</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'} ml-1`}>vs last month</span>
+                    </div>
+                  </div>
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <CubeIcon className="w-7 h-7 text-white" />
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Manage Inventory</h3>
-              <p className="text-gray-600 text-sm mb-4">Track and manage your medicine inventory</p>
-              <Link href={`/${subdomain}/inventory`}>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                  Go to Inventory
-                </button>
-              </Link>
-            </div>
-          </div>
 
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">📋</span>
+              {/* Low Stock Alerts */}
+              <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>Low Stock Alerts</p>
+                    <p className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {loading ? '...' : (stats?.lowStockCount || 0)}
+                    </p>
+                    <div className="flex items-center mt-3">
+                      <ExclamationTriangleIcon className="w-4 h-4 text-amber-500 mr-1" />
+                      <span className="text-sm text-amber-600 font-medium">Needs attention</span>
+                    </div>
+                  </div>
+                  <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
+                    <ExclamationTriangleIcon className="w-7 h-7 text-white" />
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Prescriptions</h3>
-              <p className="text-gray-600 text-sm mb-4">Manage patient prescriptions and orders</p>
-              <Link href={`/${subdomain}/prescriptions`}>
-                <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                  View Prescriptions
-                </button>
-              </Link>
-            </div>
-          </div>
 
-          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">📊</span>
+              {/* Today's Sales */}
+              <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>Today's Sales</p>
+                    <p className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>$2,847</p>
+                    <div className="flex items-center mt-3">
+                      <ArrowTrendingUpIcon className="w-4 h-4 text-emerald-500 mr-1" />
+                      <span className="text-sm text-emerald-600 font-medium">+8%</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'} ml-1`}>vs yesterday</span>
+                    </div>
+                  </div>
+                  <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <ShoppingCartIcon className="w-7 h-7 text-white" />
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Reports</h3>
-              <p className="text-gray-600 text-sm mb-4">Generate sales and inventory reports</p>
-              <Link href={`/${subdomain}/reports`}>
-                <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                  View Reports
-                </button>
-              </Link>
+
+              {/* Monthly Revenue */}
+              <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>Monthly Revenue</p>
+                    <p className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      ${loading ? '...' : (stats?.totalInventoryValue || 0).toLocaleString()}
+                    </p>
+                    <div className="flex items-center mt-3">
+                      <ArrowTrendingUpIcon className="w-4 h-4 text-emerald-500 mr-1" />
+                      <span className="text-sm text-emerald-600 font-medium">+15%</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'} ml-1`}>vs last month</span>
+                    </div>
+                  </div>
+                  <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
+                    <CurrencyDollarIcon className="w-7 h-7 text-white" />
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+
+            {/* Analytics Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              {/* Sales Chart */}
+              <div className={`lg:col-span-2 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-sm border`}>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Sales Overview</h3>
+                  <select className={`text-sm ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-200 text-gray-900'} border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500`}>
+                    <option>Last 7 days</option>
+                    <option>Last 30 days</option>
+                    <option>Last 3 months</option>
+                  </select>
+                </div>
+                <ChartPlaceholder 
+                  title="Sales Overview Chart" 
+                  type="line" 
+                  darkMode={darkMode} 
+                />
+              </div>
+
+              {/* Top Selling Medicines */}
+              <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-sm border`}>
+                <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-6`}>Top Selling</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
+                        <span className="text-blue-600 font-semibold text-sm">1</span>
+                      </div>
+                      <div>
+                        <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>Paracetamol 500mg</p>
+                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>245 units sold</p>
+                      </div>
+                    </div>
+                    <span className="text-emerald-600 font-semibold">$1,225</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
+                        <span className="text-emerald-600 font-semibold text-sm">2</span>
+                      </div>
+                      <div>
+                        <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>Ibuprofen 400mg</p>
+                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>189 units sold</p>
+                      </div>
+                    </div>
+                    <span className="text-emerald-600 font-semibold">$945</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center mr-3">
+                        <span className="text-amber-600 font-semibold text-sm">3</span>
+                      </div>
+                      <div>
+                        <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>Vitamin C 1000mg</p>
+                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>156 units sold</p>
+                      </div>
+                    </div>
+                    <span className="text-emerald-600 font-semibold">$780</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Activity & Quick Actions */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Recent Activity Panel */}
+              <div className={`lg:col-span-2 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-sm border`}>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Recent Activity</h3>
+                  <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">View all</button>
+                </div>
+                <div className="space-y-4">
+                  {/* Latest Sales Transaction */}
+                  <div className={`flex items-center p-4 ${darkMode ? 'bg-emerald-900/20' : 'bg-emerald-50'} rounded-xl`}>
+                    <div className={`w-10 h-10 ${darkMode ? 'bg-emerald-800' : 'bg-emerald-100'} rounded-xl flex items-center justify-center mr-4`}>
+                      <ShoppingCartIcon className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>New sale completed</p>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Paracetamol 500mg - $25.50 • 2 minutes ago</p>
+                    </div>
+                    <span className="text-emerald-600 font-semibold">+$25.50</span>
+                  </div>
+
+                  {/* Stock Update */}
+                  <div className={`flex items-center p-4 ${darkMode ? 'bg-blue-900/20' : 'bg-blue-50'} rounded-xl`}>
+                    <div className={`w-10 h-10 ${darkMode ? 'bg-blue-800' : 'bg-blue-100'} rounded-xl flex items-center justify-center mr-4`}>
+                      <CubeIcon className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>Stock updated</p>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Ibuprofen 400mg restocked • 15 minutes ago</p>
+                    </div>
+                    <span className="text-blue-600 font-semibold">+50 units</span>
+                  </div>
+
+                  {/* Expiry Alert */}
+                  <div className={`flex items-center p-4 ${darkMode ? 'bg-amber-900/20' : 'bg-amber-50'} rounded-xl`}>
+                    <div className={`w-10 h-10 ${darkMode ? 'bg-amber-800' : 'bg-amber-100'} rounded-xl flex items-center justify-center mr-4`}>
+                      <ExclamationTriangleIcon className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>Expiry alert</p>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Vitamin D expires in 30 days • 1 hour ago</p>
+                    </div>
+                    <span className="text-amber-600 font-semibold">30 days</span>
+                  </div>
+
+                  {/* New Customer */}
+                  <div className={`flex items-center p-4 ${darkMode ? 'bg-purple-900/20' : 'bg-purple-50'} rounded-xl`}>
+                    <div className={`w-10 h-10 ${darkMode ? 'bg-purple-800' : 'bg-purple-100'} rounded-xl flex items-center justify-center mr-4`}>
+                      <UsersIcon className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>New customer registered</p>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>John Smith joined • 2 hours ago</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-sm border`}>
+                <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-6`}>Quick Actions</h3>
+                <div className="space-y-3">
+                  <Link href={`/${subdomain}/inventory/add`}>
+                    <button className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg">
+                      <PlusIcon className="w-5 h-5 mr-2" />
+                      Add Product
+                    </button>
+                  </Link>
+                  <Link href={`/${subdomain}/sales/invoice`}>
+                    <button className={`w-full flex items-center justify-center px-4 py-3 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'} border-2 rounded-xl transition-all duration-200 font-medium`}>
+                      <DocumentTextIcon className="w-5 h-5 mr-2" />
+                      Create Invoice
+                    </button>
+                  </Link>
+                  <Link href={`/${subdomain}/inventory/restock`}>
+                    <button className={`w-full flex items-center justify-center px-4 py-3 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'} border-2 rounded-xl transition-all duration-200 font-medium`}>
+                      <ArrowPathIcon className="w-5 h-5 mr-2" />
+                      Restock Items
+                    </button>
+                  </Link>
+                  <Link href={`/${subdomain}/reports`}>
+                    <button className={`w-full flex items-center justify-center px-4 py-3 ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'} border-2 rounded-xl transition-all duration-200 font-medium`}>
+                      <EyeIcon className="w-5 h-5 mr-2" />
+                      View Reports
+                    </button>
+                  </Link>
+                </div>
+
+                {/* System Status */}
+                <div className={`mt-6 pt-6 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                  <h4 className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-3`}>System Status</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>System Health</span>
+                      <div className="flex items-center">
+                        <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
+                        <span className="text-sm font-medium text-emerald-600">Online</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Last Backup</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>2 hours ago</span>
+                    </div>
+                    {tenantInfo && (
+                      <div className="flex items-center justify-between">
+                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Plan</span>
+                        <span className="text-sm font-medium text-blue-600 capitalize">{tenantInfo.subscriptionPlan}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

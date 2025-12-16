@@ -54,13 +54,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
-      {/* Background Pattern */}
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-blue-50 to-cyan-50 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Enhanced Background Pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-20 w-32 h-32 bg-blue-200 rounded-full opacity-20 animate-pulse"></div>
-        <div className="absolute top-40 right-32 w-24 h-24 bg-purple-200 rounded-full opacity-20 animate-pulse" style={{animationDelay: '1s'}}></div>
-        <div className="absolute bottom-32 left-32 w-28 h-28 bg-blue-300 rounded-full opacity-20 animate-pulse" style={{animationDelay: '2s'}}></div>
-        <div className="absolute bottom-20 right-20 w-20 h-20 bg-purple-300 rounded-full opacity-20 animate-pulse" style={{animationDelay: '0.5s'}}></div>
+        <div className="absolute top-20 left-20 w-40 h-40 bg-gradient-to-r from-violet-200 to-purple-200 rounded-full opacity-30 animate-pulse"></div>
+        <div className="absolute top-40 right-32 w-32 h-32 bg-gradient-to-r from-blue-200 to-cyan-200 rounded-full opacity-25 animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-32 left-32 w-36 h-36 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full opacity-20 animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-20 right-20 w-28 h-28 bg-gradient-to-r from-cyan-200 to-blue-200 rounded-full opacity-30 animate-pulse" style={{animationDelay: '0.5s'}}></div>
+        <div className="absolute top-1/2 left-1/2 w-24 h-24 bg-gradient-to-r from-indigo-200 to-violet-200 rounded-full opacity-15 animate-pulse" style={{animationDelay: '1.5s'}}></div>
       </div>
 
       <div className="relative max-w-md mx-auto">
@@ -76,14 +77,17 @@ export default function LoginPage() {
         </div>
 
         {/* Login Card */}
-        <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl border border-white/20 p-6 sm:p-8">
+        <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 p-8 sm:p-10 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-500 via-purple-500 to-blue-500"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-violet-100/50 to-blue-100/50 rounded-full -translate-y-16 translate-x-16"></div>
+          
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl mb-6 shadow-lg">
-              <span className="text-white font-bold text-2xl">💊</span>
+          <div className="text-center mb-10 relative z-10">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-violet-500 via-purple-500 to-blue-500 rounded-3xl mb-6 shadow-2xl">
+              <span className="text-white font-bold text-3xl">💊</span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
-            <p className="text-gray-600">Sign in to your PharmaTrack account</p>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-3">Welcome back</h1>
+            <p className="text-gray-600 text-lg">Sign in to your PharmaTrack account</p>
           </div>
 
           {/* Login Form */}
@@ -180,10 +184,10 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full py-4 px-6 rounded-2xl font-semibold text-lg transition-all duration-200 transform ${
+              className={`w-full py-4 px-6 rounded-2xl font-semibold text-lg transition-all duration-300 transform ${
                 isLoading 
                   ? 'bg-gray-400 cursor-not-allowed scale-95' 
-                  : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:scale-105 shadow-lg hover:shadow-xl text-white'
+                  : 'bg-gradient-to-r from-violet-500 via-purple-500 to-blue-500 hover:from-violet-600 hover:via-purple-600 hover:to-blue-600 hover:scale-105 shadow-xl hover:shadow-2xl text-white'
               }`}
             >
               {isLoading ? (

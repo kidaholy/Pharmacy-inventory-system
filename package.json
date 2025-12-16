@@ -13,7 +13,7 @@
     "setup-super-admin": "node scripts/setup-super-admin-only.js",
     "clean-database": "node scripts/clean-database-keep-super-admin.js",
     "verify-state": "node scripts/verify-clean-state.js",
-    "test-registration": "node scripts/test-pharmacy-registration.js",
+    "test-registration": "node scripts/test-registration.js",
     "test-real-data": "node scripts/test-real-data-only.js",
     "verify-user-data": "node scripts/verify-registered-user-data.js",
     "test-dashboard": "node scripts/test-pharmacy-dashboard.js",
@@ -22,7 +22,6 @@
     "test-routing": "node scripts/test-tenant-dashboard-routing.js",
     "verify-build": "node scripts/verify-build-ready.js",
     "inspect-super-admin": "node scripts/inspect-super-admin.js",
-
     "ensure-tenant-admins": "node scripts/ensure-tenant-admins.js",
     "remove-all-demo-data": "node scripts/remove-all-demo-data.js",
     "migrate-passwords": "node scripts/migrate-passwords.js",
@@ -30,12 +29,11 @@
     "setup-super-admin-only": "node scripts/setup-super-admin-only.js",
     "create-tenant-independent-super-admin": "node scripts/create-tenant-independent-super-admin.js",
     "clean-system-super-admin-only": "node scripts/clean-system-super-admin-only.js",
-    "test-registration": "node scripts/test-registration.js",
     "check-database": "node scripts/check-database-contents.js"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^3.10.0",
-    "bcryptjs": "^2.4.3",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
     "@radix-ui/react-aspect-ratio": "1.1.1",
