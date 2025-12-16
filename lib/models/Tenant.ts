@@ -1,7 +1,7 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface ITenant extends Document {
-  _id: string;
+  _id: Types.ObjectId;
   name: string;
   subdomain: string;
   domain?: string;
@@ -153,7 +153,7 @@ const TenantSchema: Schema = new Schema({
 });
 
 // Indexes for performance
-TenantSchema.index({ subdomain: 1 });
+// Note: subdomain already has unique index from field definition
 TenantSchema.index({ domain: 1 });
 TenantSchema.index({ ownerId: 1 });
 TenantSchema.index({ subscriptionStatus: 1 });
