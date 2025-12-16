@@ -4,13 +4,25 @@ import { useState } from 'react';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
+    // Personal Details
     firstName: '',
     lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
+    
+    // Pharmacy Details
     pharmacyName: '',
-    phoneNumber: '',
+    subdomain: '',
+    address: '',
+    city: '',
+    state: '',
+    country: '',
+    postalCode: '',
+    phone: '',
+    pharmacyEmail: '',
+    
+    // Agreement
     agreeToTerms: false
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -20,9 +32,17 @@ export default function RegisterPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
+    
+    let processedValue = value;
+    
+    // Special handling for subdomain
+    if (name === 'subdomain') {
+      processedValue = value.toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/\s+/g, '-');
+    }
+    
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : processedValue
     }));
     
     // Clear error when user starts typing
@@ -37,6 +57,7 @@ export default function RegisterPage() {
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
 
+    // Personal Details
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
@@ -44,8 +65,16 @@ export default function RegisterPage() {
     if (!formData.password) newErrors.password = 'Password is required';
     else if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+    
+    // Pharmacy Details
     if (!formData.pharmacyName.trim()) newErrors.pharmacyName = 'Pharmacy name is required';
-    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = 'Phone number is required';
+    if (!formData.subdomain.trim()) newErrors.subdomain = 'Subdomain is required';
+    else if (!/^[a-z0-9-]+$/.test(formData.subdomain.toLowerCase())) newErrors.subdomain = 'Subdomain can only contain lowercase letters, numbers, and hyphens';
+    if (!formData.address.trim()) newErrors.address = 'Address is required';
+    if (!formData.city.trim()) newErrors.city = 'City is required';
+    if (!formData.country.trim()) newErrors.country = 'Country is required';
+    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
+    
     if (!formData.agreeToTerms) newErrors.agreeToTerms = 'You must agree to the terms and conditions';
 
     setErrors(newErrors);
@@ -59,13 +88,49 @@ export default function RegisterPage() {
     
     setIsLoading(true);
 
-    // Simulate registration (replace with real API call later)
-    setTimeout(() => {
-      console.log('Registration data:', formData);
-      // Redirect to login or dashboard
-      window.location.href = '/login';
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          // Personal Details
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+          
+          // Pharmacy Details
+          pharmacyName: formData.pharmacyName,
+          subdomain: formData.subdomain.toLowerCase(),
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          country: formData.country,
+          postalCode: formData.postalCode,
+          phone: formData.phone,
+          pharmacyEmail: formData.pharmacyEmail || formData.email,
+          
+          subscriptionPlan: 'starter'
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert(`Registration successful! Your pharmacy "${result.tenant.name}" has been created. You can now login with your credentials.`);
+        window.location.href = '/login';
+      } else {
+        setErrors({ general: result.error });
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setErrors({ general: 'Registration failed. Please try again.' });
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -103,6 +168,17 @@ export default function RegisterPage() {
 
           {/* Registration Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* General Error Display */}
+            {errors.general && (
+              <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg">
+                <div className="flex items-center">
+                  <svg className="h-5 w-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-red-700 text-sm font-medium">{errors.general}</span>
+                </div>
+              </div>
+            )}
             {/* Name Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -258,44 +334,183 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Pharmacy Details */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="pharmacyName" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Pharmacy Name
-                </label>
-                <input
-                  id="pharmacyName"
-                  name="pharmacyName"
-                  type="text"
-                  value={formData.pharmacyName}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 ${
-                    errors.pharmacyName ? 'border-red-400' : 'border-gray-200'
-                  }`}
-                  placeholder="Your pharmacy name"
-                  disabled={isLoading}
-                />
-                {errors.pharmacyName && <p className="mt-1 text-sm text-red-600">{errors.pharmacyName}</p>}
+            {/* Pharmacy Details Section */}
+            <div className="border-t border-gray-200 pt-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Pharmacy Information</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="pharmacyName" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Pharmacy Name *
+                  </label>
+                  <input
+                    id="pharmacyName"
+                    name="pharmacyName"
+                    type="text"
+                    value={formData.pharmacyName}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 ${
+                      errors.pharmacyName ? 'border-red-400' : 'border-gray-200'
+                    }`}
+                    placeholder="e.g., City Central Pharmacy"
+                    disabled={isLoading}
+                  />
+                  {errors.pharmacyName && <p className="mt-1 text-sm text-red-600">{errors.pharmacyName}</p>}
+                </div>
+
+                <div>
+                  <label htmlFor="subdomain" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Subdomain *
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="subdomain"
+                      name="subdomain"
+                      type="text"
+                      value={formData.subdomain}
+                      onChange={handleInputChange}
+                      className={`w-full px-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 ${
+                        errors.subdomain ? 'border-red-400' : 'border-gray-200'
+                      }`}
+                      placeholder="citycentral"
+                      disabled={isLoading}
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                      <span className="text-gray-400 text-sm">.pharmatrack.com</span>
+                    </div>
+                  </div>
+                  {errors.subdomain && <p className="mt-1 text-sm text-red-600">{errors.subdomain}</p>}
+                  <p className="mt-1 text-xs text-gray-500">This will be your pharmacy's unique web address</p>
+                </div>
               </div>
 
-              <div>
-                <label htmlFor="phoneNumber" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Phone Number
+              <div className="mt-4">
+                <label htmlFor="address" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Address *
                 </label>
                 <input
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  type="tel"
-                  value={formData.phoneNumber}
+                  id="address"
+                  name="address"
+                  type="text"
+                  value={formData.address}
                   onChange={handleInputChange}
                   className={`w-full px-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 ${
-                    errors.phoneNumber ? 'border-red-400' : 'border-gray-200'
+                    errors.address ? 'border-red-400' : 'border-gray-200'
                   }`}
-                  placeholder="Your phone number"
+                  placeholder="123 Main Street"
                   disabled={isLoading}
                 />
-                {errors.phoneNumber && <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>}
+                {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <div>
+                  <label htmlFor="city" className="block text-sm font-semibold text-gray-700 mb-2">
+                    City *
+                  </label>
+                  <input
+                    id="city"
+                    name="city"
+                    type="text"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 ${
+                      errors.city ? 'border-red-400' : 'border-gray-200'
+                    }`}
+                    placeholder="New York"
+                    disabled={isLoading}
+                  />
+                  {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city}</p>}
+                </div>
+
+                <div>
+                  <label htmlFor="state" className="block text-sm font-semibold text-gray-700 mb-2">
+                    State/Province
+                  </label>
+                  <input
+                    id="state"
+                    name="state"
+                    type="text"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
+                    placeholder="NY"
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="country" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Country *
+                  </label>
+                  <input
+                    id="country"
+                    name="country"
+                    type="text"
+                    value={formData.country}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 ${
+                      errors.country ? 'border-red-400' : 'border-gray-200'
+                    }`}
+                    placeholder="United States"
+                    disabled={isLoading}
+                  />
+                  {errors.country && <p className="mt-1 text-sm text-red-600">{errors.country}</p>}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label htmlFor="postalCode" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Postal Code
+                  </label>
+                  <input
+                    id="postalCode"
+                    name="postalCode"
+                    type="text"
+                    value={formData.postalCode}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
+                    placeholder="10001"
+                    disabled={isLoading}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
+                    Phone Number *
+                  </label>
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-4 bg-gray-50 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 ${
+                      errors.phone ? 'border-red-400' : 'border-gray-200'
+                    }`}
+                    placeholder="+1 (555) 123-4567"
+                    disabled={isLoading}
+                  />
+                  {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label htmlFor="pharmacyEmail" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Pharmacy Email (Optional)
+                </label>
+                <input
+                  id="pharmacyEmail"
+                  name="pharmacyEmail"
+                  type="email"
+                  value={formData.pharmacyEmail}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
+                  placeholder="info@yourpharmacy.com (optional)"
+                  disabled={isLoading}
+                />
+                <p className="mt-1 text-xs text-gray-500">If different from your personal email</p>
               </div>
             </div>
 

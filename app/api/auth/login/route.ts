@@ -14,9 +14,57 @@ export async function POST(request: NextRequest) {
 
     console.log('🔍 Login attempt for:', email);
 
-    // Get all tenants to find the user
+    // Check if this is the super admin (tenant-independent)
+    if (email === 'kidayos2014@gmail.com') {
+      console.log('👑 Super admin login attempt');
+      
+      // Find super admin user (any tenant or no tenant)
+      const superAdminUser = await multiTenantDb.getSuperAdminByEmail(email);
+      
+      if (superAdminUser && superAdminUser.isActive) {
+        // Verify password
+        const isPasswordValid = await multiTenantDb.verifyUserPassword(superAdminUser, password);
+        
+        if (isPasswordValid) {
+          console.log('✅ Super admin authenticated successfully');
+          
+          const authUser = {
+            _id: superAdminUser._id.toString(),
+            tenantId: 'super_admin', // Special identifier for super admin
+            email: superAdminUser.email,
+            firstName: superAdminUser.firstName,
+            lastName: superAdminUser.lastName,
+            role: 'super_admin',
+            permissions: ['all'],
+            isActive: superAdminUser.isActive
+          };
+
+          return NextResponse.json({
+            success: true,
+            user: authUser
+          });
+        }
+      }
+      
+      console.log('❌ Super admin authentication failed');
+      return NextResponse.json(
+        { success: false, error: 'Invalid email or password' },
+        { status: 401 }
+      );
+    }
+
+    // For regular users, check within tenants
     const tenants = await multiTenantDb.getAllTenants();
     console.log('📋 Found tenants:', tenants.length);
+
+    // If no tenants exist, only super admin can login
+    if (tenants.length === 0) {
+      console.log('⚠️  No tenants registered. Only super admin can login.');
+      return NextResponse.json(
+        { success: false, error: 'No pharmacies registered yet. Please register your pharmacy first or contact the system administrator.' },
+        { status: 401 }
+      );
+    }
 
     for (const tenant of tenants) {
       console.log('🔍 Checking tenant:', tenant.name);
@@ -29,6 +77,7 @@ export async function POST(request: NextRequest) {
         const authUser = {
           _id: user._id.toString(),
           tenantId: user.tenantId.toString(),
+          tenantSubdomain: tenant.subdomain, // Add subdomain for API calls
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,

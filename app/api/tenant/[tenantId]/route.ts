@@ -3,11 +3,12 @@ import { multiTenantDb } from '../../../../lib/services/multi-tenant-db';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
-    console.log('🔍 Tenant API called with params:', params);
-    const { tenantId } = params;
+    const resolvedParams = await params;
+    console.log('🔍 Tenant API called with params:', resolvedParams);
+    const { tenantId } = resolvedParams;
     
     if (!tenantId) {
       console.log('❌ No tenantId provided');

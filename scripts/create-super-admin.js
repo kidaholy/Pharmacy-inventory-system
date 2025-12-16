@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 require('dotenv').config({ path: '.env.local' });
 
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -108,11 +109,14 @@ async function createSuperAdmin() {
     // Create super admin user
     console.log('👤 Creating super admin user...');
     
+    // Hash the password
+    const hashedPassword = await bcrypt.hash('password', 12);
+    
     const superAdmin = new MultiTenantUser({
       tenantId: tenant._id,
       username: 'superadmin',
       email: 'kidayos2014@gmail.com',
-      password: 'password', // In production, this should be hashed
+      password: hashedPassword,
       firstName: 'Super',
       lastName: 'Admin',
       role: 'super_admin',
@@ -154,11 +158,14 @@ async function createSuperAdmin() {
     // Also create a regular admin user
     console.log('👤 Creating regular admin user...');
     
+    // Hash the regular admin password
+    const hashedAdminPassword = await bcrypt.hash('pharmacist123', 12);
+    
     const regularAdmin = new MultiTenantUser({
       tenantId: tenant._id,
       username: 'pharmacist',
       email: 'pharmacist@demopharmacy.com',
-      password: 'pharmacist123',
+      password: hashedAdminPassword,
       firstName: 'John',
       lastName: 'Pharmacist',
       role: 'admin',

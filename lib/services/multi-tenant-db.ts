@@ -1,8 +1,10 @@
+import mongoose from 'mongoose';
 import { connectToDatabase } from '../mongodb-atlas';
 import Tenant, { ITenant } from '../models/Tenant';
 import MultiTenantUser, { IMultiTenantUser } from '../models/MultiTenantUser';
 import Medicine, { IMedicine } from '../models/Medicine';
 import Prescription, { IPrescription } from '../models/Prescription';
+import { PasswordUtils } from '../password-utils';
 
 export class MultiTenantDatabaseService {
   private static instance: MultiTenantDatabaseService;
@@ -50,24 +52,48 @@ export class MultiTenantDatabaseService {
   // User Management (Multi-tenant)
   async createUser(tenantId: string, userData: Partial<IMultiTenantUser>): Promise<IMultiTenantUser> {
     await this.ensureConnection();
+    
+    // Hash the password before saving
+    if (userData.password) {
+      userData.password = await PasswordUtils.hashPassword(userData.password);
+    }
+    
     const user = new MultiTenantUser({ ...userData, tenantId });
     return await user.save();
   }
 
   async getUserByCredentials(tenantId: string, email: string, password: string): Promise<IMultiTenantUser | null> {
     await this.ensureConnection();
+    
+    // Find user by email and tenant (don't include password in query)
     const user = await MultiTenantUser.findOne({
       tenantId,
       email,
-      password,
       isActive: true
     });
 
     if (user && !user.isLocked()) {
-      user.security.lastLogin = new Date();
-      user.security.failedLoginAttempts = 0;
-      await user.save();
-      return user;
+      // Verify password using bcrypt
+      const isPasswordValid = await PasswordUtils.verifyPassword(password, user.password);
+      
+      if (isPasswordValid) {
+        // Update login info
+        user.security.lastLogin = new Date();
+        user.security.failedLoginAttempts = 0;
+        await user.save();
+        return user;
+      } else {
+        // Increment failed login attempts
+        user.security.failedLoginAttempts += 1;
+        
+        // Lock account after 5 failed attempts for 30 minutes
+        if (user.security.failedLoginAttempts >= 5) {
+          user.security.lockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+        }
+        
+        await user.save();
+        return null;
+      }
     }
 
     return null;
@@ -75,7 +101,7 @@ export class MultiTenantDatabaseService {
 
   async getUserById(tenantId: string, userId: string): Promise<IMultiTenantUser | null> {
     await this.ensureConnection();
-    return await MultiTenantUser.findOne({ _id: userId, tenantId, isActive: true });
+    return await MultiTenantUser.findOne({ _id: userId, tenantId });
   }
 
   async getUsersByTenant(tenantId: string): Promise<IMultiTenantUser[]> {
@@ -83,13 +109,113 @@ export class MultiTenantDatabaseService {
     return await MultiTenantUser.find({ tenantId, isActive: true }).sort({ createdAt: -1 });
   }
 
+  async getAllUsersByTenant(tenantId: string): Promise<IMultiTenantUser[]> {
+    await this.ensureConnection();
+    return await MultiTenantUser.find({ tenantId }).sort({ createdAt: -1 });
+  }
+
+  // Super Admin Methods (tenant-independent)
+  async getSuperAdminByEmail(email: string): Promise<IMultiTenantUser | null> {
+    await this.ensureConnection();
+    return await MultiTenantUser.findOne({ 
+      email, 
+      role: 'super_admin',
+      isActive: true 
+    });
+  }
+
+  async verifyUserPassword(user: IMultiTenantUser, password: string): Promise<boolean> {
+    try {
+      const isPasswordValid = await PasswordUtils.verifyPassword(password, user.password);
+      
+      if (isPasswordValid) {
+        // Update login info
+        user.security.lastLogin = new Date();
+        user.security.failedLoginAttempts = 0;
+        await user.save();
+        return true;
+      } else {
+        // Increment failed login attempts
+        user.security.failedLoginAttempts += 1;
+        
+        // Lock account after 5 failed attempts for 30 minutes
+        if (user.security.failedLoginAttempts >= 5) {
+          user.security.lockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+        }
+        
+        await user.save();
+        return false;
+      }
+    } catch (error) {
+      console.error('Error verifying password:', error);
+      return false;
+    }
+  }
+
+  async createSuperAdmin(userData: Partial<IMultiTenantUser>): Promise<IMultiTenantUser> {
+    await this.ensureConnection();
+    
+    // Hash the password before saving
+    if (userData.password) {
+      userData.password = await PasswordUtils.hashPassword(userData.password);
+    }
+    
+    // Super admin doesn't need a tenant - completely tenant-independent
+    const superAdmin = new MultiTenantUser({ 
+      ...userData, 
+      tenantId: null, // Super admin is tenant-independent
+      role: 'super_admin'
+    });
+    
+    return await superAdmin.save();
+  }
+
   async updateUser(tenantId: string, userId: string, updates: Partial<IMultiTenantUser>): Promise<IMultiTenantUser | null> {
     await this.ensureConnection();
+    
+    // Hash password if it's being updated
+    if (updates.password) {
+      updates.password = await PasswordUtils.hashPassword(updates.password);
+      updates.passwordResetToken = undefined;
+      updates.passwordResetExpires = undefined;
+      if (updates.security) {
+        updates.security.lastPasswordChange = new Date();
+      } else {
+        updates.security = {
+          lastPasswordChange: new Date(),
+          failedLoginAttempts: 0,
+          twoFactorEnabled: false,
+          recoveryTokens: []
+        };
+      }
+    }
+    
     return await MultiTenantUser.findOneAndUpdate(
       { _id: userId, tenantId },
       updates,
       { new: true }
     );
+  }
+
+  async updateUserPassword(tenantId: string, userId: string, newPassword: string): Promise<boolean> {
+    await this.ensureConnection();
+    
+    const hashedPassword = await PasswordUtils.hashPassword(newPassword);
+    
+    const result = await MultiTenantUser.findOneAndUpdate(
+      { _id: userId, tenantId },
+      { 
+        password: hashedPassword,
+        passwordResetToken: undefined,
+        passwordResetExpires: undefined,
+        'security.lastPasswordChange': new Date(),
+        'security.failedLoginAttempts': 0,
+        'security.lockedUntil': undefined
+      },
+      { new: true }
+    );
+    
+    return !!result;
   }
 
   async deleteUser(tenantId: string, userId: string): Promise<boolean> {

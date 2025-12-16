@@ -54,7 +54,8 @@ const MultiTenantUserSchema: Schema = new Schema({
   tenantId: {
     type: Schema.Types.ObjectId,
     ref: 'Tenant',
-    required: true,
+    required: false, // Allow null for super admin (tenant-independent)
+    default: null,
     index: true
   },
   username: {
@@ -181,11 +182,12 @@ const MultiTenantUserSchema: Schema = new Schema({
 });
 
 // Compound indexes for multi-tenant queries
-MultiTenantUserSchema.index({ tenantId: 1, email: 1 }, { unique: true });
-MultiTenantUserSchema.index({ tenantId: 1, username: 1 }, { unique: true });
+// Note: For super admin (tenantId: null), email must still be unique globally
+MultiTenantUserSchema.index({ tenantId: 1, email: 1 }, { unique: true, sparse: true });
+MultiTenantUserSchema.index({ tenantId: 1, username: 1 }, { unique: true, sparse: true });
 MultiTenantUserSchema.index({ tenantId: 1, role: 1 });
 MultiTenantUserSchema.index({ tenantId: 1, isActive: 1 });
-MultiTenantUserSchema.index({ email: 1 });
+MultiTenantUserSchema.index({ email: 1 }, { unique: true }); // Global email uniqueness
 
 // Virtual for full name
 MultiTenantUserSchema.virtual('fullName').get(function() {

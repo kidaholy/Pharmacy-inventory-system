@@ -31,10 +31,14 @@ export default function LoginPage() {
         
         if (result.success && result.user) {
           console.log('Login successful, redirecting user with role:', result.user.role);
-          // Redirect based on user role
+          // Redirect based on user role and tenant
           if (result.user.role === 'super_admin') {
             window.location.href = '/super-admin';
+          } else if (result.user.tenantSubdomain) {
+            // Redirect to tenant-specific dashboard
+            window.location.href = `/${result.user.tenantSubdomain}/dashboard`;
           } else {
+            // Fallback to generic dashboard
             window.location.href = '/dashboard';
           }
         } else {
@@ -230,74 +234,17 @@ export default function LoginPage() {
           {/* Sign Up Link */}
           <div className="mt-8 text-center">
             <p className="text-gray-600">
-              Don't have an account?{' '}
+              Don't have a pharmacy account?{' '}
               <a href="/register" className="text-blue-600 hover:text-blue-800 font-semibold transition-colors">
-                Sign up for free
+                Register your pharmacy
               </a>
+            </p>
+            <p className="text-sm text-gray-500 mt-2">
+              Register your pharmacy to get started with PharmaTrack
             </p>
           </div>
 
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl border border-blue-100">
-            <div className="text-center">
-              <div className="flex items-center justify-center mb-2">
-                <svg className="h-5 w-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                <span className="text-sm font-semibold text-blue-700">Demo Account</span>
-              </div>
-              <p className="text-sm text-blue-600">
-                <strong>Super Admin:</strong><br />
-                Email: kidayos2014@gmail.com<br />
-                Password: password<br /><br />
-                <strong>Regular Admin:</strong><br />
-                Email: pharmacist@demopharmacy.com<br />
-                Password: pharmacist123
-              </p>
-              
-              <div className="mt-4 pt-4 border-t border-blue-200">
-                <p className="text-xs text-blue-600 mb-2">Having login issues?</p>
-                <div className="flex gap-2 justify-center">
-                  <button
-                    onClick={() => {
-                      const { db } = require('../../lib/database');
-                      db.resetDatabase();
-                      alert('Database reset! Please try logging in again.');
-                    }}
-                    className="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-lg transition-colors"
-                  >
-                    🔄 Reset DB
-                  </button>
-                  <a
-                    href="/debug"
-                    className="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded-lg transition-colors"
-                  >
-                    🔧 Debug
-                  </a>
-                </div>
-                <div className="flex gap-2 justify-center mt-2">
-                  <button
-                    onClick={() => {
-                      setEmail('kidayos2014@gmail.com');
-                      setPassword('password');
-                    }}
-                    className="text-xs bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-1 rounded-lg transition-colors"
-                  >
-                    👑 Fill Super Admin
-                  </button>
-                  <button
-                    onClick={() => {
-                      setEmail('pharmacist@demopharmacy.com');
-                      setPassword('pharmacist123');
-                    }}
-                    className="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded-lg transition-colors"
-                  >
-                    👤 Fill Regular Admin
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+
         </div>
 
         {/* Footer */}

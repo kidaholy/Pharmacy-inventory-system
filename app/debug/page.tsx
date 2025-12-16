@@ -76,17 +76,14 @@ export default function DebugPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <button
-              onClick={() => testLogin('superadmin@pharmatrack.com', 'SuperAdmin123!')}
+              onClick={() => testLogin('kidayos2014@gmail.com', 'password')}
               className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
             >
               Test Super Admin Login
             </button>
-            <button
-              onClick={() => testLogin('admin@pharmatrack.com', 'password')}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-            >
-              Test Demo User Login
-            </button>
+            <div className="bg-gray-100 p-4 rounded-lg flex items-center justify-center">
+              <span className="text-gray-500">No demo users available</span>
+            </div>
           </div>
 
           <div className="mb-6">
@@ -107,18 +104,19 @@ export default function DebugPage() {
               </div>
             </div>
             
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Test Credentials</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Available Credentials</h2>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <h3 className="font-medium text-gray-900">Super Admin</h3>
-                  <p className="text-sm text-gray-600">Email: superadmin@pharmatrack.com</p>
-                  <p className="text-sm text-gray-600">Password: SuperAdmin123!</p>
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Demo User</h3>
-                  <p className="text-sm text-gray-600">Email: admin@pharmatrack.com</p>
+                  <h3 className="font-medium text-gray-900">Super Admin (Tenant-Independent)</h3>
+                  <p className="text-sm text-gray-600">Email: kidayos2014@gmail.com</p>
                   <p className="text-sm text-gray-600">Password: password</p>
+                  <p className="text-sm text-gray-500 mt-1">Full system access, no tenant association</p>
+                </div>
+                <div className="border-t pt-4">
+                  <h3 className="font-medium text-gray-900">Pharmacy Users</h3>
+                  <p className="text-sm text-gray-600">Register your pharmacy to create user accounts</p>
+                  <p className="text-sm text-gray-500">Each pharmacy gets its own isolated data</p>
                 </div>
               </div>
             </div>

@@ -2,7 +2,8 @@ import { multiTenantDb } from './services/multi-tenant-db';
 
 export interface User {
   _id: string;
-  tenantId: string;
+  tenantId: string | null; // null for super admin (tenant-independent)
+  tenantSubdomain?: string; // pharmacy subdomain for API calls
   email: string;
   firstName: string;
   lastName: string;

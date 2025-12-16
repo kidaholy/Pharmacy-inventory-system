@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { auth, User } from '../../lib/auth';
+import { auth, User } from '../../../lib/auth';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 
 interface TenantStats {
@@ -26,7 +27,10 @@ interface TenantInfo {
   };
 }
 
-export default function DashboardPage() {
+export default function TenantDashboardPage() {
+  const params = useParams();
+  const subdomain = params.subdomain as string;
+  
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
@@ -40,52 +44,37 @@ export default function DashboardPage() {
       return;
     }
 
-    // Redirect regular users to their tenant-specific dashboard
-    if (currentUser.role !== 'super_admin' && currentUser.tenantSubdomain) {
-      window.location.href = `/${currentUser.tenantSubdomain}/dashboard`;
-      return;
-    }
-
     setUser(currentUser);
     loadDashboardData(currentUser);
-  }, []);
-
-  // Update document title based on tenant info
-  useEffect(() => {
-    if (tenantInfo) {
-      document.title = `${tenantInfo.name} - Dashboard`;
-    } else if (user?.role === 'super_admin') {
-      document.title = 'Super Admin Dashboard';
-    } else {
-      document.title = 'PharmaTrack Dashboard';
-    }
-  }, [tenantInfo, user]);
+  }, [subdomain]);
 
   const loadDashboardData = async (currentUser: User) => {
     try {
       setLoading(true);
       setError(null);
 
-      // Skip data loading for super admin (tenant-independent)
-      if (currentUser.role === 'super_admin' || !currentUser.tenantId) {
+      // Verify user belongs to this tenant subdomain
+      if (currentUser.tenantSubdomain !== subdomain) {
+        setError(`Access denied. You don't have permission to access ${subdomain} dashboard.`);
         setLoading(false);
         return;
       }
 
-      console.log('📊 Loading dashboard data for tenant:', currentUser.tenantSubdomain);
+      console.log('📊 Loading dashboard data for subdomain:', subdomain);
 
       // Load tenant information using subdomain
-      const tenantResponse = await fetch(`/api/tenant/${currentUser.tenantSubdomain}`);
+      const tenantResponse = await fetch(`/api/tenant/${subdomain}`);
       if (tenantResponse.ok) {
         const tenantData = await tenantResponse.json();
         setTenantInfo(tenantData);
         console.log('✅ Tenant info loaded:', tenantData.name);
       } else {
         console.error('❌ Failed to load tenant info');
+        setError('Failed to load pharmacy information');
       }
 
       // Load tenant statistics using subdomain
-      const statsResponse = await fetch(`/api/tenant/${currentUser.tenantSubdomain}/stats`);
+      const statsResponse = await fetch(`/api/tenant/${subdomain}/stats`);
       if (statsResponse.ok) {
         const statsData = await statsResponse.json();
         setStats(statsData);
@@ -120,6 +109,15 @@ export default function DashboardPage() {
     }
   };
 
+  // Update document title based on tenant info
+  useEffect(() => {
+    if (tenantInfo) {
+      document.title = `${tenantInfo.name} - Dashboard`;
+    } else {
+      document.title = `${subdomain} - Dashboard`;
+    }
+  }, [tenantInfo, subdomain]);
+
   const handleLogout = () => {
     if (confirm('Are you sure you want to logout?')) {
       auth.logout();
@@ -130,13 +128,26 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+        <div className="text-xl">Loading {subdomain} dashboard...</div>
       </div>
     );
   }
 
   if (!user) {
     return null;
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 text-xl mb-4">{error}</div>
+          <Link href="/login" className="text-blue-600 hover:text-blue-800">
+            Return to Login
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -150,27 +161,18 @@ export default function DashboardPage() {
                 <span className="text-white font-bold">💊</span>
               </div>
               <h1 className="ml-3 text-xl font-bold text-gray-900">
-                {tenantInfo ? `${tenantInfo.name} - Dashboard` : 
-                 user?.role === 'super_admin' ? 'Super Admin Dashboard' : 
-                 'PharmaTrack Dashboard'}
+                {tenantInfo ? `${tenantInfo.name} - Dashboard` : `${subdomain} - Dashboard`}
               </h1>
             </div>
             
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">Welcome, {user.firstName} {user.lastName}</span>
-              {user.role === 'super_admin' && (
-                <Link href="/super-admin">
-                  <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                    👑 Super Admin
-                  </button>
-                </Link>
-              )}
-              <Link href="/help">
+              <Link href={`/${subdomain}/help`}>
                 <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                   Help
                 </button>
               </Link>
-              <Link href="/settings">
+              <Link href={`/${subdomain}/settings`}>
                 <button className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                   Settings
                 </button>
@@ -190,14 +192,10 @@ export default function DashboardPage() {
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {tenantInfo ? `${tenantInfo.name} Dashboard` : 
-             user?.role === 'super_admin' ? 'System Administration' : 
-             'Dashboard'}
+            {tenantInfo ? `${tenantInfo.name} Dashboard` : `${subdomain} Dashboard`}
           </h2>
           <p className="text-gray-600">
-            {tenantInfo ? `Welcome to ${tenantInfo.name} management system` :
-             user?.role === 'super_admin' ? 'System-wide administration and management' :
-             'Welcome to your pharmacy management system'}
+            {tenantInfo ? `Welcome to ${tenantInfo.name} management system` : `Welcome to ${subdomain} management system`}
           </p>
         </div>
 
@@ -263,7 +261,7 @@ export default function DashboardPage() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Inventory Value</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {loading ? '...' : `$${(stats?.totalInventoryValue || 0).toLocaleString()}`}
+                  {loading ? '...' : `${(stats?.totalInventoryValue || 0).toLocaleString()}`}
                 </p>
               </div>
             </div>
@@ -308,23 +306,16 @@ export default function DashboardPage() {
             Welcome back, {user.firstName}!
           </h3>
           <p className="text-gray-600 mb-6">
-            {user.role === 'super_admin' ? 
-              'System Administrator • Full System Access' :
-              tenantInfo ? 
-                `Managing ${tenantInfo.name} • Role: ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}` :
-                'Loading your pharmacy information...'
+            {tenantInfo ? 
+              `Managing ${tenantInfo.name} • Role: ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}` :
+              `Managing ${subdomain} • Role: ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}`
             }
           </p>
           <div className="flex justify-center space-x-4">
             <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
               ✅ System Online
             </div>
-            {user.role === 'super_admin' && (
-              <div className="inline-flex items-center px-4 py-2 bg-red-100 text-red-800 rounded-full text-sm font-medium">
-                👑 Super Admin
-              </div>
-            )}
-            {tenantInfo && user.role !== 'super_admin' && (
+            {tenantInfo && (
               <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                 🏥 {tenantInfo.subscriptionPlan.charAt(0).toUpperCase() + tenantInfo.subscriptionPlan.slice(1)} Plan
               </div>
@@ -332,116 +323,84 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Super Admin Empty State */}
-        {user.role === 'super_admin' && (
-          <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-8 mb-8">
+        {/* Navigation Menu */}
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Navigation</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <Link href={`/${subdomain}/inventory`} className="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+              <span className="text-xl mr-3">💊</span>
+              <span className="font-medium">Inventory</span>
+            </Link>
+            <Link href={`/${subdomain}/prescriptions`} className="flex items-center p-3 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+              <span className="text-xl mr-3">📋</span>
+              <span className="font-medium">Prescriptions</span>
+            </Link>
+            <Link href={`/${subdomain}/patients`} className="flex items-center p-3 text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors">
+              <span className="text-xl mr-3">👥</span>
+              <span className="font-medium">Patients</span>
+            </Link>
+            <Link href={`/${subdomain}/reports`} className="flex items-center p-3 text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+              <span className="text-xl mr-3">📊</span>
+              <span className="font-medium">Reports</span>
+            </Link>
+            <Link href={`/${subdomain}/settings`} className="flex items-center p-3 text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <span className="text-xl mr-3">⚙️</span>
+              <span className="font-medium">Settings</span>
+            </Link>
+            <Link href={`/${subdomain}/help`} className="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+              <span className="text-xl mr-3">❓</span>
+              <span className="font-medium">Help</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
             <div className="text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">👑</span>
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">💊</span>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Super Admin Dashboard</h3>
-              <p className="text-gray-600 mb-6">
-                Welcome to the system administration panel. You have full access to manage all tenants and system settings.
-                The system is ready for new pharmacy registrations.
-              </p>
-              <div className="flex justify-center space-x-4">
-                <Link href="/register">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                    🏥 Register New Pharmacy
-                  </button>
-                </Link>
-                <Link href="/super-admin">
-                  <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                    👑 Super Admin Panel
-                  </button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Navigation Menu - Only for regular users with tenants */}
-        {user.role !== 'super_admin' && tenantInfo && (
-          <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Navigation</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              <Link href="/inventory" className="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                <span className="text-xl mr-3">💊</span>
-                <span className="font-medium">Inventory</span>
-              </Link>
-              <Link href="/prescriptions" className="flex items-center p-3 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
-                <span className="text-xl mr-3">📋</span>
-                <span className="font-medium">Prescriptions</span>
-              </Link>
-              <Link href="/patients" className="flex items-center p-3 text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors">
-                <span className="text-xl mr-3">👥</span>
-                <span className="font-medium">Patients</span>
-              </Link>
-              <Link href="/reports" className="flex items-center p-3 text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
-                <span className="text-xl mr-3">📊</span>
-                <span className="font-medium">Reports</span>
-              </Link>
-              <Link href="/settings" className="flex items-center p-3 text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <span className="text-xl mr-3">⚙️</span>
-                <span className="font-medium">Settings</span>
-              </Link>
-              <Link href="/help" className="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                <span className="text-xl mr-3">❓</span>
-                <span className="font-medium">Help</span>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Manage Inventory</h3>
+              <p className="text-gray-600 text-sm mb-4">Track and manage your medicine inventory</p>
+              <Link href={`/${subdomain}/inventory`}>
+                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                  Go to Inventory
+                </button>
               </Link>
             </div>
           </div>
-        )}
 
-        {/* Quick Actions - Only for regular users with tenants */}
-        {user.role !== 'super_admin' && tenantInfo && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">💊</span>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Manage Inventory</h3>
-                <p className="text-gray-600 text-sm mb-4">Track and manage your medicine inventory</p>
-                <Link href="/inventory">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                    Go to Inventory
-                  </button>
-                </Link>
+          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">📋</span>
               </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">📋</span>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Prescriptions</h3>
-                <p className="text-gray-600 text-sm mb-4">Manage patient prescriptions and orders</p>
-                <Link href="/prescriptions">
-                  <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                    View Prescriptions
-                  </button>
-                </Link>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">📊</span>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Reports</h3>
-                <p className="text-gray-600 text-sm mb-4">Generate sales and inventory reports</p>
-                <Link href="/reports">
-                  <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                    View Reports
-                  </button>
-                </Link>
-              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Prescriptions</h3>
+              <p className="text-gray-600 text-sm mb-4">Manage patient prescriptions and orders</p>
+              <Link href={`/${subdomain}/prescriptions`}>
+                <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                  View Prescriptions
+                </button>
+              </Link>
             </div>
           </div>
-        )}
+
+          <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">📊</span>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Reports</h3>
+              <p className="text-gray-600 text-sm mb-4">Generate sales and inventory reports</p>
+              <Link href={`/${subdomain}/reports`}>
+                <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                  View Reports
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   );

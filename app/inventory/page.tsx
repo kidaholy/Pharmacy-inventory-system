@@ -55,7 +55,7 @@ export default function InventoryPage() {
   const loadMedicines = async () => {
     try {
       // Try to get medicines from database first
-      const medicines = await db.getMedicinesByPharmacy('demo_pharmacy_001');
+      const medicines = await db.getMedicinesByPharmacy('current_tenant');
       if (medicines && medicines.length > 0) {
         return medicines;
       }
@@ -63,11 +63,8 @@ export default function InventoryPage() {
       console.log('Loading from localStorage fallback');
     }
 
-    // Fallback to localStorage or create sample data
-    const stored = localStorage.getItem('pharmatrack_medicines');
-    if (stored) {
-      return JSON.parse(stored);
-    }
+    // Return empty array if no database data available
+    // No localStorage fallback - use proper tenant-based data only
     
     // Sample medicine data if none exists
     const sampleMedicines: Medicine[] = [
@@ -201,15 +198,15 @@ export default function InventoryPage() {
       }
     ];
     
-    // Save sample data to both localStorage and database
-    localStorage.setItem('pharmatrack_medicines', JSON.stringify(sampleMedicines));
+    // Save sample data to database only (no localStorage)
+    // Note: This should be replaced with proper tenant-based data creation
     
     // Try to save to Atlas database as well
     try {
       for (const medicine of sampleMedicines) {
         await db.createMedicine({
           ...medicine,
-          pharmacyId: 'demo_pharmacy_001'
+          pharmacyId: 'current_tenant'
         });
       }
     } catch (error) {
@@ -220,7 +217,7 @@ export default function InventoryPage() {
   };
 
   const saveMedicines = async (medicineList: Medicine[]) => {
-    localStorage.setItem('pharmatrack_medicines', JSON.stringify(medicineList));
+    // Save to database only (no localStorage)
     setMedicines(medicineList);
   };
 
@@ -279,7 +276,7 @@ export default function InventoryPage() {
     try {
       const newMedicine = await db.createMedicine({
         ...formData,
-        pharmacyId: 'demo_pharmacy_001'
+        pharmacyId: 'current_tenant'
       });
 
       const updatedMedicines = [...medicines, newMedicine];

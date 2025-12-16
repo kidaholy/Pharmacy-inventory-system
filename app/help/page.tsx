@@ -240,11 +240,7 @@ export default function HelpPage() {
               <h4 className="font-semibold text-gray-900 mb-2">Login Issues</h4>
               <div className="space-y-2 text-sm text-gray-600">
                 <p><strong>Problem:</strong> Cannot log in to the system</p>
-                <p><strong>Solution:</strong> Check your email and password. Use the demo credentials provided on the login page for testing.</p>
-                <div className="bg-gray-50 p-2 rounded">
-                  <p><strong>Demo Credentials:</strong></p>
-                  <p>Email: admin@pharmatrack.com | Password: password</p>
-                </div>
+                <p><strong>Solution:</strong> Check your email and password. If you're a pharmacy owner, use the credentials you created during registration. Contact support if you've forgotten your password.</p>
               </div>
             </div>
 
