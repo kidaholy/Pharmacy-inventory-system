@@ -196,7 +196,7 @@ MultiTenantUserSchema.virtual('fullName').get(function() {
 
 // Method to check if account is locked
 MultiTenantUserSchema.methods.isLocked = function() {
-  return !!(this.security.lockedUntil && this.security.lockedUntil > Date.now());
+  return !!(this.security.lockedUntil && this.security.lockedUntil > new Date());
 };
 
 export default mongoose.models.MultiTenantUser || mongoose.model<IMultiTenantUser>('MultiTenantUser', MultiTenantUserSchema);

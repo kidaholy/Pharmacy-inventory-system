@@ -67,10 +67,13 @@ export async function POST(request: NextRequest) {
     }
 
     for (const tenant of tenants) {
-      console.log('🔍 Checking tenant:', tenant.name);
-      const user = await multiTenantDb.getUserByCredentials(tenant._id.toString(), email, password);
+      console.log('🔍 Checking tenant:', tenant.name, 'ID:', tenant._id.toString());
       
-      if (user && user.isActive) {
+      try {
+        const user = await multiTenantDb.getUserByCredentials(tenant._id.toString(), email, password);
+        console.log('👤 getUserByCredentials result:', user ? 'USER FOUND' : 'NO USER');
+        
+        if (user && user.isActive) {
         console.log('✅ User found and authenticated:', user.email);
         
         // Convert MongoDB user to our User interface
@@ -90,7 +93,12 @@ export async function POST(request: NextRequest) {
           success: true,
           user: authUser
         });
+      } else {
+        console.log('❌ User not found or inactive for tenant:', tenant.name);
       }
+    } catch (error) {
+      console.error('❌ Error checking tenant:', tenant.name, error.message);
+    }
     }
 
     console.log('❌ Authentication failed for:', email);

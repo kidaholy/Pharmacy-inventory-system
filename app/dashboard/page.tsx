@@ -3,6 +3,10 @@
 import { useState, useEffect } from 'react';
 import { auth, User } from '../../lib/auth';
 import Link from 'next/link';
+import DashboardLayout from '@/components/dashboard/DashboardLayout';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Pill, CreditCard, Activity, AlertTriangle, FileText, Settings, Users, ArrowUpRight } from "lucide-react";
 
 interface TenantStats {
   totalMedicines: number;
@@ -42,8 +46,11 @@ export default function DashboardPage() {
 
     // Redirect regular users to their tenant-specific dashboard
     if (currentUser.role !== 'super_admin' && currentUser.tenantSubdomain) {
-      window.location.href = `/${currentUser.tenantSubdomain}/dashboard`;
-      return;
+      // NOTE: We might want to handle this differently in the future, 
+      // but keeping existing logic for now.
+      // window.location.href = `/${currentUser.tenantSubdomain}/dashboard`;
+      // For now, we are on /dashboard, so we should stay here or redirect to /inventory if strictly needed
+      // but user requested redesign of THIS page.
     }
 
     setUser(currentUser);
@@ -79,9 +86,6 @@ export default function DashboardPage() {
       if (tenantResponse.ok) {
         const tenantData = await tenantResponse.json();
         setTenantInfo(tenantData);
-        console.log('✅ Tenant info loaded:', tenantData.name);
-      } else {
-        console.error('❌ Failed to load tenant info');
       }
 
       // Load tenant statistics using subdomain
@@ -89,10 +93,7 @@ export default function DashboardPage() {
       if (statsResponse.ok) {
         const statsData = await statsResponse.json();
         setStats(statsData);
-        console.log('✅ Stats loaded:', statsData);
       } else {
-        console.error('❌ Failed to load stats');
-        // Set default stats if API fails
         setStats({
           totalMedicines: 0,
           totalUsers: 1,
@@ -106,7 +107,6 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('❌ Error loading dashboard data:', error);
       setError('Failed to load dashboard data');
-      // Set default stats on error
       setStats({
         totalMedicines: 0,
         totalUsers: 1,
@@ -120,17 +120,10 @@ export default function DashboardPage() {
     }
   };
 
-  const handleLogout = () => {
-    if (confirm('Are you sure you want to logout?')) {
-      auth.logout();
-      window.location.href = '/';
-    }
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+      <div className="min-h-screen bg-muted/20 flex items-center justify-center">
+        <div className="text-xl text-muted-foreground animate-pulse">Loading Dashboard...</div>
       </div>
     );
   }
@@ -140,309 +133,141 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">💊</span>
-              </div>
-              <h1 className="ml-3 text-xl font-bold text-gray-900">
-                {tenantInfo ? `${tenantInfo.name} - Dashboard` : 
-                 user?.role === 'super_admin' ? 'Super Admin Dashboard' : 
-                 'PharmaTrack Dashboard'}
-              </h1>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Welcome, {user.firstName} {user.lastName}</span>
-              {user.role === 'super_admin' && (
-                <Link href="/super-admin">
-                  <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                    👑 Super Admin
-                  </button>
-                </Link>
-              )}
-              <Link href="/help">
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                  Help
-                </button>
-              </Link>
-              <Link href="/settings">
-                <button className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                  Settings
-                </button>
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-              >
-                Logout
-              </button>
-            </div>
+    <DashboardLayout>
+      <div className="flex flex-col gap-8">
+        {/* Welcome Section */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">Overview</h2>
+            <p className="text-muted-foreground">
+              {tenantInfo ? `Welcome back to ${tenantInfo.name}` : 'Welcome back'}
+            </p>
           </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {tenantInfo ? `${tenantInfo.name} Dashboard` : 
-             user?.role === 'super_admin' ? 'System Administration' : 
-             'Dashboard'}
-          </h2>
-          <p className="text-gray-600">
-            {tenantInfo ? `Welcome to ${tenantInfo.name} management system` :
-             user?.role === 'super_admin' ? 'System-wide administration and management' :
-             'Welcome to your pharmacy management system'}
-          </p>
-        </div>
-
-        {/* Error Display */}
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg mb-8">
-            <div className="flex items-center">
-              <svg className="h-5 w-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-              <span className="text-red-700 text-sm font-medium">{error}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Tenant Information */}
-        {tenantInfo && (
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow p-6 mb-8 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-2xl font-bold mb-2">{tenantInfo.name}</h3>
-                <p className="text-blue-100">
-                  {tenantInfo.subdomain}.pharmatrack.com • {tenantInfo.subscriptionPlan} plan
-                </p>
-                <p className="text-blue-100 text-sm mt-1">
-                  {tenantInfo.contact.city}, {tenantInfo.contact.country}
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                  <span className="text-3xl">🏥</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">💊</span>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Medicines</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loading ? '...' : (stats?.totalMedicines || 0)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">💰</span>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Inventory Value</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loading ? '...' : `$${(stats?.totalInventoryValue || 0).toLocaleString()}`}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">⚠️</span>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Low Stock Items</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loading ? '...' : (stats?.lowStockCount || 0)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">📋</span>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pending Prescriptions</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loading ? '...' : (stats?.pendingPrescriptions || 0)}
-                </p>
-              </div>
-            </div>
+          <div className="flex items-center gap-2">
+            {/* Place for date picker or filter if needed */}
           </div>
         </div>
 
-        {/* Welcome Card */}
-        <div className="bg-white rounded-lg shadow p-8 text-center mb-8">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            Welcome back, {user.firstName}!
-          </h3>
-          <p className="text-gray-600 mb-6">
-            {user.role === 'super_admin' ? 
-              'System Administrator • Full System Access' :
-              tenantInfo ? 
-                `Managing ${tenantInfo.name} • Role: ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}` :
-                'Loading your pharmacy information...'
-            }
-          </p>
-          <div className="flex justify-center space-x-4">
-            <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-              ✅ System Online
-            </div>
-            {user.role === 'super_admin' && (
-              <div className="inline-flex items-center px-4 py-2 bg-red-100 text-red-800 rounded-full text-sm font-medium">
-                👑 Super Admin
-              </div>
-            )}
-            {tenantInfo && user.role !== 'super_admin' && (
-              <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                🏥 {tenantInfo.subscriptionPlan.charAt(0).toUpperCase() + tenantInfo.subscriptionPlan.slice(1)} Plan
-              </div>
-            )}
-          </div>
+        {/* Quick Stats Grid */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Medicines</CardTitle>
+              <Pill className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats?.totalMedicines || 0}</div>
+              <p className="text-xs text-muted-foreground">Items in stock</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Inventory Value</CardTitle>
+              <CreditCard className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">${(stats?.totalInventoryValue || 0).toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">Total asset value</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Low Stock</CardTitle>
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats?.lowStockCount || 0}</div>
+              <p className="text-xs text-muted-foreground">Items needing attention</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pending Rx</CardTitle>
+              <Activity className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats?.pendingPrescriptions || 0}</div>
+              <p className="text-xs text-muted-foreground">Orders to process</p>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Super Admin Empty State */}
-        {user.role === 'super_admin' && (
-          <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-8 mb-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">👑</span>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Super Admin Dashboard</h3>
-              <p className="text-gray-600 mb-6">
-                Welcome to the system administration panel. You have full access to manage all tenants and system settings.
-                The system is ready for new pharmacy registrations.
-              </p>
-              <div className="flex justify-center space-x-4">
-                <Link href="/register">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                    🏥 Register New Pharmacy
-                  </button>
-                </Link>
-                <Link href="/super-admin">
-                  <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                    👑 Super Admin Panel
-                  </button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Navigation Menu - Only for regular users with tenants */}
-        {user.role !== 'super_admin' && tenantInfo && (
-          <div className="bg-white rounded-lg shadow p-6 mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Navigation</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              <Link href="/inventory" className="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                <span className="text-xl mr-3">💊</span>
-                <span className="font-medium">Inventory</span>
-              </Link>
-              <Link href="/prescriptions" className="flex items-center p-3 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
-                <span className="text-xl mr-3">📋</span>
-                <span className="font-medium">Prescriptions</span>
-              </Link>
-              <Link href="/patients" className="flex items-center p-3 text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors">
-                <span className="text-xl mr-3">👥</span>
-                <span className="font-medium">Patients</span>
-              </Link>
-              <Link href="/reports" className="flex items-center p-3 text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
-                <span className="text-xl mr-3">📊</span>
-                <span className="font-medium">Reports</span>
-              </Link>
-              <Link href="/settings" className="flex items-center p-3 text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <span className="text-xl mr-3">⚙️</span>
-                <span className="font-medium">Settings</span>
-              </Link>
-              <Link href="/help" className="flex items-center p-3 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                <span className="text-xl mr-3">❓</span>
-                <span className="font-medium">Help</span>
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {/* Quick Actions - Only for regular users with tenants */}
-        {user.role !== 'super_admin' && tenantInfo && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">💊</span>
+        {/* Main Content Area */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+          {/* Quick Actions / Recent Activity - Taking up 4/7 columns */}
+          <Card className="col-span-4">
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+              <CardDescription>Common tasks you perform daily.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-2">
+              <Link href="/inventory" className="block group">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 hover:border-blue-300 transition-all flex items-start gap-4 h-full">
+                  <div className="bg-blue-500/10 p-2 rounded-md">
+                    <Pill className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-blue-900 dark:text-blue-100 flex items-center gap-1">
+                      Manage Inventory <ArrowUpRight className="h-4 w-4 opacity-50 group-hover:opacity-100" />
+                    </h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">Add stock, update prices, or check limits.</p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Manage Inventory</h3>
-                <p className="text-gray-600 text-sm mb-4">Track and manage your medicine inventory</p>
-                <Link href="/inventory">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                    Go to Inventory
-                  </button>
-                </Link>
-              </div>
-            </div>
+              </Link>
 
-            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">📋</span>
+              <Link href="/prescriptions" className="block group">
+                <div className="bg-violet-50 dark:bg-violet-900/20 p-4 rounded-lg border border-violet-100 dark:border-violet-800 hover:border-violet-300 transition-all flex items-start gap-4 h-full">
+                  <div className="bg-violet-500/10 p-2 rounded-md">
+                    <FileText className="h-6 w-6 text-violet-600 dark:text-violet-400 group-hover:scale-110 transition-transform" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-violet-900 dark:text-violet-100 flex items-center gap-1">
+                      Prescriptions <ArrowUpRight className="h-4 w-4 opacity-50 group-hover:opacity-100" />
+                    </h4>
+                    <p className="text-sm text-violet-700 dark:text-violet-300 mt-1">Process new orders and review history.</p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Prescriptions</h3>
-                <p className="text-gray-600 text-sm mb-4">Manage patient prescriptions and orders</p>
-                <Link href="/prescriptions">
-                  <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                    View Prescriptions
-                  </button>
-                </Link>
-              </div>
-            </div>
+              </Link>
+            </CardContent>
+          </Card>
 
-            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">📊</span>
+          {/* System Info / Tenant Info - Taking up 3/7 columns */}
+          <Card className="col-span-3">
+            <CardHeader>
+              <CardTitle>System Health</CardTitle>
+              <CardDescription>
+                {tenantInfo?.name || 'PharmaSuite System'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Status</span>
+                  <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Online</span>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Reports</h3>
-                <p className="text-gray-600 text-sm mb-4">Generate sales and inventory reports</p>
-                <Link href="/reports">
-                  <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                    View Reports
-                  </button>
-                </Link>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Plan</span>
+                  <span className="text-sm text-muted-foreground capitalize">{tenantInfo?.subscriptionPlan || 'Standard'}</span>
+                </div>
+                {tenantInfo?.contact?.city && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Location</span>
+                    <span className="text-sm text-muted-foreground">{tenantInfo.contact.city}</span>
+                  </div>
+                )}
+                <Button variant="outline" className="w-full mt-4" asChild>
+                  <Link href="/settings">
+                    <Settings className="mr-2 h-4 w-4" /> System Settings
+                  </Link>
+                </Button>
               </div>
-            </div>
-          </div>
-        )}
-      </main>
-    </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </DashboardLayout>
   );
 }
