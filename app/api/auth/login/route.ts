@@ -17,17 +17,17 @@ export async function POST(request: NextRequest) {
     // Check if this is the super admin (tenant-independent)
     if (email === 'kidayos2014@gmail.com') {
       console.log('👑 Super admin login attempt');
-      
+
       // Find super admin user (any tenant or no tenant)
       const superAdminUser = await multiTenantDb.getSuperAdminByEmail(email);
-      
+
       if (superAdminUser && superAdminUser.isActive) {
         // Verify password
         const isPasswordValid = await multiTenantDb.verifyUserPassword(superAdminUser, password);
-        
+
         if (isPasswordValid) {
           console.log('✅ Super admin authenticated successfully');
-          
+
           const authUser = {
             _id: superAdminUser._id.toString(),
             tenantId: 'super_admin', // Special identifier for super admin
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
           });
         }
       }
-      
+
       console.log('❌ Super admin authentication failed');
       return NextResponse.json(
         { success: false, error: 'Invalid email or password' },
@@ -68,37 +68,37 @@ export async function POST(request: NextRequest) {
 
     for (const tenant of tenants) {
       console.log('🔍 Checking tenant:', tenant.name, 'ID:', tenant._id.toString());
-      
+
       try {
         const user = await multiTenantDb.getUserByCredentials(tenant._id.toString(), email, password);
         console.log('👤 getUserByCredentials result:', user ? 'USER FOUND' : 'NO USER');
-        
-        if (user && user.isActive) {
-        console.log('✅ User found and authenticated:', user.email);
-        
-        // Convert MongoDB user to our User interface
-        const authUser = {
-          _id: user._id.toString(),
-          tenantId: user.tenantId.toString(),
-          tenantSubdomain: tenant.subdomain, // Add subdomain for API calls
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-          permissions: user.permissions || [],
-          isActive: user.isActive
-        };
 
-        return NextResponse.json({
-          success: true,
-          user: authUser
-        });
-      } else {
-        console.log('❌ User not found or inactive for tenant:', tenant.name);
+        if (user && user.isActive) {
+          console.log('✅ User found and authenticated:', user.email);
+
+          // Convert MongoDB user to our User interface
+          const authUser = {
+            _id: user._id.toString(),
+            tenantId: user.tenantId.toString(),
+            tenantSubdomain: tenant.subdomain, // Add subdomain for API calls
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+            permissions: user.permissions || [],
+            isActive: user.isActive
+          };
+
+          return NextResponse.json({
+            success: true,
+            user: authUser
+          });
+        } else {
+          console.log('❌ User not found or inactive for tenant:', tenant.name);
+        }
+      } catch (error) {
+        console.error('❌ Error checking tenant:', tenant.name, error instanceof Error ? error.message : String(error));
       }
-    } catch (error) {
-      console.error('❌ Error checking tenant:', tenant.name, error.message);
-    }
     }
 
     console.log('❌ Authentication failed for:', email);
