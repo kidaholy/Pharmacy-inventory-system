@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { MoreHorizontal, Edit, Trash2 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { formatCurrency } from "@/lib/utils"
 
 type Medicine = {
   id: string
@@ -113,7 +114,7 @@ export function InventoryTable() {
                   <TableCell className="text-muted-foreground">{medicine.batch}</TableCell>
                   <TableCell className="text-right">{medicine.quantity}</TableCell>
                   <TableCell>{new Date(medicine.expiryDate).toLocaleDateString()}</TableCell>
-                  <TableCell className="text-right">${medicine.price.toFixed(2)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(medicine.price)}</TableCell>
                   <TableCell>{getStatusBadge(medicine.status)}</TableCell>
                   <TableCell className="text-muted-foreground">{medicine.supplier}</TableCell>
                   <TableCell className="text-right">

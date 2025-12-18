@@ -22,7 +22,7 @@ const stats = [
   },
   {
     title: "Total Value",
-    value: "$248,560",
+    value: "ETB 248,560",
     icon: DollarSign,
     color: "text-success",
   },

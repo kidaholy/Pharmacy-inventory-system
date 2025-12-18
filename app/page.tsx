@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { formatCurrency } from '@/lib/utils';
 
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -17,7 +18,7 @@ export default function HomePage() {
               </div>
               <span className="ml-4 text-2xl font-bold bg-gradient-to-r from-violet-600 to-blue-600 bg-clip-text text-transparent">PharmaTrack</span>
             </div>
-            
+
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-gray-600 hover:text-gray-900">Features</a>
               <a href="#pricing" className="text-gray-600 hover:text-gray-900">Pricing</a>
@@ -29,7 +30,7 @@ export default function HomePage() {
               </a>
             </div>
 
-            <button 
+            <button
               className="md:hidden"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
@@ -64,17 +65,17 @@ export default function HomePage() {
               <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
               Trusted by 1000+ Pharmacies Worldwide
             </div>
-            
+
             <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
               Modern Pharmacy
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Management</span>
             </h1>
-            
+
             <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
-              Streamline your pharmacy operations with our comprehensive inventory management system. 
+              Streamline your pharmacy operations with our comprehensive inventory management system.
               Track stock, manage prescriptions, and grow your business with confidence.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
               <a href="/register" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 text-center">
                 Start Free Trial
@@ -94,7 +95,7 @@ export default function HomePage() {
                     <div className="w-3 h-3 bg-green-400 rounded-full"></div>
                   </div>
                 </div>
-                
+
                 <div className="p-8">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-xl text-white">
@@ -102,7 +103,7 @@ export default function HomePage() {
                       <div className="text-blue-100">Total Products</div>
                     </div>
                     <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-xl text-white">
-                      <div className="text-3xl font-bold">$12.4K</div>
+                      <div className="text-3xl font-bold">{formatCurrency(12400)}</div>
                       <div className="text-green-100">Monthly Revenue</div>
                     </div>
                     <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-6 rounded-xl text-white">
@@ -110,7 +111,7 @@ export default function HomePage() {
                       <div className="text-purple-100">Low Stock Items</div>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gray-50 rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
@@ -237,7 +238,7 @@ export default function HomePage() {
               Join thousands of satisfied customers who trust PharmaTrack
             </p>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="text-4xl md:text-5xl font-bold text-white mb-2">1000+</div>
@@ -346,10 +347,10 @@ export default function HomePage() {
             <div className="bg-white p-8 rounded-2xl border-2 border-gray-200 hover:border-blue-300 transition-all">
               <div className="text-center">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Starter</h3>
-                <div className="text-4xl font-bold text-gray-900 mb-4">$29<span className="text-lg text-gray-600">/month</span></div>
+                <div className="text-4xl font-bold text-gray-900 mb-4">{formatCurrency(29)}<span className="text-lg text-gray-600">/month</span></div>
                 <p className="text-gray-600 mb-8">Perfect for small pharmacies</p>
               </div>
-              
+
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center">
                   <span className="text-green-500 mr-3">✓</span>
@@ -368,7 +369,7 @@ export default function HomePage() {
                   Mobile app access
                 </li>
               </ul>
-              
+
               <a href="/register" className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 py-3 rounded-xl font-semibold transition-colors text-center block">
                 Start Free Trial
               </a>
@@ -379,13 +380,13 @@ export default function HomePage() {
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <span className="bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-medium">Most Popular</span>
               </div>
-              
+
               <div className="text-center">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Professional</h3>
-                <div className="text-4xl font-bold text-gray-900 mb-4">$79<span className="text-lg text-gray-600">/month</span></div>
+                <div className="text-4xl font-bold text-gray-900 mb-4">{formatCurrency(79)}<span className="text-lg text-gray-600">/month</span></div>
                 <p className="text-gray-600 mb-8">For growing pharmacies</p>
               </div>
-              
+
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center">
                   <span className="text-green-500 mr-3">✓</span>
@@ -408,7 +409,7 @@ export default function HomePage() {
                   Custom reports
                 </li>
               </ul>
-              
+
               <a href="/register" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-colors text-center block">
                 Start Free Trial
               </a>
@@ -418,10 +419,10 @@ export default function HomePage() {
             <div className="bg-white p-8 rounded-2xl border-2 border-gray-200 hover:border-purple-300 transition-all">
               <div className="text-center">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Enterprise</h3>
-                <div className="text-4xl font-bold text-gray-900 mb-4">$199<span className="text-lg text-gray-600">/month</span></div>
+                <div className="text-4xl font-bold text-gray-900 mb-4">{formatCurrency(199)}<span className="text-lg text-gray-600">/month</span></div>
                 <p className="text-gray-600 mb-8">For large pharmacy chains</p>
               </div>
-              
+
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center">
                   <span className="text-green-500 mr-3">✓</span>
@@ -444,7 +445,7 @@ export default function HomePage() {
                   Dedicated account manager
                 </li>
               </ul>
-              
+
               <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-semibold transition-colors">
                 Contact Sales
               </button>

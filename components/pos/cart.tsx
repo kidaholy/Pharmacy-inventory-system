@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { ShoppingCart, Trash2, Minus, Plus } from "lucide-react"
+import { formatCurrency } from "@/lib/utils"
 import type { CartItem } from "./pos-interface"
 
 type CartProps = {
@@ -44,7 +45,7 @@ export function Cart({ items, onUpdateQuantity, onRemoveItem, onClearCart, onChe
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm">{item.name}</p>
                   <p className="text-xs text-muted-foreground mt-1">Batch: {item.batch}</p>
-                  <p className="text-sm font-semibold mt-2">${(item.price * item.quantity).toFixed(2)}</p>
+                  <p className="text-sm font-semibold mt-2">{formatCurrency(item.price * item.quantity)}</p>
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <Button
@@ -91,16 +92,16 @@ export function Cart({ items, onUpdateQuantity, onRemoveItem, onClearCart, onChe
           <div className="w-full space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>{formatCurrency(subtotal)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Tax (10%)</span>
-              <span>${tax.toFixed(2)}</span>
+              <span>{formatCurrency(tax)}</span>
             </div>
             <Separator />
             <div className="flex justify-between text-lg font-bold">
               <span>Total</span>
-              <span>${total.toFixed(2)}</span>
+              <span>{formatCurrency(total)}</span>
             </div>
           </div>
           <Button className="w-full" size="lg" onClick={onCheckout}>

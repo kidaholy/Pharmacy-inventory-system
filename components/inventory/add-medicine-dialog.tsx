@@ -106,7 +106,7 @@ export function AddMedicineDialog({ open, onOpenChange }: AddMedicineDialogProps
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="price">Price ($)</Label>
+                <Label htmlFor="price">Price (ETB)</Label>
                 <Input
                   id="price"
                   type="number"

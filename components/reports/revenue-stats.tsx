@@ -4,14 +4,14 @@ import { DollarSign, TrendingUp, ShoppingBag, CreditCard } from "lucide-react"
 const stats = [
   {
     title: "Total Revenue",
-    value: "$45,230.89",
+    value: "ETB 45,230.89",
     change: "+20.1% from last month",
     icon: DollarSign,
     positive: true,
   },
   {
     title: "Profit",
-    value: "$12,450.50",
+    value: "ETB 12,450.50",
     change: "+18.5% from last month",
     icon: TrendingUp,
     positive: true,
@@ -25,7 +25,7 @@ const stats = [
   },
   {
     title: "Avg. Transaction Value",
-    value: "$36.30",
+    value: "ETB 36.30",
     change: "+5.2% from last month",
     icon: CreditCard,
     positive: true,

@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
 import { CreditCard, Wallet, DollarSign, Loader2, CheckCircle } from "lucide-react"
+import { formatCurrency } from "@/lib/utils"
 import type { CartItem } from "./pos-interface"
 
 type PaymentDialogProps = {
@@ -108,7 +109,7 @@ export function PaymentDialog({ open, onOpenChange, cartItems, onComplete }: Pay
                       required
                     />
                     {Number.parseFloat(amountPaid) > total && (
-                      <p className="text-sm text-success">Change: ${change.toFixed(2)}</p>
+                      <p className="text-sm text-success">Change: {formatCurrency(change)}</p>
                     )}
                   </div>
                 )}
@@ -118,16 +119,16 @@ export function PaymentDialog({ open, onOpenChange, cartItems, onComplete }: Pay
                 <div className="space-y-2 bg-secondary/30 p-4 rounded-lg">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>{formatCurrency(subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Tax (10%)</span>
-                    <span>${tax.toFixed(2)}</span>
+                    <span>{formatCurrency(tax)}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>{formatCurrency(total)}</span>
                   </div>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { formatCurrency } from "@/lib/utils"
 
 type Product = {
   rank: number
@@ -82,7 +83,7 @@ export function TopProducts() {
                     <Badge variant="outline">{product.category}</Badge>
                   </TableCell>
                   <TableCell className="text-right">{product.unitsSold}</TableCell>
-                  <TableCell className="text-right font-semibold">${product.revenue.toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-semibold">{formatCurrency(product.revenue)}</TableCell>
                   <TableCell className="text-right">
                     <span className={product.growth >= 0 ? "text-success" : "text-destructive"}>
                       {product.growth >= 0 ? "+" : ""}

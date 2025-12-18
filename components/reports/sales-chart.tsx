@@ -3,6 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { formatCurrency } from "@/lib/utils"
 
 const chartData = [
   { day: "Mon", sales: 2840 },
@@ -45,7 +46,7 @@ export function SalesChart() {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `$${value}`}
+                tickFormatter={(value) => formatCurrency(value)}
               />
               <ChartTooltip content={<ChartTooltipContent />} />
               <Bar dataKey="sales" fill="var(--color-sales)" radius={[8, 8, 0, 0]} />

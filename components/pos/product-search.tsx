@@ -6,6 +6,7 @@ import { useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search, Plus } from "lucide-react"
+import { formatCurrency } from "@/lib/utils"
 import type { CartItem } from "./pos-interface"
 
 type Product = {
@@ -81,7 +82,7 @@ export function ProductSearch({ onAddToCart }: ProductSearchProps) {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <p className="font-semibold">${product.price.toFixed(2)}</p>
+                  <p className="font-semibold">{formatCurrency(product.price)}</p>
                   <Button
                     size="sm"
                     onClick={() =>

@@ -4,7 +4,7 @@ import { TrendingUp, TrendingDown, DollarSign, Package, ShoppingCart, AlertCircl
 const stats = [
   {
     title: "Today's Sales",
-    value: "$2,845.00",
+    value: "ETB 2,845.00",
     change: "+12.5%",
     trend: "up",
     icon: DollarSign,

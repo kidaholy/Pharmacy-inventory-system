@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { MoreHorizontal, Eye, Edit, Mail, Phone } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { formatCurrency } from "@/lib/utils"
 
 type Customer = {
   id: string
@@ -105,7 +106,7 @@ export function CustomersTable() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right font-semibold">${customer.totalPurchases.toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-semibold">{formatCurrency(customer.totalPurchases)}</TableCell>
                   <TableCell>{new Date(customer.lastVisit).toLocaleDateString()}</TableCell>
                   <TableCell>{getLoyaltyBadge(customer.loyaltyStatus)}</TableCell>
                   <TableCell className="text-right">

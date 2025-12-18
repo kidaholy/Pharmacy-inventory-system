@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { auth, User } from '../../lib/auth';
+import { formatCurrency } from '../../lib/utils';
 
 interface Tenant {
   _id: string;
@@ -72,7 +73,7 @@ export default function SuperAdminPage() {
       // Load all users from all tenants
       const allUsers: DatabaseUser[] = [];
       const tenantsData = await fetch('/api/tenants').then(r => r.json());
-      
+
       for (const tenant of tenantsData.tenants || []) {
         const usersResponse = await fetch(`/api/users?tenantId=${tenant._id}`);
         if (usersResponse.ok) {
@@ -80,9 +81,9 @@ export default function SuperAdminPage() {
           allUsers.push(...(usersData.users || []));
         }
       }
-      
+
       setUsers(allUsers);
-      
+
       // Calculate stats
       setStats({
         totalTenants: tenantsData.tenants?.length || 0,
@@ -141,9 +142,9 @@ export default function SuperAdminPage() {
               </div>
               <h1 className="ml-3 text-xl font-bold text-gray-900">Super Admin Dashboard</h1>
             </div>
-            
+
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Welcome, {user.username}</span>
+              <span className="text-sm text-gray-600">Welcome, {user.firstName}</span>
               <button
                 onClick={handleLogout}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -163,31 +164,28 @@ export default function SuperAdminPage() {
             <nav className="flex space-x-8 px-6">
               <button
                 onClick={() => setActiveTab('overview')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'overview'
-                    ? 'border-red-500 text-red-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'overview'
+                  ? 'border-red-500 text-red-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
               >
                 System Overview
               </button>
               <button
                 onClick={() => setActiveTab('tenants')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'tenants'
-                    ? 'border-red-500 text-red-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'tenants'
+                  ? 'border-red-500 text-red-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
               >
                 Tenant Management
               </button>
               <button
                 onClick={() => setActiveTab('users')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'users'
-                    ? 'border-red-500 text-red-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'users'
+                  ? 'border-red-500 text-red-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
               >
                 User Management
               </button>
@@ -293,17 +291,17 @@ export default function SuperAdminPage() {
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <div className="text-2xl font-bold text-blue-600">{tenants.filter(t => t.subscriptionPlan === 'starter').length}</div>
                   <div className="text-sm text-blue-800">Starter Plan</div>
-                  <div className="text-xs text-blue-600">$29/month</div>
+                  <div className="text-xs text-blue-600">{formatCurrency(29)}/month</div>
                 </div>
                 <div className="text-center p-4 bg-green-50 rounded-lg">
                   <div className="text-2xl font-bold text-green-600">{tenants.filter(t => t.subscriptionPlan === 'professional').length}</div>
                   <div className="text-sm text-green-800">Professional Plan</div>
-                  <div className="text-xs text-green-600">$79/month</div>
+                  <div className="text-xs text-green-600">{formatCurrency(79)}/month</div>
                 </div>
                 <div className="text-center p-4 bg-purple-50 rounded-lg">
                   <div className="text-2xl font-bold text-purple-600">{tenants.filter(t => t.subscriptionPlan === 'enterprise').length}</div>
                   <div className="text-sm text-purple-800">Enterprise Plan</div>
-                  <div className="text-xs text-purple-600">$199/month</div>
+                  <div className="text-xs text-purple-600">{formatCurrency(199)}/month</div>
                 </div>
               </div>
             </div>
@@ -321,31 +319,31 @@ export default function SuperAdminPage() {
                   <p className="text-sm text-red-600 mt-1">⚠️ No tenants exist. Regular users cannot login until tenants are created.</p>
                 )}
               </div>
-              <button 
+              <button
                 onClick={async () => {
                   const tenantName = prompt('Tenant Name (e.g., "City Central Pharmacy"):');
                   const subdomain = prompt('Subdomain (e.g., "citycentral"):');
                   const subscriptionPlan = prompt('Subscription Plan (starter/professional/enterprise):') as 'starter' | 'professional' | 'enterprise';
-                  
+
                   if (!tenantName || !subdomain || !subscriptionPlan) {
                     alert('Please fill in all tenant details.');
                     return;
                   }
-                  
+
                   const adminFirstName = prompt('Admin First Name:');
                   const adminLastName = prompt('Admin Last Name:');
                   const adminEmail = prompt('Admin Email:');
                   const adminPassword = prompt('Admin Password:') || 'admin123';
-                  
+
                   if (!adminFirstName || !adminLastName || !adminEmail) {
                     alert('Please fill in all admin details.');
                     return;
                   }
-                  
+
                   const contactPhone = prompt('Contact Phone (optional):');
                   const city = prompt('City (optional):');
                   const country = prompt('Country (optional):');
-                  
+
                   try {
                     const response = await fetch('/api/tenants/create', {
                       method: 'POST',
@@ -364,7 +362,7 @@ export default function SuperAdminPage() {
                         country
                       })
                     });
-                    
+
                     if (response.ok) {
                       const result = await response.json();
                       loadData();
@@ -457,29 +455,29 @@ export default function SuperAdminPage() {
                 <p className="text-sm text-yellow-600">⚠️ Each tenant must have at least one admin user</p>
                 <p className="text-sm text-gray-500">Create tenants first, then add users to them</p>
               </div>
-              <button 
+              <button
                 onClick={async () => {
                   if (tenants.length === 0) {
                     alert('No tenants available. Please create a tenant first.');
                     return;
                   }
-                  
+
                   const tenantOptions = tenants.map(t => `${t.name} (${t.subdomain})`).join('\n');
                   const selectedTenant = prompt(`Select tenant:\n${tenantOptions}\n\nEnter tenant name:`);
                   const tenant = tenants.find(t => t.name === selectedTenant);
-                  
+
                   if (!tenant) {
                     alert('Invalid tenant selected.');
                     return;
                   }
-                  
+
                   const username = prompt('Username:');
                   const email = prompt('Email:');
                   const firstName = prompt('First Name:');
                   const lastName = prompt('Last Name:');
                   const password = prompt('Password:') || 'password123';
                   const role = prompt('Role (admin/pharmacist/cashier/viewer):') as 'admin' | 'pharmacist' | 'cashier' | 'viewer';
-                  
+
                   if (username && email && firstName && lastName && role) {
                     try {
                       const response = await fetch('/api/users', {
@@ -496,7 +494,7 @@ export default function SuperAdminPage() {
                           permissions: []
                         })
                       });
-                      
+
                       if (response.ok) {
                         loadData();
                         alert('User created successfully!');
@@ -593,7 +591,7 @@ export default function SuperAdminPage() {
                                       isActive: !targetUser.isActive
                                     })
                                   });
-                                  
+
                                   if (response.ok) {
                                     loadData();
                                   } else {
@@ -605,9 +603,8 @@ export default function SuperAdminPage() {
                                   alert('Error updating user');
                                 }
                               }}
-                              className={`${
-                                targetUser.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
-                              }`}
+                              className={`${targetUser.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
+                                }`}
                             >
                               {targetUser.isActive ? 'Deactivate' : 'Activate'}
                             </button>
@@ -618,7 +615,7 @@ export default function SuperAdminPage() {
                                     const response = await fetch(`/api/users/${targetUser._id}?tenantId=${targetUser.tenantId}`, {
                                       method: 'DELETE'
                                     });
-                                    
+
                                     if (response.ok) {
                                       loadData();
                                       alert('User deleted successfully');
