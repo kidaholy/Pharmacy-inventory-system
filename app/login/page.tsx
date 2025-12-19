@@ -35,8 +35,8 @@ export default function LoginPage() {
           if (result.user.role === 'super_admin') {
             window.location.href = '/super-admin';
           } else if (result.user.tenantSubdomain) {
-            // Redirect to tenant-specific dashboard
-            window.location.href = `/${result.user.tenantSubdomain}/dashboard`;
+            // Redirect to tenant welcome page
+            window.location.href = `/${result.user.tenantSubdomain}`;
           } else {
             // Fallback to generic dashboard
             window.location.href = '/dashboard';
