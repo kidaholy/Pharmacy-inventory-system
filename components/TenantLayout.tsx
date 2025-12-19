@@ -26,6 +26,11 @@ interface TenantInfo {
     name: string;
     subdomain: string;
     subscriptionPlan: string;
+    settings?: {
+        branding?: {
+            logo?: string;
+        }
+    }
 }
 
 interface TenantLayoutProps {
@@ -83,24 +88,33 @@ export default function TenantLayout({ children, title, subtitle }: TenantLayout
     const isActive = (href: string) => pathname === href;
 
     return (
-        <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark bg-gray-900' : 'bg-slate-50'}`}>
+        <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-medi-green selection:text-white">
             <div className="flex">
                 {/* Left Sidebar */}
-                <div className={`${sidebarCollapsed ? 'w-16' : 'w-72'} ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-100'} border-r transition-all duration-300 flex flex-col shadow-lg min-h-screen fixed`}>
+                <div className={`${sidebarCollapsed ? 'w-20' : 'w-72'} bg-medi-green transition-all duration-500 flex flex-col shadow-xl min-h-screen fixed z-[60]`}>
                     {/* Sidebar Header */}
-                    <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-slate-100'}`}>
+                    <div className="p-8 border-b border-white/10 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-luxury-gold/5 blur-[60px] rounded-full -mr-16 -mt-16"></div>
                         <div className="flex items-center justify-between">
                             {!sidebarCollapsed && (
                                 <div className="flex items-center">
-                                    <div className="w-10 h-10 bg-medi-green rounded-xl flex items-center justify-center shadow-lg">
-                                        <span className="text-white font-bold text-sm">MH</span>
-                                    </div>
-                                    <div className="ml-3">
-                                        <h1 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                                    {tenantInfo?.settings?.branding?.logo ? (
+                                        <div className="w-12 h-12 bg-white rounded-xl overflow-hidden flex items-center justify-center shadow-lg transition-transform duration-500">
+                                            <img src={tenantInfo.settings.branding.logo} alt={tenantInfo.name} className="w-full h-full object-contain" />
+                                        </div>
+                                    ) : (
+                                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg transition-transform duration-500">
+                                            <span className="text-medi-green font-black text-lg">
+                                                {tenantInfo ? tenantInfo.name[0].toUpperCase() : subdomain[0].toUpperCase()}
+                                            </span>
+                                        </div>
+                                    )}
+                                    <div className="ml-4">
+                                        <h1 className="text-xl font-black text-white tracking-tight">
                                             {tenantInfo ? tenantInfo.name : subdomain}
                                         </h1>
-                                        <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>
-                                            Pharmacy Dashboard
+                                        <p className="text-[10px] uppercase font-black tracking-[0.2em] text-white/40">
+                                            Pharmacy Node
                                         </p>
                                     </div>
                                 </div>
@@ -115,39 +129,40 @@ export default function TenantLayout({ children, title, subtitle }: TenantLayout
                     </div>
 
                     {/* Navigation Menu */}
-                    <nav className="flex-1 p-4 space-y-2">
+                    <nav className="flex-1 p-4 space-y-1 mt-6">
                         {navItems.map((item) => (
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className={`flex items-center px-4 py-3 rounded-xl font-semibold transition-colors ${isActive(item.href)
-                                    ? darkMode
-                                        ? 'text-medi-lime bg-medi-green/20'
-                                        : 'text-medi-green bg-medi-green/10'
-                                    : darkMode
-                                        ? 'text-gray-300 hover:text-white hover:bg-gray-700'
-                                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                                className={`flex items-center px-5 py-3 rounded-xl font-bold transition-all duration-300 group ${isActive(item.href)
+                                    ? 'text-medi-green bg-white shadow-md'
+                                    : 'text-white/60 hover:text-white hover:bg-white/10'
                                     }`}
                             >
-                                <item.icon className="w-5 h-5" />
-                                {!sidebarCollapsed && <span className="ml-3">{item.name}</span>}
+                                <item.icon className={`w-5 h-5 transition-colors ${isActive(item.href) ? 'text-medi-green' : 'group-hover:text-white'}`} />
+                                {!sidebarCollapsed && (
+                                    <div className="flex items-center justify-between flex-1 ml-4">
+                                        <span className="tracking-tight">{item.name}</span>
+                                        {isActive(item.href) && <div className="w-1.5 h-1.5 rounded-full bg-medi-lime shadow-[0_0_8px_rgba(212,240,93,0.6)]"></div>}
+                                    </div>
+                                )}
                             </Link>
                         ))}
                     </nav>
 
                     {/* Sidebar Footer */}
                     {!sidebarCollapsed && (
-                        <div className={`p-4 border-t ${darkMode ? 'border-gray-700' : 'border-slate-100'}`}>
-                            <div className={`p-4 rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-medi-green/5'}`}>
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className={`text-sm font-semibold ${darkMode ? 'text-gray-300' : 'text-slate-700'}`}>Storage Used</span>
-                                    <span className={`text-sm font-bold ${darkMode ? 'text-gray-400' : 'text-medi-green'}`}>68%</span>
+                        <div className="p-6 border-t border-white/10">
+                            <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
+                                <div className="flex items-center justify-between mb-3">
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Inventory Load</span>
+                                    <span className="text-[10px] font-black text-white">68%</span>
                                 </div>
-                                <div className={`w-full bg-slate-200 rounded-full h-2 ${darkMode ? 'bg-gray-600' : ''}`}>
-                                    <div className="bg-medi-green h-2 rounded-full" style={{ width: '68%' }}></div>
+                                <div className="w-full bg-black/20 rounded-full h-1.5 overflow-hidden">
+                                    <div className="bg-medi-lime h-full rounded-full" style={{ width: '68%' }}></div>
                                 </div>
-                                <p className={`text-xs mt-2 ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>
-                                    2.1 GB of 3 GB used
+                                <p className="text-[10px] mt-3 text-white/30 font-medium">
+                                    Professional Tier Active
                                 </p>
                             </div>
                         </div>
@@ -155,77 +170,73 @@ export default function TenantLayout({ children, title, subtitle }: TenantLayout
                 </div>
 
                 {/* Main Content */}
-                <div className={`flex-1 flex flex-col ${sidebarCollapsed ? 'ml-16' : 'ml-72'} transition-all duration-300`}>
+                <div className={`flex-1 flex flex-col ${sidebarCollapsed ? 'ml-20' : 'ml-72'} transition-all duration-500`}>
                     {/* Top Navigation Bar */}
-                    <header className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-100'} border-b px-6 py-4 shadow-sm sticky top-0 z-40`}>
+                    <header className="px-8 py-5 bg-white border-b border-slate-200 sticky top-0 z-50">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                                 <div>
-                                    <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                                    <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">
                                         {title}
                                     </h1>
                                     {subtitle && (
-                                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mt-1">
                                             {subtitle}
                                         </p>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-6">
                                 {/* Search Bar */}
-                                <div className="relative">
-                                    <MagnifyingGlassIcon className={`w-5 h-5 ${darkMode ? 'text-gray-400' : 'text-slate-400'} absolute left-3 top-1/2 transform -translate-y-1/2`} />
+                                <div className="relative group">
+                                    <MagnifyingGlassIcon className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 transform -translate-y-1/2 transition-colors group-hover:text-medi-green" />
                                     <input
                                         type="text"
-                                        placeholder="Search anything..."
-                                        className={`pl-10 pr-4 py-2.5 w-80 ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-slate-50 border-slate-200 text-slate-900'} border rounded-xl focus:outline-none focus:ring-2 focus:ring-medi-green/30 focus:border-medi-green transition-colors`}
+                                        placeholder="Search inventory, sales, users..."
+                                        className="pl-12 pr-6 py-3 w-96 bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 rounded-2xl focus:outline-none focus:ring-2 focus:ring-medi-green/10 focus:border-medi-green/30 transition-all font-bold text-sm"
                                     />
                                 </div>
 
-                                {/* Dark Mode Toggle */}
-                                <button
-                                    onClick={() => setDarkMode(!darkMode)}
-                                    className={`p-2.5 rounded-xl ${darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'} transition-colors`}
-                                >
-                                    {darkMode ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
-                                </button>
-
                                 {/* Notifications */}
-                                <button className={`relative p-2.5 rounded-xl ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-slate-600 hover:bg-slate-100'} transition-colors`}>
+                                <button className="relative p-3 rounded-2xl bg-slate-50 border border-slate-200 text-slate-400 hover:text-medi-green transition-all hover:scale-110 active:scale-95">
                                     <BellIcon className="w-5 h-5" />
-                                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                                    <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-medi-lime rounded-full shadow-sm"></span>
                                 </button>
 
                                 {/* User Avatar Dropdown */}
                                 <div className="relative">
                                     <button
                                         onClick={() => setShowUserDropdown(!showUserDropdown)}
-                                        className={`flex items-center space-x-3 p-2 rounded-xl ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-slate-50'} transition-colors`}
+                                        className="flex items-center space-x-4 p-2 rounded-2xl hover:bg-slate-50 transition-all group"
                                     >
-                                        <div className="w-10 h-10 bg-medi-green rounded-xl flex items-center justify-center shadow-lg">
-                                            <span className="text-white text-sm font-bold">{user?.firstName?.[0]}</span>
+                                        <div className="w-11 h-11 bg-medi-green rounded-xl flex items-center justify-center shadow-lg overflow-hidden transform group-hover:rotate-12 transition-transform">
+                                            {user?.image ? (
+                                                <img src={user.image} alt={user.firstName} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <span className="text-white text-sm font-black italic">{user?.firstName?.[0]}</span>
+                                            )}
                                         </div>
-                                        <div className="text-left">
-                                            <p className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+                                        <div className="text-left hidden md:block">
+                                            <p className="text-sm font-black text-slate-900 tracking-tight">
                                                 {user?.firstName} {user?.lastName}
                                             </p>
-                                            <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-slate-500'} capitalize`}>
+                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-medi-green">
                                                 {user?.role}
                                             </p>
                                         </div>
-                                        <ChevronDownIcon className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-slate-500'}`} />
+                                        <ChevronDownIcon className="w-4 h-4 text-slate-300" />
                                     </button>
 
                                     {showUserDropdown && (
-                                        <div className={`absolute right-0 mt-2 w-56 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-100'} rounded-xl shadow-xl border py-2 z-50`}>
-                                            <Link href={`/${subdomain}/settings`} className={`block px-4 py-3 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-slate-700 hover:bg-slate-50'} transition-colors`}>
-                                                Profile Settings
+                                        <div className="absolute right-0 mt-4 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl py-3 z-[100] animate-in fade-in zoom-in duration-200">
+                                            <Link href={`/${subdomain}/settings`} className="block px-5 py-4 text-sm font-bold text-slate-600 hover:text-medi-green hover:bg-slate-50 transition-all">
+                                                Settings
                                             </Link>
-                                            <hr className={`my-2 ${darkMode ? 'border-gray-700' : 'border-slate-100'}`} />
+                                            <div className="mx-5 my-2 border-t border-slate-100"></div>
                                             <button
                                                 onClick={handleLogout}
-                                                className={`block w-full text-left px-4 py-3 text-sm ${darkMode ? 'text-red-400 hover:bg-red-900/20' : 'text-red-600 hover:bg-red-50'} transition-colors`}
+                                                className="block w-full text-left px-5 py-4 text-sm font-black text-red-400 hover:bg-red-500/10 transition-all uppercase tracking-widest text-xs"
                                             >
                                                 Sign Out
                                             </button>

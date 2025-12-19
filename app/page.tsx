@@ -2,7 +2,86 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { Package, CreditCard, Cloud, ArrowRight, BarChart3, Shield, Zap, Users, CheckCircle2 } from 'lucide-react';
+import { Package, CreditCard, Cloud, ArrowRight, BarChart3, Shield, Zap, Users, CheckCircle2, Heart } from 'lucide-react';
+
+const AnimatedCounter = ({ value, label, icon: Icon, delay = 0 }: { value: string, label: string, icon: any, delay?: number }) => {
+    const [count, setCount] = useState(0);
+    const [isVisible, setIsVisible] = useState(false);
+    const countRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                }
+            },
+            { threshold: 0.5 }
+        );
+
+        if (countRef.current) observer.observe(countRef.current);
+        return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+        if (!isVisible) return;
+
+        // Parse the number part and suffix
+        const numericMatch = value.match(/(\d+\.?\d*)/);
+        const suffix = value.replace(numericMatch ? numericMatch[0] : '', '');
+        const target = numericMatch ? parseFloat(numericMatch[0]) : 0;
+
+        let start = 0;
+        const duration = 2000; // 2 seconds
+        const startTime = performance.now();
+
+        const animate = (currentTime: number) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Easing function (easeOutExpo)
+            const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+
+            const currentCount = easeProgress * target;
+            setCount(currentCount);
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        const timeout = setTimeout(() => {
+            requestAnimationFrame(animate);
+        }, delay);
+
+        return () => clearTimeout(timeout);
+    }, [isVisible, value, delay]);
+
+    const formatValue = (val: number) => {
+        const numericMatch = value.match(/(\d+\.?\d*)/);
+        const suffix = value.replace(numericMatch ? numericMatch[0] : '', '');
+
+        if (value.includes('.')) {
+            return val.toFixed(1) + suffix;
+        }
+        return Math.floor(val) + suffix;
+    };
+
+    return (
+        <div
+            ref={countRef}
+            className="reveal-scale text-center p-8 rounded-[40px] glass-card hover:bg-medi-green/5 border border-slate-100 hover:border-medi-green/20 transition-all duration-500 group cursor-default"
+        >
+            <div className="w-16 h-16 bg-medi-green/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-medi-green group-hover:text-white transition-all duration-500 shadow-sm group-hover:shadow-lg">
+                <Icon className="w-8 h-8 text-medi-green group-hover:text-white transition-colors" />
+            </div>
+            <p className="text-5xl font-black text-medi-green mb-3 tracking-tighter group-hover:scale-110 transition-transform duration-500">
+                {formatValue(count)}
+            </p>
+            <p className="text-slate-500 font-bold text-sm uppercase tracking-widest opacity-80">{label}</p>
+        </div>
+    );
+};
 
 export default function LandingPage() {
     const [isLoaded, setIsLoaded] = useState(false);
@@ -194,10 +273,13 @@ export default function LandingPage() {
                             >
                                 Get Started Free
                             </Link>
-                            <button className="bg-white/5 border border-white/20 text-white px-10 py-4 rounded-full font-bold hover:bg-white/15 hover:border-white/40 transition-all duration-300 group flex items-center gap-2">
+                            <Link
+                                href="/demo"
+                                className="bg-white/5 border border-white/20 text-white px-10 py-4 rounded-full font-bold hover:bg-white/15 hover:border-white/40 transition-all duration-300 group flex items-center gap-2"
+                            >
                                 Watch Demo
                                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                            </button>
+                            </Link>
                         </div>
                     </div>
 
@@ -210,9 +292,9 @@ export default function LandingPage() {
                             <div className="absolute inset-0 bg-gradient-to-t from-medi-green/80 to-transparent z-10"></div>
                             <div className="absolute inset-0 bg-gradient-to-br from-medi-lime/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-5"></div>
                             <img
-                                src="/pharmacist.png"
+                                src="/kidus.png"
                                 alt="Pharmacist"
-                                className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay"
+                                className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
                             />
                             <div className="relative z-20 text-center mb-8 group-hover:scale-105 transition-transform duration-500">
                                 <div className="w-16 h-16 bg-medi-lime rounded-2xl mx-auto mb-4 flex items-center justify-center text-medi-green shadow-lg">
@@ -253,108 +335,164 @@ export default function LandingPage() {
             </header>
 
             {/* Stats Section */}
-            <section id="stats" className="py-20 px-6 bg-white relative overflow-hidden">
-                <div className="max-w-7xl mx-auto">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <section id="stats" className="py-32 px-6 bg-white relative overflow-hidden">
+                <div className="max-w-7xl mx-auto relative z-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                         {[
                             { value: '500+', label: 'Pharmacies Trust Us', icon: Users },
                             { value: '99.9%', label: 'Uptime Guarantee', icon: Zap },
                             { value: '50M+', label: 'Transactions Processed', icon: CreditCard },
                             { value: '24/7', label: 'Expert Support', icon: Shield },
                         ].map((stat, index) => (
-                            <div
+                            <AnimatedCounter
                                 key={index}
-                                className={`reveal-scale text-center p-6 rounded-3xl bg-slate-50 hover:bg-medi-green/5 border border-transparent hover:border-medi-green/20 transition-all duration-500 group cursor-default stagger-${index + 1}`}
+                                value={stat.value}
+                                label={stat.label}
+                                icon={stat.icon}
+                                delay={index * 150}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Features Section - Core System Modules */}
+            <section id="features" className="py-32 px-6 bg-white relative overflow-hidden">
+                {/* Dynamic Background */}
+                <div className="absolute inset-0 bg-mesh opacity-30"></div>
+                <div className="absolute top-1/4 -right-20 w-96 h-96 bg-medi-lime/10 rounded-full blur-[120px] animate-blob"></div>
+                <div className="absolute bottom-1/4 -left-20 w-96 h-96 bg-medi-green/5 rounded-full blur-[120px] animate-blob" style={{ animationDelay: '4s' }}></div>
+
+                <div className="max-w-7xl mx-auto relative z-10">
+                    <div className="text-center mb-24 reveal">
+                        <div className="inline-flex items-center gap-2 bg-medi-green/10 text-medi-green px-5 py-2 rounded-full text-sm font-black mb-6 uppercase tracking-widest border border-medi-green/10">
+                            <Cloud className="w-4 h-4" />
+                            Unified Architecture
+                        </div>
+                        <h2 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-none">
+                            Core System <br />
+                            <span className="text-medi-green">Modules.</span>
+                        </h2>
+                        <p className="text-slate-500 text-xl max-w-2xl mx-auto leading-relaxed">
+                            A next-generation multi-tenant ecosystem designed to simplify complex pharmacy workflows with precision.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                        {[
+                            {
+                                title: 'Inventory Control',
+                                icon: Package,
+                                color: 'medi-green',
+                                features: ['Batch & Expiry tracking', 'Barcode automation', 'Smart stock alerts'],
+                                desc: 'Minimize wastage and optimize stock levels with real-time tracking.'
+                            },
+                            {
+                                title: 'Smart POS',
+                                icon: CreditCard,
+                                color: 'blue-600',
+                                features: ['Fast digital billing', 'Global payment sync', 'Profit/Loss insights'],
+                                desc: 'High-speed checkout with automated tax compliance and reporting.'
+                            },
+                            {
+                                title: 'Cloud SaaS',
+                                icon: Cloud,
+                                color: 'medi-green',
+                                features: ['Multi-tenant isolation', 'Custom white-labeling', 'Scalable chain management'],
+                                desc: 'Enterprise-grade security with a personalized experience for every tenant.'
+                            }
+                        ].map((module, i) => (
+                            <div
+                                key={i}
+                                className={`reveal-up stagger-${i + 1} glass-card p-12 rounded-[50px] border border-slate-100 hover:border-medi-green/30 hover:bg-white transition-all duration-700 group hover:-translate-y-4 shadow-xl hover:shadow-[0_40px_80px_-20px_rgba(0,104,64,0.1)]`}
                             >
-                                <div className="w-14 h-14 bg-medi-green/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:bg-medi-green/20 transition-all duration-300">
-                                    <stat.icon className="w-7 h-7 text-medi-green" />
+                                <div className={`w-20 h-20 bg-${module.color}/5 rounded-3xl flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-${module.color} group-hover:shadow-2xl transition-all duration-500`}>
+                                    <module.icon className={`w-10 h-10 text-${module.color} group-hover:text-white transition-colors`} />
                                 </div>
-                                <p className="text-4xl font-extrabold text-medi-green mb-2 group-hover:scale-110 transition-transform duration-300">{stat.value}</p>
-                                <p className="text-slate-500 font-medium text-sm">{stat.label}</p>
+                                <h3 className="text-3xl font-black mb-6 group-hover:text-medi-green transition-colors tracking-tight">{module.title}</h3>
+                                <p className="text-slate-500 mb-10 leading-relaxed text-lg">{module.desc}</p>
+                                <ul className="space-y-4">
+                                    {module.features.map((feat, fi) => (
+                                        <li key={fi} className="flex items-center gap-3 text-sm font-bold text-slate-700">
+                                            <div className="w-5 h-5 rounded-full bg-medi-green/10 flex items-center justify-center flex-shrink-0 group-hover:bg-medi-green/20">
+                                                <CheckCircle2 className="w-3 h-3 text-medi-green" />
+                                            </div>
+                                            {feat}
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Features Section */}
-            <section id="features" className="py-32 px-6 bg-slate-50 relative overflow-hidden">
-                {/* Background decoration */}
-                <div className="absolute top-0 right-0 w-96 h-96 bg-medi-green/5 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 w-72 h-72 bg-medi-lime/10 rounded-full blur-3xl"></div>
+            {/* Feature Highlight Section with Female Pharmacist */}
+            <section className="py-32 px-6 bg-white relative overflow-hidden">
+                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    {/* Left: Image with annotations */}
+                    <div className="reveal-left relative group order-2 lg:order-1">
+                        <div className="absolute -inset-4 bg-medi-green/5 rounded-[50px] blur-2xl group-hover:bg-medi-green/10 transition-colors"></div>
+                        <div className="relative aspect-[4/5] rounded-[40px] overflow-hidden border border-slate-100 shadow-2xl">
+                            <img
+                                src="/pharmacist.png"
+                                alt="Pharmacist"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent"></div>
 
-                <div className="max-w-7xl mx-auto relative z-10">
-                    <div className="text-center mb-20 reveal">
-                        <span className="inline-block px-4 py-2 bg-medi-green/10 text-medi-green rounded-full text-sm font-bold mb-4">Powerful Features</span>
-                        <h2 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">Core System Modules</h2>
-                        <p className="text-slate-500 max-w-2xl mx-auto">A multi-tenant SaaS Pharmacy Management System that digitally transforms your operations end-to-end.</p>
+                            {/* Floating Stats on Image */}
+                            <div className="absolute top-10 right-10 reveal-scale stagger-2">
+                                <div className="glass-card bg-white/20 backdrop-blur-xl p-4 rounded-2xl border border-white/30 text-white shadow-2xl">
+                                    <p className="text-xs font-bold uppercase tracking-wider opacity-70">Expert Staff</p>
+                                    <p className="text-2xl font-black">Pharmacists</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Interactive Badge */}
+                        <div className="absolute -bottom-6 -right-6 lg:-right-10 reveal-scale stagger-3">
+                            <div className="bg-medi-lime p-6 rounded-3xl shadow-2xl border-4 border-white rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                                <div className="flex items-center gap-3">
+                                    <Heart className="w-8 h-8 text-medi-green fill-medi-green/20" />
+                                    <div>
+                                        <p className="text-medi-green font-black text-xl">Patient-First</p>
+                                        <p className="text-medi-green/70 text-xs font-bold uppercase">Our Philosophy</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {/* Inventory Card */}
-                        <div className="reveal-left stagger-1 bg-white p-10 rounded-[40px] shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 group hover:-translate-y-2">
-                            <div className="w-16 h-16 bg-medi-green/5 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 group-hover:bg-medi-green group-hover:shadow-lg transition-all duration-300">
-                                <Package className="w-8 h-8 text-medi-green group-hover:text-white transition-colors" />
-                            </div>
-                            <h3 className="text-2xl font-bold mb-4 group-hover:text-medi-green transition-colors">Inventory Management</h3>
-                            <ul className="text-slate-500 space-y-3 text-sm">
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="w-4 h-4 text-medi-green flex-shrink-0" />
-                                    Medicine batch & expiry tracking
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="w-4 h-4 text-medi-green flex-shrink-0" />
-                                    Barcode scanning & stock alerts
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="w-4 h-4 text-medi-green flex-shrink-0" />
-                                    Real-time stock forecasting
-                                </li>
-                            </ul>
-                        </div>
+                    {/* Right: Feature Content */}
+                    <div className="reveal-right order-1 lg:order-2">
+                        <span className="inline-block px-4 py-2 bg-medi-lime/20 text-medi-green rounded-full text-sm font-bold mb-6">Built for Professionals</span>
+                        <h2 className="text-4xl md:text-6xl font-extrabold mb-8 tracking-tighter leading-none">
+                            Tailored for <br />
+                            <span className="text-medi-green">Professional</span> <br />
+                            Care Excellence.
+                        </h2>
+                        <p className="text-slate-500 text-lg mb-12 max-w-lg leading-relaxed">
+                            MediHeal provides the precision tools needed by pharmacists to deliver exceptional patient outcomes while maximizing operational efficiency.
+                        </p>
 
-                        {/* POS Card */}
-                        <div className="reveal stagger-2 bg-white p-10 rounded-[40px] shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 group hover:-translate-y-2">
-                            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 group-hover:bg-blue-600 group-hover:shadow-lg transition-all duration-300">
-                                <CreditCard className="w-8 h-8 text-blue-600 group-hover:text-white transition-colors" />
-                            </div>
-                            <h3 className="text-2xl font-bold mb-4 group-hover:text-blue-600 transition-colors">Sales & Billing (POS)</h3>
-                            <ul className="text-slate-500 space-y-3 text-sm">
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                                    Fast billing & digital receipts
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                                    Automated tax & discounts
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                                    Real-time profit/loss reports
-                                </li>
-                            </ul>
-                        </div>
-
-                        {/* SaaS Card */}
-                        <div className="reveal-right stagger-3 bg-white p-10 rounded-[40px] shadow-sm hover:shadow-2xl transition-all duration-500 border border-slate-100 group hover:-translate-y-2">
-                            <div className="w-16 h-16 bg-medi-lime/20 rounded-2xl flex items-center justify-center text-3xl mb-8 group-hover:scale-110 group-hover:bg-medi-lime group-hover:shadow-lg transition-all duration-300">
-                                <Cloud className="w-8 h-8 text-medi-green transition-colors" />
-                            </div>
-                            <h3 className="text-2xl font-bold mb-4 group-hover:text-medi-green transition-colors">SaaS Multi-Tenant</h3>
-                            <ul className="text-slate-500 space-y-3 text-sm">
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="w-4 h-4 text-medi-green flex-shrink-0" />
-                                    Isolated database & data security
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="w-4 h-4 text-medi-green flex-shrink-0" />
-                                    Custom pharmacy branding
-                                </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle2 className="w-4 h-4 text-medi-green flex-shrink-0" />
-                                    Scalable for pharmacy chains
-                                </li>
-                            </ul>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            {[
+                                { title: 'Prescription Accuracy', desc: 'Advanced verification systems to eliminate errors.' },
+                                { title: 'Patient Profiles', desc: 'Secure histories & automated interaction checks.' },
+                                { title: 'Compliance Ready', desc: 'Built-in regulatory reporting & documentation.' },
+                                { title: 'Direct Supplier Links', desc: 'One-click reordering for essential medicine.' },
+                            ].map((feature, i) => (
+                                <div key={i} className="flex gap-4 p-4 rounded-2xl border border-slate-50 hover:border-medi-green/20 hover:bg-slate-50/50 transition-all">
+                                    <div className="w-10 h-10 bg-medi-green rounded-xl flex items-center justify-center flex-shrink-0">
+                                        <CheckCircle2 className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-slate-900 mb-1">{feature.title}</h4>
+                                        <p className="text-xs text-slate-500 leading-tight">{feature.desc}</p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

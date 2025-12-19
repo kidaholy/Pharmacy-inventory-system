@@ -6,22 +6,149 @@ import TenantLayout from '../../../components/TenantLayout';
 import { auth, User } from '../../../lib/auth';
 import Link from 'next/link';
 import {
-    UserIcon,
-    BuildingStorefrontIcon,
-    BellIcon,
-    ShieldCheckIcon,
-    PaintBrushIcon,
-    CreditCardIcon,
-    KeyIcon,
+    User as UserIcon,
+    Building2,
+    Bell,
+    Shield,
+    Palette,
+    CreditCard,
+    Key,
+    Check,
+    Globe,
+    Image,
+    Plus,
+    Trash2,
+    Eye,
+    Sparkles,
+    Star,
+    Phone,
+    ChevronRight,
+    Save,
+    Lock,
+    Trash,
+    CheckCircle
+} from 'lucide-react';
+import {
     CheckIcon,
-    GlobeAltIcon,
-    PhotoIcon,
-    PlusIcon,
     TrashIcon,
-    EyeIcon,
-    SparklesIcon,
-    StarIcon
+    KeyIcon,
+    ShieldCheckIcon
 } from '@heroicons/react/24/outline';
+
+const ImageUploadZone = ({
+    label,
+    value,
+    onChange,
+    tenantId,
+    aspectRatio = "video"
+}: {
+    label: string,
+    value: string,
+    onChange: (url: string) => void,
+    tenantId: string,
+    aspectRatio?: "video" | "square" | "portrait"
+}) => {
+    const [dragging, setDragging] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleFile = async (file: File) => {
+        if (!file.type.startsWith('image/')) {
+            setError('Please upload an image file');
+            return;
+        }
+
+        setUploading(true);
+        setError(null);
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch(`/api/tenant/${tenantId}/upload`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                onChange(data.url);
+            } else {
+                const errData = await response.json();
+                setError(errData.error || 'Upload failed');
+            }
+        } catch (err) {
+            setError('Connection error');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const onDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setDragging(false);
+        const file = e.dataTransfer.files[0];
+        if (file) handleFile(file);
+    };
+
+    return (
+        <div className="space-y-4">
+            <label className="block text-[10px] font-black text-white/20 uppercase tracking-[0.3em] font-medium">{label}</label>
+            <div
+                onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={onDrop}
+                className={`relative group cursor-pointer border border-slate-200 rounded-[32px] transition-all duration-300 overflow-hidden bg-slate-50 ${dragging ? 'border-medi-green/50 bg-medi-green/5 shadow-lg' : 'hover:border-medi-green/30'
+                    } ${aspectRatio === 'video' ? 'aspect-video' : aspectRatio === 'square' ? 'aspect-square' : 'aspect-[3/4]'}`}
+            >
+                {value ? (
+                    <>
+                        <img src={value} alt={label} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-md">
+                            <div className="flex flex-col items-center text-white">
+                                <Image className="w-10 h-10 mb-3" />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Update Image</span>
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+                        <div className={`w-16 h-16 rounded-[24px] mb-4 flex items-center justify-center transition-all ${dragging ? 'bg-medi-green text-white shadow-lg' : 'bg-slate-200 text-slate-400 group-hover:text-medi-green'}`}>
+                            <Image className="w-8 h-8" />
+                        </div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-loose">Upload Image</p>
+                        <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-1">Tap or Drag to Proceed</p>
+                    </div>
+                )}
+
+                <input
+                    type="file"
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    accept="image/*"
+                    onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFile(file);
+                    }}
+                />
+
+                {uploading && (
+                    <div className="absolute inset-0 bg-white/80 backdrop-blur-xl flex items-center justify-center z-10">
+                        <div className="flex flex-col items-center">
+                            <div className="w-10 h-10 border-2 border-medi-green border-t-transparent rounded-full animate-spin mb-4"></div>
+                            <span className="text-[10px] font-black text-medi-green uppercase tracking-[0.3em]">Uploading...</span>
+                        </div>
+                    </div>
+                )}
+
+                {error && (
+                    <div className="absolute bottom-6 left-6 right-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-2xl text-center">
+                        {error}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
 
 export default function SettingsPage() {
     const params = useParams();
@@ -31,13 +158,7 @@ export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState('profile');
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
-
-    useEffect(() => {
-        const currentUser = auth.requireAuth();
-        if (currentUser) {
-            setUser(currentUser);
-        }
-    }, []);
+    const [error, setError] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
         firstName: '',
@@ -48,219 +169,302 @@ export default function SettingsPage() {
         address: '',
         city: '',
         country: '',
+        image: ''
     });
 
-    // CMS Data for Landing Page
-    const [cmsData, setCmsData] = useState({
-        tagline: 'Your Trusted Healthcare Partner',
-        description: 'Your neighborhood pharmacy committed to providing quality healthcare products and personalized service for you and your family.',
-        businessHours: 'Mon - Sat: 8AM - 8PM',
-        services: [
-            { title: 'Quality Medicines', description: 'Wide range of authenticated pharmaceutical products' },
-            { title: 'Health Consultation', description: 'Expert pharmacists available for health advice' },
-            { title: 'Fast Delivery', description: 'Quick and reliable medicine delivery service' },
-            { title: 'Secure & Safe', description: '100% genuine products with quality guarantee' },
-        ],
-        testimonials: [
-            { name: 'Sarah M.', text: 'Excellent service and genuine medicines!', rating: 5 },
-            { name: 'John D.', text: 'Fast delivery and great prices.', rating: 5 },
-            { name: 'Emily R.', text: 'Very professional staff.', rating: 4 },
-        ],
-        stats: [
-            { value: '10K+', label: 'Happy Customers' },
-            { value: '500+', label: 'Products Available' },
-            { value: '24/7', label: 'Support Available' },
-            { value: '99%', label: 'Satisfaction Rate' },
-        ],
+    const [branding, setBranding] = useState({
+        logo: '',
+        heroTitle: '',
+        heroSubtitle: '',
+        heroImage: '',
+        deliveryImage: '',
+        consultationImage: '',
+        contactMessage: '',
+        businessHours: ''
+    });
+
+    const [cmsData, setCmsData] = useState<{
+        hero: { title: string, subtitle: string, image: string },
+        services: Array<{ title: string, description: string, image: string, icon?: string }>,
+        faq: Array<{ question: string, answer: string }>,
+        contact: { message: string, businessHours?: string }
+    }>({
+        hero: { title: '', subtitle: '', image: '' },
+        services: [],
+        faq: [],
+        contact: { message: '', businessHours: '' }
     });
 
     useEffect(() => {
-        if (user) {
-            setFormData({
-                firstName: user.firstName || '',
-                lastName: user.lastName || '',
-                email: user.email || '',
-                phone: '',
-                pharmacyName: '',
-                address: '',
-                city: '',
-                country: '',
-            });
+        const currentUser = auth.requireAuth();
+        if (currentUser) {
+            setUser(currentUser);
+            setFormData(prev => ({
+                ...prev,
+                firstName: currentUser.firstName || '',
+                lastName: currentUser.lastName || '',
+                email: currentUser.email || '',
+                image: currentUser.image || ''
+            }));
+            loadData();
         }
-    }, [user]);
+    }, []);
+
+    const loadData = async () => {
+        try {
+            const [tenantRes, cmsRes] = await Promise.all([
+                fetch(`/api/tenant/${subdomain}`),
+                fetch(`/api/tenant/${subdomain}/cms`)
+            ]);
+
+            if (tenantRes.ok) {
+                const data = await tenantRes.json();
+                setFormData(prev => ({
+                    ...prev,
+                    pharmacyName: data.name || '',
+                    email: data.contact?.email || '',
+                    phone: data.contact?.phone || '',
+                    city: data.contact?.city || '',
+                    country: data.contact?.country || '',
+                }));
+                if (data.settings?.branding) {
+                    setBranding(prev => ({ ...prev, ...data.settings.branding }));
+                }
+            }
+
+            if (cmsRes.ok) {
+                const data = await cmsRes.json();
+                setCmsData(data);
+                // Sync legacy branding into CMS data if CMS is empty
+                if (!data.hero?.title && branding.heroTitle) {
+                    setCmsData(prev => ({
+                        ...prev,
+                        hero: { title: branding.heroTitle, subtitle: branding.heroSubtitle, image: branding.heroImage },
+                        contact: { message: branding.contactMessage, businessHours: branding.businessHours }
+                    }));
+                }
+            }
+        } catch (err) {
+            console.error('Error loading data:', err);
+        }
+    };
 
     const handleSave = async () => {
         setSaving(true);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setSaving(false);
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
-    };
+        setError(null);
+        try {
+            let updatePayload: any = {};
+            let isCmsUpdate = false;
 
-    const addService = () => {
-        setCmsData({
-            ...cmsData,
-            services: [...cmsData.services, { title: 'New Service', description: 'Service description' }]
-        });
-    };
+            if (activeTab === 'profile') {
+                if (!user) return;
+                updatePayload = {
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    email: formData.email,
+                    phone: formData.phone,
+                    image: formData.image,
+                    tenantId: user.tenantId // Backend requirement
+                };
 
-    const removeService = (index: number) => {
-        setCmsData({
-            ...cmsData,
-            services: cmsData.services.filter((_, i) => i !== index)
-        });
-    };
+                const response = await fetch(`/api/users/${user._id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatePayload)
+                });
 
-    const updateService = (index: number, field: 'title' | 'description', value: string) => {
-        const newServices = [...cmsData.services];
-        newServices[index][field] = value;
-        setCmsData({ ...cmsData, services: newServices });
-    };
+                if (response.ok) {
+                    auth.updateSessionUser({
+                        firstName: formData.firstName,
+                        lastName: formData.lastName,
+                        email: formData.email,
+                        image: formData.image
+                    });
+                    setSaved(true);
+                    setTimeout(() => setSaved(false), 2000);
+                } else {
+                    const errData = await response.json();
+                    setError(errData.error || 'Failed to update profile');
+                }
+                return; // Early return for profile save
+            } else if (activeTab === 'pharmacy') {
+                updatePayload = {
+                    name: formData.pharmacyName,
+                    contact: {
+                        email: formData.email,
+                        phone: formData.phone,
+                        city: formData.city,
+                        country: formData.country
+                    }
+                };
+            } else if (activeTab === 'website') {
+                isCmsUpdate = true;
+                updatePayload = cmsData;
+                // Also update legacy branding for compatibility
+                await fetch(`/api/tenant/${subdomain}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        settings: {
+                            branding: {
+                                logo: branding.logo,
+                                heroTitle: cmsData.hero.title,
+                                heroSubtitle: cmsData.hero.subtitle,
+                                heroImage: cmsData.hero.image,
+                                contactMessage: cmsData.contact.message,
+                                businessHours: cmsData.contact.businessHours
+                            }
+                        }
+                    })
+                });
+            }
 
-    const addTestimonial = () => {
-        setCmsData({
-            ...cmsData,
-            testimonials: [...cmsData.testimonials, { name: 'Customer Name', text: 'Their feedback...', rating: 5 }]
-        });
-    };
+            const url = isCmsUpdate ? `/api/tenant/${subdomain}/cms` : `/api/tenant/${subdomain}`;
+            const response = await fetch(url, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatePayload)
+            });
 
-    const removeTestimonial = (index: number) => {
-        setCmsData({
-            ...cmsData,
-            testimonials: cmsData.testimonials.filter((_, i) => i !== index)
-        });
-    };
-
-    const updateTestimonial = (index: number, field: 'name' | 'text' | 'rating', value: string | number) => {
-        const newTestimonials = [...cmsData.testimonials];
-        (newTestimonials[index] as any)[field] = value;
-        setCmsData({ ...cmsData, testimonials: newTestimonials });
-    };
-
-    const updateStat = (index: number, field: 'value' | 'label', value: string) => {
-        const newStats = [...cmsData.stats];
-        newStats[index][field] = value;
-        setCmsData({ ...cmsData, stats: newStats });
+            if (response.ok) {
+                setSaved(true);
+                setTimeout(() => setSaved(false), 2000);
+            } else {
+                const errData = await response.json();
+                setError(errData.error || 'Failed to save changes');
+            }
+        } catch (err) {
+            setError('An error occurred while saving');
+        } finally {
+            setSaving(false);
+        }
     };
 
     const tabs = [
         { id: 'profile', name: 'Profile', icon: UserIcon },
-        { id: 'pharmacy', name: 'Pharmacy', icon: BuildingStorefrontIcon },
-        { id: 'website', name: 'Website CMS', icon: GlobeAltIcon },
-        { id: 'notifications', name: 'Notifications', icon: BellIcon },
-        { id: 'security', name: 'Security', icon: ShieldCheckIcon },
-        { id: 'appearance', name: 'Appearance', icon: PaintBrushIcon },
-        { id: 'billing', name: 'Billing', icon: CreditCardIcon },
+        { id: 'pharmacy', name: 'Pharmacy Info', icon: Building2 },
+        { id: 'website', name: 'Website CMS', icon: Globe },
+        { id: 'notifications', name: 'Notifications', icon: Bell },
+        { id: 'security', name: 'Security', icon: Shield },
+        { id: 'appearance', name: 'Appearance', icon: Palette },
+        { id: 'billing', name: 'Billing', icon: CreditCard },
     ];
 
     return (
         <TenantLayout title="Settings" subtitle="Manage your account and preferences">
             <div className="flex flex-col lg:flex-row gap-6">
-                {/* Sidebar Tabs */}
-                <div className="lg:w-64 flex-shrink-0">
-                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-2">
+                <div className="lg:w-72 flex-shrink-0">
+                    <div className="bg-white rounded-[40px] border border-slate-100 p-4 space-y-2 sticky top-[100px] shadow-sm">
                         {tabs.map((tab) => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${activeTab === tab.id
-                                    ? 'bg-medi-green/10 text-medi-green font-semibold'
-                                    : 'text-slate-600 hover:bg-slate-50'
+                                className={`w-full flex items-center justify-between px-6 py-4 rounded-[24px] transition-all group ${activeTab === tab.id
+                                    ? 'bg-medi-green text-white font-black shadow-lg shadow-medi-green/20'
+                                    : 'text-slate-400 hover:text-medi-green hover:bg-slate-50'
                                     }`}
                             >
-                                <tab.icon className="w-5 h-5" />
-                                <span>{tab.name}</span>
+                                <div className="flex items-center gap-4">
+                                    <tab.icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${activeTab === tab.id ? 'text-white' : 'text-slate-300 group-hover:text-medi-green'}`} />
+                                    <span className="text-[10px] uppercase tracking-[0.2em] font-black">{tab.name}</span>
+                                </div>
+                                {activeTab === tab.id && <ChevronRight className="w-4 h-4 text-white" />}
                             </button>
                         ))}
                     </div>
                 </div>
 
-                {/* Content */}
                 <div className="flex-1">
-                    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+                    {error && (
+                        <div className="mb-8 p-5 bg-red-500/10 text-red-500 rounded-[32px] border border-red-500/20 flex items-center gap-4 font-black uppercase tracking-widest text-[10px] animate-pulse">
+                            <Lock className="w-5 h-5" />
+                            <span>System Override: {error}</span>
+                        </div>
+                    )}
+
+                    <div className="bg-white rounded-[48px] border border-slate-100 p-12 shadow-sm">
                         {activeTab === 'profile' && (
-                            <div>
-                                <h3 className="text-lg font-bold text-slate-900 mb-6">Profile Information</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-2">First Name</label>
-                                        <input
-                                            type="text"
-                                            value={formData.firstName}
-                                            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                                            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medi-green/30 focus:border-medi-green"
-                                        />
+                            <div className="space-y-12">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">Your Profile</h3>
+                                    <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center">
+                                        <UserIcon className="w-6 h-6 text-medi-green" />
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-2">Last Name</label>
-                                        <input
-                                            type="text"
-                                            value={formData.lastName}
-                                            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                                            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medi-green/30 focus:border-medi-green"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
-                                        <input
-                                            type="email"
-                                            value={formData.email}
-                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medi-green/30 focus:border-medi-green"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-2">Phone</label>
-                                        <input
-                                            type="tel"
-                                            value={formData.phone}
-                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medi-green/30 focus:border-medi-green"
-                                        />
+                                </div>
+                                <div className="space-y-10">
+                                    <ImageUploadZone
+                                        label="Profile Picture"
+                                        value={formData.image}
+                                        onChange={(url) => setFormData({ ...formData, image: url })}
+                                        tenantId={user?.tenantId || 'general'}
+                                        aspectRatio="square"
+                                    />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                        {[
+                                            { label: 'First Name', value: formData.firstName, field: 'firstName', type: 'text' },
+                                            { label: 'Last Name', value: formData.lastName, field: 'lastName', type: 'text' },
+                                            { label: 'Email Address', value: formData.email, field: 'email', type: 'email' },
+                                            { label: 'Phone Number', value: formData.phone, field: 'phone', type: 'tel' }
+                                        ].map((field) => (
+                                            <div key={field.field} className="space-y-3">
+                                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">{field.label}</label>
+                                                <input
+                                                    type={field.type}
+                                                    value={field.value}
+                                                    onChange={(e) => setFormData({ ...formData, [field.field]: e.target.value })}
+                                                    className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-medi-green/30 text-slate-900 font-bold transition-all shadow-sm"
+                                                />
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
                         )}
 
                         {activeTab === 'pharmacy' && (
-                            <div>
-                                <h3 className="text-lg font-bold text-slate-900 mb-6">Pharmacy Information</h3>
-                                <div className="space-y-6">
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-2">Pharmacy Name</label>
+                            <div className="space-y-12">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">Pharmacy Details</h3>
+                                    <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center">
+                                        <Building2 className="w-6 h-6 text-medi-green" />
+                                    </div>
+                                </div>
+                                <div className="space-y-10">
+                                    <div className="space-y-3">
+                                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Pharmacy Name</label>
                                         <input
                                             type="text"
                                             value={formData.pharmacyName}
                                             onChange={(e) => setFormData({ ...formData, pharmacyName: e.target.value })}
-                                            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medi-green/30 focus:border-medi-green"
+                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-medi-green/30 text-slate-900 font-bold text-xl transition-all shadow-sm"
                                         />
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-2">Address</label>
+                                    <div className="space-y-3">
+                                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Physical Address</label>
                                         <textarea
                                             value={formData.address}
                                             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                                             rows={3}
-                                            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medi-green/30 focus:border-medi-green"
+                                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-medi-green/30 text-slate-900 font-bold transition-all shadow-sm"
                                         />
                                     </div>
-                                    <div className="grid grid-cols-2 gap-6">
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-2">City</label>
+                                    <div className="grid grid-cols-2 gap-10">
+                                        <div className="space-y-3">
+                                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">City</label>
                                             <input
                                                 type="text"
                                                 value={formData.city}
                                                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                                                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medi-green/30 focus:border-medi-green"
+                                                className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:border-medi-green/30 text-slate-900 font-bold transition-all shadow-sm"
                                             />
                                         </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-2">Country</label>
+                                        <div className="space-y-3">
+                                            <label className="block text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">G-Country</label>
                                             <input
                                                 type="text"
                                                 value={formData.country}
                                                 onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                                                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medi-green/30 focus:border-medi-green"
+                                                className="w-full px-6 py-4 bg-white/[0.03] border border-white/5 rounded-2xl focus:outline-none focus:border-[#F9E076]/30 text-white font-bold transition-all"
                                             />
                                         </div>
                                     </div>
@@ -268,188 +472,243 @@ export default function SettingsPage() {
                             </div>
                         )}
 
-                        {/* Website CMS Tab */}
                         {activeTab === 'website' && (
-                            <div className="space-y-8">
+                            <div className="space-y-20">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <h3 className="text-lg font-bold text-slate-900">Website CMS</h3>
-                                        <p className="text-sm text-slate-500">Customize your public landing page</p>
+                                        <h3 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">Website CMS</h3>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mt-2">Manage your public pharmacy website</p>
                                     </div>
                                     <Link
                                         href={`/${subdomain}`}
                                         target="_blank"
-                                        className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-xl text-slate-700 hover:bg-slate-200 transition-colors"
+                                        className="flex items-center gap-3 px-8 py-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all font-black uppercase tracking-widest text-[10px] shadow-lg"
                                     >
-                                        <EyeIcon className="w-4 h-4" />
-                                        Preview Site
+                                        <Eye className="w-5 h-5" />
+                                        View Live Site
                                     </Link>
                                 </div>
 
-                                {/* Hero Section */}
-                                <div className="p-6 bg-gradient-to-r from-medi-green/5 to-medi-lime/5 rounded-2xl border border-medi-green/10">
-                                    <h4 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                                        <SparklesIcon className="w-5 h-5 text-medi-green" />
-                                        Hero Section
-                                    </h4>
+                                {/* Logo & Core Identity */}
+                                <section className="p-10 bg-slate-50 rounded-[40px] border border-slate-100 relative overflow-hidden shadow-sm">
+                                    <div className="flex items-center gap-4 mb-10">
+                                        <div className="w-12 h-12 bg-medi-green rounded-[20px] flex items-center justify-center text-white shadow-lg">
+                                            <Globe className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-xs text-slate-900 uppercase tracking-[0.3em]">Brand Identity</h4>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Pharmacy Logos & Icons</p>
+                                        </div>
+                                    </div>
+                                    <div className="max-w-xs">
+                                        <ImageUploadZone
+                                            label="Pharmacy Logo"
+                                            value={branding.logo}
+                                            onChange={(url) => setBranding({ ...branding, logo: url })}
+                                            tenantId={subdomain}
+                                            aspectRatio="square"
+                                        />
+                                    </div>
+                                </section>
+
+                                {/* Hero Content Manager */}
+                                <section className="p-10 bg-medi-green/5 rounded-[48px] border border-medi-green/10 relative shadow-sm">
+                                    <div className="flex items-center gap-4 mb-12">
+                                        <div className="w-12 h-12 bg-medi-green rounded-[20px] flex items-center justify-center text-white shadow-lg">
+                                            <Sparkles className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-xs text-slate-900 uppercase tracking-[0.3em]">Hero Section</h4>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Main Landing Page Intro</p>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                                        <div className="space-y-8">
+                                            <div className="space-y-3">
+                                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Main Headline</label>
+                                                <input
+                                                    type="text"
+                                                    value={cmsData.hero.title}
+                                                    onChange={(e) => setCmsData({ ...cmsData, hero: { ...cmsData.hero, title: e.target.value } })}
+                                                    className="w-full px-6 py-4 bg-white border border-slate-200 rounded-2xl focus:border-medi-green/30 outline-none font-black text-2xl text-slate-900 tracking-tighter shadow-sm"
+                                                    placeholder="Pharmacy perfected."
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Sub-headline / Description</label>
+                                                <textarea
+                                                    value={cmsData.hero.subtitle}
+                                                    onChange={(e) => setCmsData({ ...cmsData, hero: { ...cmsData.hero, subtitle: e.target.value } })}
+                                                    rows={4}
+                                                    className="w-full px-6 py-4 bg-white border border-slate-200 rounded-2xl focus:border-medi-green/30 outline-none text-slate-600 font-medium leading-relaxed shadow-sm"
+                                                    placeholder="Tell your story..."
+                                                />
+                                            </div>
+                                        </div>
+                                        <ImageUploadZone
+                                            label="Hero Image"
+                                            value={cmsData.hero.image}
+                                            onChange={(url) => setCmsData({ ...cmsData, hero: { ...cmsData.hero, image: url } })}
+                                            tenantId={subdomain}
+                                            aspectRatio="video"
+                                        />
+                                    </div>
+                                </section>
+
+                                {/* Service Grid Manager */}
+                                <section className="space-y-10">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 bg-medi-green rounded-[20px] flex items-center justify-center text-white shadow-lg">
+                                                <Building2 className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-xs text-slate-900 uppercase tracking-[0.3em]">Services</h4>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">What your pharmacy offers</p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => setCmsData({ ...cmsData, services: [...cmsData.services, { title: 'New Service', description: '', image: '' }] })}
+                                            className="px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-md"
+                                        >
+                                            Add Service
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                        {cmsData.services.map((s, idx) => (
+                                            <div key={idx} className="bg-white p-8 rounded-[40px] border border-slate-100 relative group shadow-sm hover:shadow-md transition-all">
+                                                <button
+                                                    onClick={() => setCmsData({ ...cmsData, services: cmsData.services.filter((_, i) => i !== idx) })}
+                                                    className="absolute -top-3 -right-3 w-10 h-10 bg-red-500 text-white rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-xl"
+                                                >
+                                                    <Trash2 className="w-5 h-5" />
+                                                </button>
+                                                <div className="space-y-6">
+                                                    <input
+                                                        value={s.title}
+                                                        onChange={(e) => {
+                                                            const news = [...cmsData.services];
+                                                            news[idx].title = e.target.value;
+                                                            setCmsData({ ...cmsData, services: news });
+                                                        }}
+                                                        className="w-full text-xl font-black tracking-tight outline-none border-b border-slate-100 focus:border-medi-green/30 bg-transparent text-slate-900"
+                                                        placeholder="Service Title"
+                                                    />
+                                                    <textarea
+                                                        value={s.description}
+                                                        onChange={(e) => {
+                                                            const news = [...cmsData.services];
+                                                            news[idx].description = e.target.value;
+                                                            setCmsData({ ...cmsData, services: news });
+                                                        }}
+                                                        className="w-full text-sm font-medium text-slate-600 outline-none bg-slate-50 p-5 rounded-2xl min-h-[100px]"
+                                                        placeholder="Description..."
+                                                    />
+                                                    <ImageUploadZone
+                                                        label="Service Image"
+                                                        value={s.image}
+                                                        onChange={(url) => {
+                                                            const news = [...cmsData.services];
+                                                            news[idx].image = url;
+                                                            setCmsData({ ...cmsData, services: news });
+                                                        }}
+                                                        tenantId={subdomain}
+                                                        aspectRatio="video"
+                                                    />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
+
+                                {/* FAQ Manager */}
+                                <section className="space-y-6">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-medi-green rounded-xl flex items-center justify-center text-white shadow-lg">
+                                                <CheckIcon className="w-6 h-6" />
+                                            </div>
+                                            <h4 className="font-black text-lg text-slate-900 uppercase tracking-widest">Customer FAQ</h4>
+                                        </div>
+                                        <button
+                                            onClick={() => setCmsData({ ...cmsData, faq: [...cmsData.faq, { question: '', answer: '' }] })}
+                                            className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-md"
+                                        >
+                                            Add Question
+                                        </button>
+                                    </div>
                                     <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-2">Tagline</label>
-                                            <input
-                                                type="text"
-                                                value={cmsData.tagline}
-                                                onChange={(e) => setCmsData({ ...cmsData, tagline: e.target.value })}
-                                                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medi-green/30 focus:border-medi-green"
-                                                placeholder="Your Trusted Healthcare Partner"
-                                            />
+                                        {cmsData.faq.map((f, idx) => (
+                                            <div key={idx} className="p-6 bg-white border border-slate-100 rounded-3xl shadow-sm space-y-3 relative group">
+                                                <button
+                                                    onClick={() => setCmsData({ ...cmsData, faq: cmsData.faq.filter((_, i) => i !== idx) })}
+                                                    className="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors"
+                                                >
+                                                    <TrashIcon className="w-5 h-5" />
+                                                </button>
+                                                <input
+                                                    value={f.question}
+                                                    onChange={(e) => {
+                                                        const newfaq = [...cmsData.faq];
+                                                        newfaq[idx].question = e.target.value;
+                                                        setCmsData({ ...cmsData, faq: newfaq });
+                                                    }}
+                                                    className="w-full font-black text-slate-900 outline-none pr-10"
+                                                    placeholder="The Question?"
+                                                />
+                                                <textarea
+                                                    value={f.answer}
+                                                    onChange={(e) => {
+                                                        const newfaq = [...cmsData.faq];
+                                                        newfaq[idx].answer = e.target.value;
+                                                        setCmsData({ ...cmsData, faq: newfaq });
+                                                    }}
+                                                    className="w-full text-sm font-medium text-slate-500 outline-none bg-slate-50 p-4 rounded-2xl"
+                                                    placeholder="The Answer content..."
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
+
+                                {/* Support Area */}
+                                <section className="p-10 bg-medi-green rounded-[48px] text-white shadow-xl shadow-medi-green/20">
+                                    <div className="flex items-center gap-4 mb-10">
+                                        <div className="w-12 h-12 bg-white/10 rounded-[20px] flex items-center justify-center text-white">
+                                            <Phone className="w-6 h-6" />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-2">Description</label>
-                                            <textarea
-                                                value={cmsData.description}
-                                                onChange={(e) => setCmsData({ ...cmsData, description: e.target.value })}
-                                                rows={3}
-                                                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medi-green/30 focus:border-medi-green"
-                                                placeholder="Your pharmacy description..."
-                                            />
+                                            <h4 className="font-black text-xs uppercase tracking-[0.3em]">Contact Support Info</h4>
+                                            <p className="text-[10px] font-black opacity-40 uppercase tracking-widest mt-1">Pharmacy connectivity</p>
                                         </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-2">Business Hours</label>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                        <div className="space-y-3">
+                                            <label className="block text-[10px] font-black opacity-30 uppercase tracking-[0.3em]">Contact Message</label>
                                             <input
                                                 type="text"
-                                                value={cmsData.businessHours}
-                                                onChange={(e) => setCmsData({ ...cmsData, businessHours: e.target.value })}
-                                                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-medi-green/30 focus:border-medi-green"
+                                                value={cmsData.contact.message}
+                                                onChange={(e) => setCmsData({ ...cmsData, contact: { ...cmsData.contact, message: e.target.value } })}
+                                                className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-white/20 outline-none font-black text-lg placeholder:text-white/20"
+                                                placeholder="Get In Touch."
+                                            />
+                                        </div>
+                                        <div className="space-y-3">
+                                            <label className="block text-[10px] font-black opacity-30 uppercase tracking-[0.3em]">Business Hours</label>
+                                            <input
+                                                type="text"
+                                                value={cmsData.contact.businessHours}
+                                                onChange={(e) => setCmsData({ ...cmsData, contact: { ...cmsData.contact, businessHours: e.target.value } })}
+                                                className="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-white/20 outline-none font-black text-lg placeholder:text-white/20"
                                                 placeholder="Mon - Sat: 8AM - 8PM"
                                             />
                                         </div>
                                     </div>
-                                </div>
-
-                                {/* Stats Section */}
-                                <div className="p-6 bg-slate-50 rounded-2xl">
-                                    <h4 className="font-semibold text-slate-900 mb-4">Statistics</h4>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        {cmsData.stats.map((stat, index) => (
-                                            <div key={index} className="bg-white p-4 rounded-xl border border-slate-200">
-                                                <input
-                                                    type="text"
-                                                    value={stat.value}
-                                                    onChange={(e) => updateStat(index, 'value', e.target.value)}
-                                                    className="w-full text-xl font-bold text-medi-green mb-1 bg-transparent focus:outline-none"
-                                                />
-                                                <input
-                                                    type="text"
-                                                    value={stat.label}
-                                                    onChange={(e) => updateStat(index, 'label', e.target.value)}
-                                                    className="w-full text-sm text-slate-500 bg-transparent focus:outline-none"
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Services Section */}
-                                <div className="p-6 bg-slate-50 rounded-2xl">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h4 className="font-semibold text-slate-900">Services</h4>
-                                        <button
-                                            onClick={addService}
-                                            className="flex items-center gap-1 px-3 py-1.5 bg-medi-green text-white rounded-lg text-sm font-medium hover:bg-medi-green/90 transition-colors"
-                                        >
-                                            <PlusIcon className="w-4 h-4" />
-                                            Add Service
-                                        </button>
-                                    </div>
-                                    <div className="space-y-3">
-                                        {cmsData.services.map((service, index) => (
-                                            <div key={index} className="bg-white p-4 rounded-xl border border-slate-200 group">
-                                                <div className="flex items-start gap-4">
-                                                    <div className="flex-1 space-y-2">
-                                                        <input
-                                                            type="text"
-                                                            value={service.title}
-                                                            onChange={(e) => updateService(index, 'title', e.target.value)}
-                                                            className="w-full font-semibold text-slate-900 bg-transparent focus:outline-none focus:bg-slate-50 rounded px-2 py-1 -mx-2"
-                                                        />
-                                                        <input
-                                                            type="text"
-                                                            value={service.description}
-                                                            onChange={(e) => updateService(index, 'description', e.target.value)}
-                                                            className="w-full text-sm text-slate-500 bg-transparent focus:outline-none focus:bg-slate-50 rounded px-2 py-1 -mx-2"
-                                                        />
-                                                    </div>
-                                                    <button
-                                                        onClick={() => removeService(index)}
-                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
-                                                    >
-                                                        <TrashIcon className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Testimonials Section */}
-                                <div className="p-6 bg-slate-50 rounded-2xl">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h4 className="font-semibold text-slate-900">Customer Testimonials</h4>
-                                        <button
-                                            onClick={addTestimonial}
-                                            className="flex items-center gap-1 px-3 py-1.5 bg-medi-green text-white rounded-lg text-sm font-medium hover:bg-medi-green/90 transition-colors"
-                                        >
-                                            <PlusIcon className="w-4 h-4" />
-                                            Add Testimonial
-                                        </button>
-                                    </div>
-                                    <div className="space-y-3">
-                                        {cmsData.testimonials.map((testimonial, index) => (
-                                            <div key={index} className="bg-white p-4 rounded-xl border border-slate-200 group">
-                                                <div className="flex items-start gap-4">
-                                                    <div className="flex-1 space-y-3">
-                                                        <div className="flex items-center gap-3">
-                                                            <input
-                                                                type="text"
-                                                                value={testimonial.name}
-                                                                onChange={(e) => updateTestimonial(index, 'name', e.target.value)}
-                                                                className="font-semibold text-slate-900 bg-transparent focus:outline-none focus:bg-slate-50 rounded px-2 py-1"
-                                                                placeholder="Customer name"
-                                                            />
-                                                            <div className="flex items-center gap-1">
-                                                                {[1, 2, 3, 4, 5].map((star) => (
-                                                                    <button
-                                                                        key={star}
-                                                                        onClick={() => updateTestimonial(index, 'rating', star)}
-                                                                        className={`${star <= testimonial.rating ? 'text-amber-400' : 'text-slate-300'}`}
-                                                                    >
-                                                                        <StarIcon className="w-4 h-4 fill-current" />
-                                                                    </button>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                        <textarea
-                                                            value={testimonial.text}
-                                                            onChange={(e) => updateTestimonial(index, 'text', e.target.value)}
-                                                            className="w-full text-sm text-slate-600 bg-transparent focus:outline-none focus:bg-slate-50 rounded px-2 py-1 resize-none"
-                                                            rows={2}
-                                                            placeholder="Their feedback..."
-                                                        />
-                                                    </div>
-                                                    <button
-                                                        onClick={() => removeTestimonial(index)}
-                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
-                                                    >
-                                                        <TrashIcon className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
+                                </section>
                             </div>
                         )}
 
+                        {/* Notifications, Security, Appearance, Billing tabs excluded from CMS implementation for now */}
                         {activeTab === 'notifications' && (
                             <div>
                                 <h3 className="text-lg font-bold text-slate-900 mb-6">Notification Preferences</h3>
@@ -503,7 +762,7 @@ export default function SettingsPage() {
                                                     <p className="text-sm text-slate-500">Add an extra layer of security</p>
                                                 </div>
                                             </div>
-                                            <button className="px-4 py-2 bg-medi-green text-white rounded-xl text-sm font-medium hover:bg-medi-green/90 transition-colors">
+                                            <button className="px-4 py-2 bg-medi-green text-white rounded-xl text-sm font-medium hover:bg-medi-green/90 transition-colors" disabled>
                                                 Enable
                                             </button>
                                         </div>
@@ -527,10 +786,6 @@ export default function SettingsPage() {
                                                 <div className="w-8 h-8 bg-slate-800 rounded-lg mx-auto mb-2"></div>
                                                 <p className="font-medium text-slate-900">Dark</p>
                                             </button>
-                                            <button className="flex-1 p-4 bg-slate-50 border border-slate-200 rounded-xl text-center hover:border-slate-300 transition-colors">
-                                                <div className="w-8 h-8 bg-gradient-to-b from-slate-100 to-slate-800 rounded-lg mx-auto mb-2"></div>
-                                                <p className="font-medium text-slate-900">System</p>
-                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -552,43 +807,32 @@ export default function SettingsPage() {
                                         </button>
                                     </div>
                                 </div>
-                                <div className="space-y-3">
-                                    <h4 className="font-semibold text-slate-900">Payment History</h4>
-                                    {[
-                                        { date: 'Dec 19, 2024', amount: '$29.00', status: 'Paid' },
-                                        { date: 'Nov 19, 2024', amount: '$29.00', status: 'Paid' },
-                                        { date: 'Oct 19, 2024', amount: '$29.00', status: 'Paid' },
-                                    ].map((payment, index) => (
-                                        <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-                                            <span className="text-slate-600">{payment.date}</span>
-                                            <span className="font-medium text-slate-900">{payment.amount}</span>
-                                            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">{payment.status}</span>
-                                        </div>
-                                    ))}
-                                </div>
                             </div>
                         )}
 
                         {/* Save Button */}
                         {(activeTab === 'profile' || activeTab === 'pharmacy' || activeTab === 'website') && (
-                            <div className="mt-8 pt-6 border-t border-slate-100 flex justify-end">
+                            <div className="mt-16 pt-10 border-t border-slate-100 flex justify-end">
                                 <button
                                     onClick={handleSave}
                                     disabled={saving}
-                                    className="flex items-center gap-2 px-6 py-2.5 bg-medi-green text-white rounded-xl hover:bg-medi-green/90 transition-colors shadow-lg shadow-medi-green/20 disabled:opacity-50"
+                                    className={`flex items-center gap-3 px-10 py-5 rounded-[24px] transition-all font-black uppercase tracking-widest text-xs shadow-lg hover:scale-[1.03] disabled:opacity-50 ${saved ? 'bg-emerald-500 text-white' : 'bg-medi-green text-white'
+                                        }`}
                                 >
                                     {saving ? (
                                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                     ) : saved ? (
-                                        <CheckIcon className="w-5 h-5" />
-                                    ) : null}
-                                    <span className="font-semibold">{saved ? 'Saved!' : 'Save Changes'}</span>
+                                        <CheckCircle className="w-5 h-5" />
+                                    ) : (
+                                        <Save className="w-5 h-5" />
+                                    )}
+                                    <span>{saved ? 'Changes Saved' : 'Commit Changes'}</span>
                                 </button>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
-        </TenantLayout>
+        </TenantLayout >
     );
 }

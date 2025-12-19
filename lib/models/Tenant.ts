@@ -14,7 +14,15 @@ export interface ITenant extends Document {
     timezone: string;
     currency: string;
     language: string;
-    features: string[];
+    branding?: {
+      logo?: string;
+      heroTitle?: string;
+      heroSubtitle?: string;
+      heroImage?: string;
+      deliveryImage?: string;
+      consultationImage?: string;
+      contactMessage?: string;
+    };
     limits: {
       users: number;
       medicines: number;
@@ -101,6 +109,15 @@ const TenantSchema: Schema = new Schema({
     features: [{
       type: String
     }],
+    branding: {
+      logo: String,
+      heroTitle: String,
+      heroSubtitle: String,
+      heroImage: String,
+      deliveryImage: String,
+      consultationImage: String,
+      contactMessage: String
+    },
     limits: {
       users: {
         type: Number,
@@ -160,7 +177,7 @@ TenantSchema.index({ subscriptionStatus: 1 });
 TenantSchema.index({ isActive: 1 });
 
 // Virtual for full domain
-TenantSchema.virtual('fullDomain').get(function() {
+TenantSchema.virtual('fullDomain').get(function () {
   return this.domain || `${this.subdomain}.pharmatrack.com`;
 });
 

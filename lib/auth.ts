@@ -10,6 +10,7 @@ export interface User {
   role: 'super_admin' | 'admin' | 'pharmacist' | 'cashier' | 'viewer' | 'tenant_admin' | 'user';
   permissions: string[];
   isActive: boolean;
+  image?: string;
 }
 
 export interface AuthSession {
@@ -92,6 +93,13 @@ class AuthManager {
 
   getCurrentUser(): User | null {
     return this.currentSession?.user || null;
+  }
+
+  updateSessionUser(userData: Partial<User>) {
+    if (this.currentSession) {
+      this.currentSession.user = { ...this.currentSession.user, ...userData };
+      this.saveSession(this.currentSession);
+    }
   }
 
   isAuthenticated(): boolean {

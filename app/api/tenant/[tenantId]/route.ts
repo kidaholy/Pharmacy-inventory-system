@@ -7,31 +7,22 @@ export async function GET(
 ) {
   try {
     const resolvedParams = await params;
-    console.log('🔍 Tenant API called with params:', resolvedParams);
     const { tenantId } = resolvedParams;
-    
+
     if (!tenantId) {
-      console.log('❌ No tenantId provided');
       return NextResponse.json(
         { error: 'Tenant ID is required' },
         { status: 400 }
       );
     }
 
-    console.log('🔍 Looking up tenant:', tenantId);
-    
-    // Try to get tenant by subdomain first (if tenantId is actually a subdomain)
+    // Identify tenant
     let tenant = await multiTenantDb.getTenantBySubdomain(tenantId);
-    console.log('🔍 Tenant by subdomain:', tenant ? 'Found' : 'Not found');
-    
-    // If not found by subdomain, try by actual tenant ID
     if (!tenant) {
       tenant = await multiTenantDb.getTenantById(tenantId);
-      console.log('🔍 Tenant by ID:', tenant ? 'Found' : 'Not found');
     }
-    
+
     if (!tenant) {
-      console.log('❌ Tenant not found for:', tenantId);
       return NextResponse.json(
         { error: 'Tenant not found' },
         { status: 404 }
@@ -59,7 +50,42 @@ export async function GET(
     return NextResponse.json(safeTenant);
   } catch (error) {
     console.error('❌ Error fetching tenant:', error);
-    console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ tenantId: string }> }
+) {
+  try {
+    const resolvedParams = await params;
+    const { tenantId } = resolvedParams;
+    const body = await request.json();
+
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Tenant ID is required' }, { status: 400 });
+    }
+
+    // Identify tenant
+    let tenant = await multiTenantDb.getTenantBySubdomain(tenantId);
+    if (!tenant) {
+      tenant = await multiTenantDb.getTenantById(tenantId);
+    }
+
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant not found' }, { status: 404 });
+    }
+
+    // Update settings (specifically branding)
+    const updatedTenant = await multiTenantDb.updateTenant(tenant._id.toString(), body);
+
+    return NextResponse.json({ success: true, tenant: updatedTenant });
+  } catch (error) {
+    console.error('❌ Error updating tenant:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
