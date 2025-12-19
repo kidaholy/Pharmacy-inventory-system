@@ -50,6 +50,8 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        'medi-green': '#006840',
+        'medi-lime': '#d4f05d',
         sidebar: {
             DEFAULT: 'hsl(var(--sidebar-background))',
             foreground: 'hsl(var(--sidebar-foreground))',

@@ -120,8 +120,13 @@ export default function SuperAdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 bg-medi-green rounded-xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <span className="text-white font-bold text-lg">MH</span>
+          </div>
+          <p className="text-slate-600 font-medium">Loading Admin Panel...</p>
+        </div>
       </div>
     );
   }
@@ -131,23 +136,26 @@ export default function SuperAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-medi-green shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-pink-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">👑</span>
+              <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">👑</span>
               </div>
-              <h1 className="ml-3 text-xl font-bold text-gray-900">Super Admin Dashboard</h1>
+              <div className="ml-3">
+                <h1 className="text-lg font-bold text-white">MediHeal Admin</h1>
+                <p className="text-xs text-white/70">System Control Panel</p>
+              </div>
             </div>
 
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Welcome, {user.firstName}</span>
+              <span className="text-sm text-white/80 font-medium">Welcome, {user.firstName}</span>
               <button
                 onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors border border-white/20"
               >
                 Logout
               </button>
@@ -157,67 +165,63 @@ export default function SuperAdminPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Tabs */}
-        <div className="bg-white rounded-lg shadow mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 mb-8">
+          <div className="border-b border-slate-100">
+            <nav className="flex space-x-1 p-2">
               <button
                 onClick={() => setActiveTab('overview')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'overview'
-                  ? 'border-red-500 text-red-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                className={`py-3 px-6 rounded-xl font-semibold text-sm transition-all ${activeTab === 'overview'
+                  ? 'bg-medi-green text-white shadow-lg shadow-medi-green/20'
+                  : 'text-slate-600 hover:bg-slate-50'
                   }`}
               >
                 System Overview
               </button>
               <button
                 onClick={() => setActiveTab('tenants')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'tenants'
-                  ? 'border-red-500 text-red-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                className={`py-3 px-6 rounded-xl font-semibold text-sm transition-all ${activeTab === 'tenants'
+                  ? 'bg-medi-green text-white shadow-lg shadow-medi-green/20'
+                  : 'text-slate-600 hover:bg-slate-50'
                   }`}
               >
                 Tenant Management
               </button>
               <button
                 onClick={() => setActiveTab('users')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'users'
-                  ? 'border-red-500 text-red-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                className={`py-3 px-6 rounded-xl font-semibold text-sm transition-all ${activeTab === 'users'
+                  ? 'bg-medi-green text-white shadow-lg shadow-medi-green/20'
+                  : 'text-slate-600 hover:bg-slate-50'
                   }`}
               >
                 User Management
               </button>
-
             </nav>
           </div>
         </div>
 
         {/* Tab Content */}
         {activeTab === 'overview' && (
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* No Tenants Warning */}
             {stats.totalTenants === 0 && (
-              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
-                <div className="flex items-center">
+              <div className="bg-amber-50 border border-amber-200 p-6 rounded-2xl">
+                <div className="flex items-start">
                   <div className="flex-shrink-0">
-                    <svg className="h-8 w-8 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
+                    <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+                      <span className="text-amber-600 text-xl">⚠️</span>
+                    </div>
                   </div>
                   <div className="ml-4">
-                    <h3 className="text-lg font-medium text-yellow-800">No Pharmacy Tenants Registered</h3>
-                    <div className="mt-2 text-sm text-yellow-700">
+                    <h3 className="text-lg font-bold text-amber-800">No Pharmacy Tenants Registered</h3>
+                    <div className="mt-2 text-sm text-amber-700">
                       <p>The system is ready, but no pharmacy tenants have been created yet.</p>
-                      <p className="mt-1">
-                        <strong>Next steps:</strong>
-                      </p>
-                      <ul className="mt-2 list-disc list-inside">
+                      <p className="mt-2 font-semibold">Next steps:</p>
+                      <ul className="mt-2 list-disc list-inside space-y-1">
                         <li>Go to the "Tenant Management" tab</li>
                         <li>Click "Create Tenant" to add your first pharmacy</li>
                         <li>Each tenant will automatically get an admin user</li>
-                        <li>Regular users can then login to their respective pharmacies</li>
                       </ul>
                     </div>
                   </div>
@@ -227,86 +231,76 @@ export default function SuperAdminPage() {
 
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-sm font-bold">🏪</span>
-                    </div>
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500 mb-1">Total Tenants</p>
+                    <p className="text-3xl font-extrabold text-slate-900">{stats.totalTenants || 0}</p>
                   </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Total Tenants</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.totalTenants || 0}</p>
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <span className="text-2xl">🏪</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-sm font-bold">✅</span>
-                    </div>
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500 mb-1">Active Tenants</p>
+                    <p className="text-3xl font-extrabold text-medi-green">{stats.activeTenants || 0}</p>
                   </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Active Tenants</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.activeTenants || 0}</p>
+                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                    <span className="text-2xl">✅</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-sm font-bold">👥</span>
-                    </div>
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500 mb-1">Total Users</p>
+                    <p className="text-3xl font-extrabold text-slate-900">{stats.totalUsers || 0}</p>
                   </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Total Users</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.totalUsers || 0}</p>
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <span className="text-2xl">👥</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-sm font-bold">👥</span>
-                    </div>
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500 mb-1">Active Users</p>
+                    <p className="text-3xl font-extrabold text-slate-900">{stats.activeUsers || 0}</p>
                   </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">Active Users</p>
-                    <p className="text-2xl font-bold text-gray-900">{stats.activeUsers || 0}</p>
+                  <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                    <span className="text-2xl">👤</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Subscription Breakdown */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Subscription Plans</h3>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+              <h3 className="text-lg font-bold text-slate-900 mb-6">Subscription Plans</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">{tenants.filter(t => t.subscriptionPlan === 'starter').length}</div>
-                  <div className="text-sm text-blue-800">Starter Plan</div>
-                  <div className="text-xs text-blue-600">{formatCurrency(29)}/month</div>
+                <div className="text-center p-6 bg-blue-50 rounded-2xl border border-blue-100">
+                  <div className="text-3xl font-extrabold text-blue-600">{tenants.filter(t => t.subscriptionPlan === 'starter').length}</div>
+                  <div className="text-sm font-bold text-blue-800 mt-1">Starter Plan</div>
+                  <div className="text-xs text-blue-600 mt-1">{formatCurrency(29)}/month</div>
                 </div>
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">{tenants.filter(t => t.subscriptionPlan === 'professional').length}</div>
-                  <div className="text-sm text-green-800">Professional Plan</div>
-                  <div className="text-xs text-green-600">{formatCurrency(79)}/month</div>
+                <div className="text-center p-6 bg-medi-green/10 rounded-2xl border border-medi-green/20">
+                  <div className="text-3xl font-extrabold text-medi-green">{tenants.filter(t => t.subscriptionPlan === 'professional').length}</div>
+                  <div className="text-sm font-bold text-medi-green mt-1">Professional Plan</div>
+                  <div className="text-xs text-medi-green mt-1">{formatCurrency(79)}/month</div>
                 </div>
-                <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">{tenants.filter(t => t.subscriptionPlan === 'enterprise').length}</div>
-                  <div className="text-sm text-purple-800">Enterprise Plan</div>
-                  <div className="text-xs text-purple-600">{formatCurrency(199)}/month</div>
+                <div className="text-center p-6 bg-purple-50 rounded-2xl border border-purple-100">
+                  <div className="text-3xl font-extrabold text-purple-600">{tenants.filter(t => t.subscriptionPlan === 'enterprise').length}</div>
+                  <div className="text-sm font-bold text-purple-800 mt-1">Enterprise Plan</div>
+                  <div className="text-xs text-purple-600 mt-1">{formatCurrency(199)}/month</div>
                 </div>
               </div>
             </div>
-
-
           </div>
         )}
 
@@ -314,9 +308,9 @@ export default function SuperAdminPage() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Tenant Management</h3>
+                <h3 className="text-xl font-bold text-slate-900">Tenant Management</h3>
                 {tenants.length === 0 && (
-                  <p className="text-sm text-red-600 mt-1">⚠️ No tenants exist. Regular users cannot login until tenants are created.</p>
+                  <p className="text-sm text-red-600 mt-1 font-medium">⚠️ No tenants exist. Regular users cannot login until tenants are created.</p>
                 )}
               </div>
               <button
@@ -376,65 +370,53 @@ export default function SuperAdminPage() {
                     alert('Error creating tenant. Please try again.');
                   }
                 }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                className="bg-medi-green hover:bg-medi-green/90 text-white px-5 py-2.5 rounded-xl font-semibold transition-colors shadow-lg shadow-medi-green/20"
               >
                 + Create Tenant
               </button>
             </div>
 
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-slate-100">
+                  <thead className="bg-slate-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tenant
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Subdomain
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Plan
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Users
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Created
-                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Tenant</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Subdomain</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Plan</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Users</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Created</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white divide-y divide-slate-100">
                     {tenants.map((tenant) => {
                       const tenantUsers = users.filter(u => u.tenantId === tenant._id);
                       return (
-                        <tr key={tenant._id} className="hover:bg-gray-50">
+                        <tr key={tenant._id} className="hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div>
-                              <div className="text-sm font-medium text-gray-900">{tenant.name}</div>
-                              <div className="text-sm text-gray-500">{tenant.contact.email}</div>
+                              <div className="text-sm font-bold text-slate-900">{tenant.name}</div>
+                              <div className="text-sm text-slate-500">{tenant.contact.email}</div>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{tenant.subdomain}</div>
+                            <code className="text-sm bg-slate-100 px-2 py-1 rounded font-mono">{tenant.subdomain}</code>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getSubscriptionColor(tenant.subscriptionPlan)}`}>
+                            <span className={`inline-flex px-3 py-1 text-xs font-bold rounded-full ${getSubscriptionColor(tenant.subscriptionPlan)}`}>
                               {tenant.subscriptionPlan.charAt(0).toUpperCase() + tenant.subscriptionPlan.slice(1)}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(tenant.isActive)}`}>
+                            <span className={`inline-flex px-3 py-1 text-xs font-bold rounded-full ${getStatusColor(tenant.isActive)}`}>
                               {tenant.isActive ? 'Active' : 'Inactive'}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-700">
                             {tenantUsers.length} users
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                             {new Date(tenant.createdAt).toLocaleDateString()}
                           </td>
                         </tr>
@@ -451,9 +433,8 @@ export default function SuperAdminPage() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
-                <p className="text-sm text-yellow-600">⚠️ Each tenant must have at least one admin user</p>
-                <p className="text-sm text-gray-500">Create tenants first, then add users to them</p>
+                <h3 className="text-xl font-bold text-slate-900">User Management</h3>
+                <p className="text-sm text-amber-600 font-medium mt-1">⚠️ Each tenant must have at least one admin user</p>
               </div>
               <button
                 onClick={async () => {
@@ -508,78 +489,66 @@ export default function SuperAdminPage() {
                     }
                   }
                 }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                className="bg-medi-green hover:bg-medi-green/90 text-white px-5 py-2.5 rounded-xl font-semibold transition-colors shadow-lg shadow-medi-green/20"
               >
                 + Add User
               </button>
             </div>
 
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-slate-100">
+                  <thead className="bg-slate-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        User
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Role
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Last Login
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Created
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">User</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Role</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Last Login</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Created</th>
+                      <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white divide-y divide-slate-100">
                     {users.map((targetUser) => {
                       const userTenant = tenants.find(t => t._id === targetUser.tenantId);
                       return (
-                        <tr key={targetUser._id} className="hover:bg-gray-50">
+                        <tr key={targetUser._id} className="hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div>
-                              <div className="flex items-center">
-                                <div className="text-sm font-medium text-gray-900">{targetUser.firstName} {targetUser.lastName}</div>
-                                {targetUser.email === 'kidayos2014@gmail.com' && (
-                                  <span className="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                                    👑 Super Admin
-                                  </span>
-                                )}
+                            <div className="flex items-center">
+                              <div className="w-10 h-10 bg-medi-green/10 rounded-full flex items-center justify-center mr-3">
+                                <span className="text-medi-green font-bold text-sm">{targetUser.firstName?.[0]}{targetUser.lastName?.[0]}</span>
                               </div>
-                              <div className="text-sm text-gray-500">{targetUser.email}</div>
-                              <div className="text-xs text-gray-400">@{targetUser.username}</div>
+                              <div>
+                                <div className="flex items-center">
+                                  <span className="text-sm font-bold text-slate-900">{targetUser.firstName} {targetUser.lastName}</span>
+                                  {targetUser.email === 'kidayos2014@gmail.com' && (
+                                    <span className="ml-2 inline-flex px-2 py-0.5 text-xs font-bold rounded-full bg-amber-100 text-amber-800">👑 Super</span>
+                                  )}
+                                </div>
+                                <div className="text-sm text-slate-500">{targetUser.email}</div>
+                              </div>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div>
-                              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                              <span className="inline-flex px-3 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-800">
                                 {targetUser.role.charAt(0).toUpperCase() + targetUser.role.slice(1)}
                               </span>
-                              <div className="text-xs text-gray-500 mt-1">
-                                {userTenant?.name || 'Unknown Tenant'}
-                              </div>
+                              <div className="text-xs text-slate-400 mt-1">{userTenant?.name || 'Unknown'}</div>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(targetUser.isActive)}`}>
+                            <span className={`inline-flex px-3 py-1 text-xs font-bold rounded-full ${getStatusColor(targetUser.isActive)}`}>
                               {targetUser.isActive ? 'Active' : 'Inactive'}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                             {targetUser.security?.lastLogin ? new Date(targetUser.security.lastLogin).toLocaleDateString() : 'Never'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                             {new Date(targetUser.createdAt).toLocaleDateString()}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
                             <button
                               onClick={async () => {
                                 try {
@@ -603,8 +572,7 @@ export default function SuperAdminPage() {
                                   alert('Error updating user');
                                 }
                               }}
-                              className={`${targetUser.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
-                                }`}
+                              className={`font-semibold ${targetUser.isActive ? 'text-amber-600 hover:text-amber-700' : 'text-medi-green hover:text-medi-green/80'}`}
                             >
                               {targetUser.isActive ? 'Deactivate' : 'Activate'}
                             </button>
@@ -629,7 +597,7 @@ export default function SuperAdminPage() {
                                   }
                                 }
                               }}
-                              className="text-red-600 hover:text-red-900"
+                              className="text-red-600 hover:text-red-700 font-semibold"
                             >
                               Delete
                             </button>
@@ -643,8 +611,6 @@ export default function SuperAdminPage() {
             </div>
           </div>
         )}
-
-
       </main>
     </div>
   );

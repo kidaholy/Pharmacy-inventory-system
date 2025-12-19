@@ -1191,3 +1191,14 @@ amp utility for text truncation */
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
 }
+
+/* MediHeal Theme Styles */
+.bg-medi-green { background-color: #006840; }
+.text-medi-lime { color: #d4f05d; }
+.bg-medi-lime { background-color: #d4f05d; }
+.text-medi-green { color: #006840; }
+.border-medi-green { border-color: #006840; }
+
+/* Reveal Animation */
+.reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+.reveal.active { opacity: 1; transform: translateY(0); }

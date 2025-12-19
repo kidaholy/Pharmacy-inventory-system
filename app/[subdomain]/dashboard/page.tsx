@@ -4,14 +4,14 @@ import { useState, useEffect } from 'react';
 import { auth, User } from '../../../lib/auth';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  ChartBarIcon, 
-  CubeIcon, 
-  ShoppingCartIcon, 
-  TruckIcon, 
-  UsersIcon, 
-  BuildingStorefrontIcon, 
-  DocumentChartBarIcon, 
+import {
+  ChartBarIcon,
+  CubeIcon,
+  ShoppingCartIcon,
+  TruckIcon,
+  UsersIcon,
+  BuildingStorefrontIcon,
+  DocumentChartBarIcon,
   Cog6ToothIcon,
   MagnifyingGlassIcon,
   BellIcon,
@@ -55,7 +55,7 @@ interface TenantInfo {
 export default function TenantDashboardPage() {
   const params = useParams();
   const subdomain = params.subdomain as string;
-  
+
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
@@ -207,31 +207,31 @@ export default function TenantDashboardPage() {
   }
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'dark bg-gray-900' : 'bg-slate-50'}`}>
       <div className="flex">
         {/* Left Sidebar */}
-        <div className={`${sidebarCollapsed ? 'w-16' : 'w-72'} ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-r transition-all duration-300 flex flex-col shadow-lg`}>
+        <div className={`${sidebarCollapsed ? 'w-16' : 'w-72'} ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-100'} border-r transition-all duration-300 flex flex-col shadow-lg`}>
           {/* Sidebar Header */}
-          <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+          <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-slate-100'}`}>
             <div className="flex items-center justify-between">
               {!sidebarCollapsed && (
                 <div className="flex items-center">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-teal-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                    <span className="text-white font-bold text-lg">💊</span>
+                  <div className="w-10 h-10 bg-medi-green rounded-xl flex items-center justify-center shadow-lg">
+                    <span className="text-white font-bold text-sm">MH</span>
                   </div>
                   <div className="ml-3">
-                    <h1 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <h1 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                       {tenantInfo ? tenantInfo.name : subdomain}
                     </h1>
-                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      Pharmacy Management
+                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>
+                      Pharmacy Dashboard
                     </p>
                   </div>
                 </div>
               )}
               <button
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                className={`p-2 rounded-lg ${darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-500'} transition-colors`}
+                className={`p-2 rounded-lg ${darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-slate-100 text-slate-500'} transition-colors`}
               >
                 <ChevronLeftIcon className={`w-5 h-5 transition-transform ${sidebarCollapsed ? 'rotate-180' : ''}`} />
               </button>
@@ -240,35 +240,35 @@ export default function TenantDashboardPage() {
 
           {/* Navigation Menu */}
           <nav className="flex-1 p-4 space-y-2">
-            <Link href={`/${subdomain}/dashboard`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-blue-400 bg-blue-900/20' : 'text-blue-600 bg-blue-50'} rounded-xl font-medium transition-colors`}>
+            <Link href={`/${subdomain}/dashboard`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-medi-lime bg-medi-green/20' : 'text-medi-green bg-medi-green/10'} rounded-xl font-semibold transition-colors`}>
               <ChartBarIcon className="w-5 h-5" />
               {!sidebarCollapsed && <span className="ml-3">Dashboard</span>}
             </Link>
-            <Link href={`/${subdomain}/inventory`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} rounded-xl transition-colors`}>
+            <Link href={`/${subdomain}/inventory`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'} rounded-xl transition-colors`}>
               <CubeIcon className="w-5 h-5" />
               {!sidebarCollapsed && <span className="ml-3">Inventory</span>}
             </Link>
-            <Link href={`/${subdomain}/sales`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} rounded-xl transition-colors`}>
+            <Link href={`/${subdomain}/sales`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'} rounded-xl transition-colors`}>
               <ShoppingCartIcon className="w-5 h-5" />
               {!sidebarCollapsed && <span className="ml-3">Sales</span>}
             </Link>
-            <Link href={`/${subdomain}/purchases`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} rounded-xl transition-colors`}>
+            <Link href={`/${subdomain}/purchases`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'} rounded-xl transition-colors`}>
               <TruckIcon className="w-5 h-5" />
               {!sidebarCollapsed && <span className="ml-3">Purchases</span>}
             </Link>
-            <Link href={`/${subdomain}/customers`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} rounded-xl transition-colors`}>
+            <Link href={`/${subdomain}/customers`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'} rounded-xl transition-colors`}>
               <UsersIcon className="w-5 h-5" />
               {!sidebarCollapsed && <span className="ml-3">Customers</span>}
             </Link>
-            <Link href={`/${subdomain}/suppliers`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} rounded-xl transition-colors`}>
+            <Link href={`/${subdomain}/suppliers`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'} rounded-xl transition-colors`}>
               <BuildingStorefrontIcon className="w-5 h-5" />
               {!sidebarCollapsed && <span className="ml-3">Suppliers</span>}
             </Link>
-            <Link href={`/${subdomain}/reports`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} rounded-xl transition-colors`}>
+            <Link href={`/${subdomain}/reports`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'} rounded-xl transition-colors`}>
               <DocumentChartBarIcon className="w-5 h-5" />
               {!sidebarCollapsed && <span className="ml-3">Reports</span>}
             </Link>
-            <Link href={`/${subdomain}/settings`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'} rounded-xl transition-colors`}>
+            <Link href={`/${subdomain}/settings`} className={`flex items-center px-4 py-3 ${darkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'} rounded-xl transition-colors`}>
               <Cog6ToothIcon className="w-5 h-5" />
               {!sidebarCollapsed && <span className="ml-3">Settings</span>}
             </Link>
@@ -276,16 +276,16 @@ export default function TenantDashboardPage() {
 
           {/* Sidebar Footer */}
           {!sidebarCollapsed && (
-            <div className={`p-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-              <div className={`p-4 rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+            <div className={`p-4 border-t ${darkMode ? 'border-gray-700' : 'border-slate-100'}`}>
+              <div className={`p-4 rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-medi-green/5'}`}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Storage Used</span>
-                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>68%</span>
+                  <span className={`text-sm font-semibold ${darkMode ? 'text-gray-300' : 'text-slate-700'}`}>Storage Used</span>
+                  <span className={`text-sm font-bold ${darkMode ? 'text-gray-400' : 'text-medi-green'}`}>68%</span>
                 </div>
-                <div className={`w-full bg-gray-200 rounded-full h-2 ${darkMode ? 'bg-gray-600' : ''}`}>
-                  <div className="bg-gradient-to-r from-blue-500 to-teal-500 h-2 rounded-full" style={{ width: '68%' }}></div>
+                <div className={`w-full bg-slate-200 rounded-full h-2 ${darkMode ? 'bg-gray-600' : ''}`}>
+                  <div className="bg-medi-green h-2 rounded-full" style={{ width: '68%' }}></div>
                 </div>
-                <p className={`text-xs mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                <p className={`text-xs mt-2 ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>
                   2.1 GB of 3 GB used
                 </p>
               </div>
@@ -296,73 +296,73 @@ export default function TenantDashboardPage() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
           {/* Top Navigation Bar */}
-          <header className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b px-6 py-4 shadow-sm`}>
+          <header className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-100'} border-b px-6 py-4 shadow-sm`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div>
-                  <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                     Dashboard
                   </h1>
-                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-slate-500'}`}>
                     Welcome back, {user?.firstName}
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-4">
                 {/* Search Bar */}
                 <div className="relative">
-                  <MagnifyingGlassIcon className={`w-5 h-5 ${darkMode ? 'text-gray-400' : 'text-gray-400'} absolute left-3 top-1/2 transform -translate-y-1/2`} />
+                  <MagnifyingGlassIcon className={`w-5 h-5 ${darkMode ? 'text-gray-400' : 'text-slate-400'} absolute left-3 top-1/2 transform -translate-y-1/2`} />
                   <input
                     type="text"
                     placeholder="Search anything..."
-                    className={`pl-10 pr-4 py-2.5 w-80 ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-gray-50 border-gray-200 text-gray-900'} border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors`}
+                    className={`pl-10 pr-4 py-2.5 w-80 ${darkMode ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-slate-50 border-slate-200 text-slate-900'} border rounded-xl focus:outline-none focus:ring-2 focus:ring-medi-green/30 focus:border-medi-green transition-colors`}
                   />
                 </div>
-                
+
                 {/* Dark Mode Toggle */}
                 <button
                   onClick={() => setDarkMode(!darkMode)}
-                  className={`p-2.5 rounded-xl ${darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} transition-colors`}
+                  className={`p-2.5 rounded-xl ${darkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'} transition-colors`}
                 >
                   {darkMode ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
                 </button>
-                
+
                 {/* Notifications */}
-                <button className={`relative p-2.5 rounded-xl ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'} transition-colors`}>
+                <button className={`relative p-2.5 rounded-xl ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-slate-600 hover:bg-slate-100'} transition-colors`}>
                   <BellIcon className="w-5 h-5" />
                   <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                 </button>
-                
+
                 {/* User Avatar Dropdown */}
                 <div className="relative">
                   <button
                     onClick={() => setShowUserDropdown(!showUserDropdown)}
-                    className={`flex items-center space-x-3 p-2 rounded-xl ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'} transition-colors`}
+                    className={`flex items-center space-x-3 p-2 rounded-xl ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-slate-50'} transition-colors`}
                   >
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <div className="w-10 h-10 bg-medi-green rounded-xl flex items-center justify-center shadow-lg">
                       <span className="text-white text-sm font-bold">{user?.firstName?.[0]}</span>
                     </div>
                     <div className="text-left">
-                      <p className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      <p className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                         {user?.firstName} {user?.lastName}
                       </p>
-                      <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'} capitalize`}>
+                      <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-slate-500'} capitalize`}>
                         {user?.role}
                       </p>
                     </div>
-                    <ChevronDownIcon className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                    <ChevronDownIcon className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-slate-500'}`} />
                   </button>
-                  
+
                   {showUserDropdown && (
-                    <div className={`absolute right-0 mt-2 w-56 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl shadow-xl border py-2 z-50`}>
-                      <Link href={`/${subdomain}/profile`} className={`block px-4 py-3 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50'} transition-colors`}>
+                    <div className={`absolute right-0 mt-2 w-56 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-100'} rounded-xl shadow-xl border py-2 z-50`}>
+                      <Link href={`/${subdomain}/profile`} className={`block px-4 py-3 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-slate-700 hover:bg-slate-50'} transition-colors`}>
                         Profile Settings
                       </Link>
-                      <Link href={`/${subdomain}/billing`} className={`block px-4 py-3 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-50'} transition-colors`}>
+                      <Link href={`/${subdomain}/billing`} className={`block px-4 py-3 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-slate-700 hover:bg-slate-50'} transition-colors`}>
                         Billing & Plans
                       </Link>
-                      <hr className={`my-2 ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
+                      <hr className={`my-2 ${darkMode ? 'border-gray-700' : 'border-slate-100'}`} />
                       <button
                         onClick={handleLogout}
                         className={`block w-full text-left px-4 py-3 text-sm ${darkMode ? 'text-red-400 hover:bg-red-900/20' : 'text-red-600 hover:bg-red-50'} transition-colors`}
@@ -391,78 +391,78 @@ export default function TenantDashboardPage() {
             {/* Hero Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {/* Total Products */}
-              <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300`}>
+              <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-100'} rounded-2xl p-6 shadow-sm border hover:shadow-md transition-all duration-300`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>Total Products</p>
-                    <p className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <p className={`text-sm font-semibold ${darkMode ? 'text-gray-400' : 'text-slate-500'} mb-2`}>Total Products</p>
+                    <p className={`text-3xl font-extrabold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                       {loading ? '...' : (stats?.totalMedicines || 0)}
                     </p>
                     <div className="flex items-center mt-3">
-                      <ArrowTrendingUpIcon className="w-4 h-4 text-emerald-500 mr-1" />
-                      <span className="text-sm text-emerald-600 font-medium">+12%</span>
-                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'} ml-1`}>vs last month</span>
+                      <ArrowTrendingUpIcon className="w-4 h-4 text-medi-green mr-1" />
+                      <span className="text-sm text-medi-green font-semibold">+12%</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-slate-500'} ml-1`}>vs last month</span>
                     </div>
                   </div>
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-14 h-14 bg-medi-green rounded-2xl flex items-center justify-center shadow-lg">
                     <CubeIcon className="w-7 h-7 text-white" />
                   </div>
                 </div>
               </div>
 
               {/* Low Stock Alerts */}
-              <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300`}>
+              <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-100'} rounded-2xl p-6 shadow-sm border hover:shadow-md transition-all duration-300`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>Low Stock Alerts</p>
-                    <p className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <p className={`text-sm font-semibold ${darkMode ? 'text-gray-400' : 'text-slate-500'} mb-2`}>Low Stock Alerts</p>
+                    <p className={`text-3xl font-extrabold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                       {loading ? '...' : (stats?.lowStockCount || 0)}
                     </p>
                     <div className="flex items-center mt-3">
                       <ExclamationTriangleIcon className="w-4 h-4 text-amber-500 mr-1" />
-                      <span className="text-sm text-amber-600 font-medium">Needs attention</span>
+                      <span className="text-sm text-amber-600 font-semibold">Needs attention</span>
                     </div>
                   </div>
-                  <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center shadow-lg">
                     <ExclamationTriangleIcon className="w-7 h-7 text-white" />
                   </div>
                 </div>
               </div>
 
               {/* Today's Sales */}
-              <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300`}>
+              <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-100'} rounded-2xl p-6 shadow-sm border hover:shadow-md transition-all duration-300`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>Today's Sales</p>
-                    <p className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>$2,847</p>
+                    <p className={`text-sm font-semibold ${darkMode ? 'text-gray-400' : 'text-slate-500'} mb-2`}>Today's Sales</p>
+                    <p className={`text-3xl font-extrabold ${darkMode ? 'text-white' : 'text-slate-900'}`}>$2,847</p>
                     <div className="flex items-center mt-3">
-                      <ArrowTrendingUpIcon className="w-4 h-4 text-emerald-500 mr-1" />
-                      <span className="text-sm text-emerald-600 font-medium">+8%</span>
-                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'} ml-1`}>vs yesterday</span>
+                      <ArrowTrendingUpIcon className="w-4 h-4 text-medi-green mr-1" />
+                      <span className="text-sm text-medi-green font-semibold">+8%</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-slate-500'} ml-1`}>vs yesterday</span>
                     </div>
                   </div>
-                  <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
                     <ShoppingCartIcon className="w-7 h-7 text-white" />
                   </div>
                 </div>
               </div>
 
               {/* Monthly Revenue */}
-              <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} rounded-2xl p-6 shadow-sm border hover:shadow-lg transition-all duration-300`}>
+              <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-100'} rounded-2xl p-6 shadow-sm border hover:shadow-md transition-all duration-300`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className={`text-sm font-medium ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>Monthly Revenue</p>
-                    <p className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <p className={`text-sm font-semibold ${darkMode ? 'text-gray-400' : 'text-slate-500'} mb-2`}>Monthly Revenue</p>
+                    <p className={`text-3xl font-extrabold ${darkMode ? 'text-white' : 'text-slate-900'}`}>
                       ${loading ? '...' : (stats?.totalInventoryValue || 0).toLocaleString()}
                     </p>
                     <div className="flex items-center mt-3">
-                      <ArrowTrendingUpIcon className="w-4 h-4 text-emerald-500 mr-1" />
-                      <span className="text-sm text-emerald-600 font-medium">+15%</span>
-                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'} ml-1`}>vs last month</span>
+                      <ArrowTrendingUpIcon className="w-4 h-4 text-medi-green mr-1" />
+                      <span className="text-sm text-medi-green font-semibold">+15%</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-slate-500'} ml-1`}>vs last month</span>
                     </div>
                   </div>
-                  <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
-                    <CurrencyDollarIcon className="w-7 h-7 text-white" />
+                  <div className="w-14 h-14 bg-medi-lime rounded-2xl flex items-center justify-center shadow-lg">
+                    <CurrencyDollarIcon className="w-7 h-7 text-medi-green" />
                   </div>
                 </div>
               </div>
@@ -480,10 +480,10 @@ export default function TenantDashboardPage() {
                     <option>Last 3 months</option>
                   </select>
                 </div>
-                <ChartPlaceholder 
-                  title="Sales Overview Chart" 
-                  type="line" 
-                  darkMode={darkMode} 
+                <ChartPlaceholder
+                  title="Sales Overview Chart"
+                  type="line"
+                  darkMode={darkMode}
                 />
               </div>
 
@@ -594,7 +594,7 @@ export default function TenantDashboardPage() {
                 <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-6`}>Quick Actions</h3>
                 <div className="space-y-3">
                   <Link href={`/${subdomain}/inventory/add`}>
-                    <button className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-lg">
+                    <button className="w-full flex items-center justify-center px-4 py-3 bg-medi-green text-white rounded-xl hover:bg-medi-green/90 transition-all duration-200 font-semibold shadow-lg shadow-medi-green/20">
                       <PlusIcon className="w-5 h-5 mr-2" />
                       Add Product
                     </button>
