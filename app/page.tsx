@@ -83,7 +83,100 @@ const AnimatedCounter = ({ value, label, icon: Icon, delay = 0 }: { value: strin
     );
 };
 
-// Pharmacies Grid Component
+// Statistics Grid Component with Real Data
+const StatisticsGrid = () => {
+    const [stats, setStats] = useState({
+        pharmacies: { value: '0', label: 'Pharmacies Trust Us' },
+        uptime: { value: '99.9%', label: 'Uptime Guarantee' },
+        transactions: { value: '0', label: 'Transactions Processed' },
+        support: { value: '24/7', label: 'Expert Support' }
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                if (data.success) {
+                    setStats({
+                        pharmacies: data.stats.pharmacies,
+                        uptime: data.stats.uptime,
+                        transactions: data.stats.transactions,
+                        support: data.stats.support
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStats();
+    }, []);
+
+    const statsArray = [
+        { ...stats.pharmacies, icon: Users },
+        { ...stats.uptime, icon: Zap },
+        { ...stats.transactions, icon: CreditCard },
+        { ...stats.support, icon: Shield }
+    ];
+
+    if (loading) {
+        return (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="text-center p-8 rounded-[40px] glass-card border border-slate-100 animate-pulse">
+                        <div className="w-16 h-16 bg-slate-200 rounded-2xl mx-auto mb-6"></div>
+                        <div className="h-12 bg-slate-200 rounded mb-3 w-20 mx-auto"></div>
+                        <div className="h-4 bg-slate-200 rounded w-32 mx-auto"></div>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
+    return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {statsArray.map((stat, index) => (
+                <AnimatedCounter
+                    key={index}
+                    value={stat.value}
+                    label={stat.label}
+                    icon={stat.icon}
+                    delay={index * 150}
+                />
+            ))}
+        </div>
+    );
+};
+
+// Dynamic CTA Component
+const DynamicCTA = () => {
+    const [pharmacyCount, setPharmacyCount] = useState('500+');
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                if (data.success && data.stats.pharmacies.rawValue > 0) {
+                    setPharmacyCount(data.stats.pharmacies.value);
+                }
+            } catch (error) {
+                console.error('Error fetching pharmacy count:', error);
+            }
+        };
+        fetchStats();
+    }, []);
+
+    return (
+        <p className="reveal text-white/70 text-xl mb-10 max-w-2xl mx-auto stagger-1">
+            Join {pharmacyCount} pharmacies already using MediHeal to streamline their operations and boost efficiency.
+        </p>
+    );
+};
+
 const PharmaciesGrid = () => {
     const [pharmacies, setPharmacies] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -146,9 +239,24 @@ const PharmaciesGrid = () => {
                         className={`reveal-scale group bg-white rounded-3xl p-8 border-2 border-slate-100 hover:border-medi-green hover:shadow-2xl transition-all duration-500 cursor-pointer hover:-translate-y-2`}
                         style={{ animationDelay: `${index * 100}ms` }}
                     >
-                        {/* Icon */}
-                        <div className="w-16 h-16 bg-gradient-to-br from-medi-green to-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 shadow-lg">
-                            <span className="text-3xl">🏥</span>
+                        {/* Logo Display */}
+                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 shadow-lg overflow-hidden">
+                            {pharmacy.settings?.branding?.logo ? (
+                                <img 
+                                    src={pharmacy.settings.branding.logo} 
+                                    alt={`${pharmacy.name} logo`}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        // Fallback to default icon if image fails to load
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                        target.nextElementSibling?.classList.remove('hidden');
+                                    }}
+                                />
+                            ) : null}
+                            <div className={`w-full h-full bg-gradient-to-br from-medi-green to-emerald-600 rounded-2xl flex items-center justify-center ${pharmacy.settings?.branding?.logo ? 'hidden' : ''}`}>
+                                <span className="text-3xl">🏥</span>
+                            </div>
                         </div>
 
                         {/* Pharmacy Name */}
@@ -464,22 +572,7 @@ export default function LandingPage() {
             {/* Stats Section */}
             <section id="stats" className="py-32 px-6 bg-white relative overflow-hidden">
                 <div className="max-w-7xl mx-auto relative z-10">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {[
-                            { value: '500+', label: 'Pharmacies Trust Us', icon: Users },
-                            { value: '99.9%', label: 'Uptime Guarantee', icon: Zap },
-                            { value: '50M+', label: 'Transactions Processed', icon: CreditCard },
-                            { value: '24/7', label: 'Expert Support', icon: Shield },
-                        ].map((stat, index) => (
-                            <AnimatedCounter
-                                key={index}
-                                value={stat.value}
-                                label={stat.label}
-                                icon={stat.icon}
-                                delay={index * 150}
-                            />
-                        ))}
-                    </div>
+                    <StatisticsGrid />
                 </div>
             </section>
 
@@ -659,9 +752,7 @@ export default function LandingPage() {
                     <h2 className="reveal-scale text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">
                         Ready to Transform Your Pharmacy?
                     </h2>
-                    <p className="reveal text-white/70 text-xl mb-10 max-w-2xl mx-auto stagger-1">
-                        Join 500+ pharmacies already using MediHeal to streamline their operations and boost efficiency.
-                    </p>
+                    <DynamicCTA />
                     <div className="reveal flex flex-wrap justify-center gap-4 stagger-2">
                         <Link
                             href="/register"

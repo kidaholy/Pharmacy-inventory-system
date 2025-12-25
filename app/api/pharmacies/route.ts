@@ -20,6 +20,11 @@ export async function GET() {
                     city: tenant.contact?.city,
                     country: tenant.contact?.country
                 },
+                settings: {
+                    branding: {
+                        logo: tenant.settings?.branding?.logo
+                    }
+                },
                 createdAt: tenant.createdAt
             }));
 

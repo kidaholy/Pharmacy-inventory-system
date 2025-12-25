@@ -18,6 +18,11 @@ interface Tenant {
     city?: string;
     country?: string;
   };
+  settings?: {
+    branding?: {
+      logo?: string;
+    };
+  };
 }
 
 interface DatabaseUser {
@@ -337,9 +342,27 @@ export default function SuperAdminPage() {
                             {tenant.isActive ? '● Active' : '● Inactive'}
                           </span>
                         </div>
-                        <div className="w-14 h-14 bg-gradient-to-br from-medi-green to-emerald-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-                          <span className="text-2xl">🏥</span>
+                        
+                        {/* Logo Display */}
+                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 shadow-lg overflow-hidden">
+                          {tenant.settings?.branding?.logo ? (
+                            <img 
+                              src={tenant.settings.branding.logo} 
+                              alt={`${tenant.name} logo`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                // Fallback to default icon if image fails to load
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                target.nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                          ) : null}
+                          <div className={`w-full h-full bg-gradient-to-br from-medi-green to-emerald-600 rounded-2xl flex items-center justify-center ${tenant.settings?.branding?.logo ? 'hidden' : ''}`}>
+                            <span className="text-2xl">🏥</span>
+                          </div>
                         </div>
+                        
                         <h4 className="text-lg font-bold text-slate-900 mb-1 pr-16">
                           {tenant.name}
                         </h4>
@@ -486,9 +509,30 @@ export default function SuperAdminPage() {
                       return (
                         <tr key={tenant._id} className="hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div>
-                              <div className="text-sm font-bold text-slate-900">{tenant.name}</div>
-                              <div className="text-sm text-slate-500">{tenant.contact.email}</div>
+                            <div className="flex items-center">
+                              {/* Logo Display */}
+                              <div className="w-10 h-10 rounded-lg flex items-center justify-center mr-3 overflow-hidden">
+                                {tenant.settings?.branding?.logo ? (
+                                  <img 
+                                    src={tenant.settings.branding.logo} 
+                                    alt={`${tenant.name} logo`}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      // Fallback to default icon if image fails to load
+                                      const target = e.target as HTMLImageElement;
+                                      target.style.display = 'none';
+                                      target.nextElementSibling?.classList.remove('hidden');
+                                    }}
+                                  />
+                                ) : null}
+                                <div className={`w-full h-full bg-gradient-to-br from-medi-green to-emerald-600 rounded-lg flex items-center justify-center ${tenant.settings?.branding?.logo ? 'hidden' : ''}`}>
+                                  <span className="text-lg">🏥</span>
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-sm font-bold text-slate-900">{tenant.name}</div>
+                                <div className="text-sm text-slate-500">{tenant.contact.email}</div>
+                              </div>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
