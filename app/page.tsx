@@ -83,6 +83,129 @@ const AnimatedCounter = ({ value, label, icon: Icon, delay = 0 }: { value: strin
     );
 };
 
+// Pharmacies Grid Component
+const PharmaciesGrid = () => {
+    const [pharmacies, setPharmacies] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchPharmacies = async () => {
+            try {
+                const response = await fetch('/api/pharmacies');
+                const data = await response.json();
+                if (data.success) {
+                    setPharmacies(data.pharmacies);
+                }
+            } catch (error) {
+                console.error('Error fetching pharmacies:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPharmacies();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {[1, 2, 3].map(i => (
+                    <div key={i} className="bg-white rounded-3xl p-8 border border-slate-100 animate-pulse">
+                        <div className="w-16 h-16 bg-slate-200 rounded-2xl mb-6"></div>
+                        <div className="h-6 bg-slate-200 rounded mb-3 w-3/4"></div>
+                        <div className="h-4 bg-slate-200 rounded mb-2 w-1/2"></div>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
+    if (pharmacies.length === 0) {
+        return (
+            <div className="text-center py-20">
+                <div className="w-24 h-24 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                    <Package className="w-12 h-12 text-slate-300" />
+                </div>
+                <h3 className="text-2xl font-bold text-slate-900 mb-3">No Pharmacies Yet</h3>
+                <p className="text-slate-500">Check back soon for our registered pharmacy network.</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {pharmacies.map((pharmacy, index) => {
+                const subdomain = pharmacy.subdomain;
+                const pharmacyUrl = `/${subdomain}`;
+
+                return (
+                    <a
+                        key={pharmacy._id}
+                        href={pharmacyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`reveal-scale group bg-white rounded-3xl p-8 border-2 border-slate-100 hover:border-medi-green hover:shadow-2xl transition-all duration-500 cursor-pointer hover:-translate-y-2`}
+                        style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                        {/* Icon */}
+                        <div className="w-16 h-16 bg-gradient-to-br from-medi-green to-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 shadow-lg">
+                            <span className="text-3xl">🏥</span>
+                        </div>
+
+                        {/* Pharmacy Name */}
+                        <h3 className="text-2xl font-bold text-slate-900 mb-2 group-hover:text-medi-green transition-colors">
+                            {pharmacy.name}
+                        </h3>
+
+                        {/* Subdomain */}
+                        <div className="flex items-center gap-2 mb-4">
+                            <span className="text-sm text-slate-500">🌐</span>
+                            <code className="text-sm bg-slate-100 px-3 py-1 rounded-full font-mono text-slate-700 group-hover:bg-medi-green/10 group-hover:text-medi-green transition-colors">
+                                {subdomain}
+                            </code>
+                        </div>
+
+                        {/* Plan Badge */}
+                        <div className="flex items-center justify-between mb-6">
+                            <span className={`text-xs font-bold px-3 py-1.5 rounded-full ${pharmacy.subscriptionPlan === 'starter' ? 'bg-blue-100 text-blue-700' :
+                                pharmacy.subscriptionPlan === 'professional' ? 'bg-green-100 text-green-700' :
+                                    'bg-purple-100 text-purple-700'
+                                }`}>
+                                {pharmacy.subscriptionPlan.charAt(0).toUpperCase() + pharmacy.subscriptionPlan.slice(1)}
+                            </span>
+                        </div>
+
+                        {/* Contact Info */}
+                        {pharmacy.contact && (
+                            <div className="space-y-2 mb-6 text-sm text-slate-600">
+                                {pharmacy.contact.city && (
+                                    <div className="flex items-center gap-2">
+                                        <span>📍</span>
+                                        <span>{pharmacy.contact.city}{pharmacy.contact.country ? `, ${pharmacy.contact.country}` : ''}</span>
+                                    </div>
+                                )}
+                                {pharmacy.contact.phone && (
+                                    <div className="flex items-center gap-2">
+                                        <span>📞</span>
+                                        <span>{pharmacy.contact.phone}</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Visit Button */}
+                        <div className="pt-4 border-t border-slate-100">
+                            <div className="text-medi-green font-bold text-sm flex items-center gap-2 group-hover:gap-3 transition-all">
+                                Visit Pharmacy
+                                <ArrowRight className="w-4 h-4" />
+                            </div>
+                        </div>
+                    </a>
+                );
+            })}
+        </div>
+    );
+};
+
 export default function LandingPage() {
     const [isLoaded, setIsLoaded] = useState(false);
     const [scrollY, setScrollY] = useState(0);
@@ -215,6 +338,10 @@ export default function LandingPage() {
                     <div className="hidden lg:flex items-center gap-8 text-sm font-bold text-slate-600">
                         <Link href="#features" className="hover:text-medi-green transition-colors duration-300 relative group">
                             Core Modules
+                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-medi-green transition-all duration-300 group-hover:w-full"></span>
+                        </Link>
+                        <Link href="#pharmacies" className="hover:text-medi-green transition-colors duration-300 relative group">
+                            Our Pharmacies
                             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-medi-green transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                         <Link href="#stats" className="hover:text-medi-green transition-colors duration-300 relative group">
@@ -353,6 +480,28 @@ export default function LandingPage() {
                             />
                         ))}
                     </div>
+                </div>
+            </section>
+
+            {/* Our Pharmacies Section */}
+            <section id="pharmacies" className="py-32 px-6 bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
+                <div className="absolute inset-0 bg-mesh opacity-20"></div>
+
+                <div className="max-w-7xl mx-auto relative z-10">
+                    <div className="text-center mb-20 reveal">
+                        <div className="inline-flex items-center gap-2 bg-medi-green/10 text-medi-green px-5 py-2 rounded-full text-sm font-black mb-6 uppercase tracking-widest border border-medi-green/10">
+                            <Package className="w-4 h-4" />
+                            Our Network
+                        </div>
+                        <h2 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-none">
+                            Trusted <span className="text-medi-green">Pharmacies.</span>
+                        </h2>
+                        <p className="text-slate-500 text-xl max-w-2xl mx-auto leading-relaxed">
+                            Access quality healthcare services from our network of registered pharmacies across the region.
+                        </p>
+                    </div>
+
+                    <PharmaciesGrid />
                 </div>
             </section>
 

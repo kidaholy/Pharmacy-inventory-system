@@ -15,10 +15,11 @@ export async function GET(request: NextRequest) {
     }
 
     const users = await multiTenantDb.getUsersByTenant(tenantId);
-    
+
     // Remove sensitive information
     const safeUsers = users.map(user => ({
       _id: user._id,
+      tenantId: user.tenantId, // Include tenantId for proper deletion
       username: user.username,
       email: user.email,
       firstName: user.firstName,

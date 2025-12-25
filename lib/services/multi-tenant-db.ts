@@ -8,9 +8,9 @@ import { PasswordUtils } from '../password-utils';
 
 export class MultiTenantDatabaseService {
   private static instance: MultiTenantDatabaseService;
-  
-  private constructor() {}
-  
+
+  private constructor() { }
+
   public static getInstance(): MultiTenantDatabaseService {
     if (!MultiTenantDatabaseService.instance) {
       MultiTenantDatabaseService.instance = new MultiTenantDatabaseService();
@@ -52,12 +52,12 @@ export class MultiTenantDatabaseService {
   // User Management (Multi-tenant)
   async createUser(tenantId: string, userData: Partial<IMultiTenantUser>): Promise<IMultiTenantUser> {
     await this.ensureConnection();
-    
+
     // Hash the password before saving
     if (userData.password) {
       userData.password = await PasswordUtils.hashPassword(userData.password);
     }
-    
+
     // Convert tenantId to ObjectId
     const tenantObjectId = new mongoose.Types.ObjectId(tenantId);
     const user = new MultiTenantUser({ ...userData, tenantId: tenantObjectId });
@@ -66,10 +66,10 @@ export class MultiTenantDatabaseService {
 
   async getUserByCredentials(tenantId: string, email: string, password: string): Promise<IMultiTenantUser | null> {
     await this.ensureConnection();
-    
+
     // Convert string tenantId to ObjectId for proper MongoDB query
     const tenantObjectId = new mongoose.Types.ObjectId(tenantId);
-    
+
     // Find user by email and tenant (don't include password in query)
     const user = await MultiTenantUser.findOne({
       tenantId: tenantObjectId,
@@ -81,14 +81,14 @@ export class MultiTenantDatabaseService {
       console.log('👤 Found user:', user.email, 'Active:', user.isActive);
       console.log('🔒 Security object:', user.security);
       console.log('🔒 Is locked:', user.isLocked ? user.isLocked() : 'No isLocked method');
-      
+
       if (!user.isLocked()) {
         // Verify password using bcrypt directly (bypass PasswordUtils for debugging)
         console.log('🔐 Verifying password...');
         const bcrypt = require('bcryptjs');
         const isPasswordValid = await bcrypt.compare(password, user.password);
         console.log('🔐 Password valid:', isPasswordValid);
-      
+
         if (isPasswordValid) {
           console.log('✅ Password verification successful');
           // Update login info
@@ -98,14 +98,14 @@ export class MultiTenantDatabaseService {
           return user;
         } else {
           console.log('❌ Password verification failed');
-        // Increment failed login attempts
-        user.security.failedLoginAttempts += 1;
-        
-        // Lock account after 5 failed attempts for 30 minutes
-        if (user.security.failedLoginAttempts >= 5) {
-          user.security.lockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
-        }
-        
+          // Increment failed login attempts
+          user.security.failedLoginAttempts += 1;
+
+          // Lock account after 5 failed attempts for 30 minutes
+          if (user.security.failedLoginAttempts >= 5) {
+            user.security.lockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+          }
+
           await user.save();
           return null;
         }
@@ -120,10 +120,22 @@ export class MultiTenantDatabaseService {
     return null;
   }
 
-  async getUserById(tenantId: string, userId: string): Promise<IMultiTenantUser | null> {
+  async getUserById(tenantId: string | null, userId: string): Promise<IMultiTenantUser | null> {
     await this.ensureConnection();
-    const tenantObjectId = new mongoose.Types.ObjectId(tenantId);
-    return await MultiTenantUser.findOne({ _id: userId, tenantId: tenantObjectId });
+
+    // Build query based on whether tenantId is valid
+    let query: any = { _id: userId };
+
+    // Only add tenantId to query if it's valid
+    if (tenantId && tenantId !== 'null' && tenantId !== 'undefined') {
+      const tenantObjectId = new mongoose.Types.ObjectId(tenantId);
+      query.tenantId = tenantObjectId;
+    } else {
+      // For super admins or users without tenants, tenantId should be null
+      query.tenantId = null;
+    }
+
+    return await MultiTenantUser.findOne(query);
   }
 
   async getUsersByTenant(tenantId: string): Promise<IMultiTenantUser[]> {
@@ -141,17 +153,17 @@ export class MultiTenantDatabaseService {
   // Super Admin Methods (tenant-independent)
   async getSuperAdminByEmail(email: string): Promise<IMultiTenantUser | null> {
     await this.ensureConnection();
-    return await MultiTenantUser.findOne({ 
-      email, 
+    return await MultiTenantUser.findOne({
+      email,
       role: 'super_admin',
-      isActive: true 
+      isActive: true
     });
   }
 
   async verifyUserPassword(user: IMultiTenantUser, password: string): Promise<boolean> {
     try {
       const isPasswordValid = await PasswordUtils.verifyPassword(password, user.password);
-      
+
       if (isPasswordValid) {
         // Update login info
         user.security.lastLogin = new Date();
@@ -161,12 +173,12 @@ export class MultiTenantDatabaseService {
       } else {
         // Increment failed login attempts
         user.security.failedLoginAttempts += 1;
-        
+
         // Lock account after 5 failed attempts for 30 minutes
         if (user.security.failedLoginAttempts >= 5) {
           user.security.lockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
         }
-        
+
         await user.save();
         return false;
       }
@@ -178,25 +190,25 @@ export class MultiTenantDatabaseService {
 
   async createSuperAdmin(userData: Partial<IMultiTenantUser>): Promise<IMultiTenantUser> {
     await this.ensureConnection();
-    
+
     // Hash the password before saving
     if (userData.password) {
       userData.password = await PasswordUtils.hashPassword(userData.password);
     }
-    
+
     // Super admin doesn't need a tenant - completely tenant-independent
-    const superAdmin = new MultiTenantUser({ 
-      ...userData, 
+    const superAdmin = new MultiTenantUser({
+      ...userData,
       tenantId: null, // Super admin is tenant-independent
       role: 'super_admin'
     });
-    
+
     return await superAdmin.save();
   }
 
-  async updateUser(tenantId: string, userId: string, updates: Partial<IMultiTenantUser>): Promise<IMultiTenantUser | null> {
+  async updateUser(tenantId: string | null, userId: string, updates: Partial<IMultiTenantUser>): Promise<IMultiTenantUser | null> {
     await this.ensureConnection();
-    
+
     // Hash password if it's being updated
     if (updates.password) {
       updates.password = await PasswordUtils.hashPassword(updates.password);
@@ -213,24 +225,40 @@ export class MultiTenantDatabaseService {
         };
       }
     }
-    
-    const tenantObjectId = new mongoose.Types.ObjectId(tenantId);
+
+    // Build query based on whether tenantId is valid
+    let query: any = { _id: userId };
+    if (tenantId && tenantId !== 'null' && tenantId !== 'undefined') {
+      const tenantObjectId = new mongoose.Types.ObjectId(tenantId);
+      query.tenantId = tenantObjectId;
+    } else {
+      query.tenantId = null;
+    }
+
     return await MultiTenantUser.findOneAndUpdate(
-      { _id: userId, tenantId: tenantObjectId },
+      query,
       updates,
       { new: true }
     );
   }
 
-  async updateUserPassword(tenantId: string, userId: string, newPassword: string): Promise<boolean> {
+  async updateUserPassword(tenantId: string | null, userId: string, newPassword: string): Promise<boolean> {
     await this.ensureConnection();
-    
+
     const hashedPassword = await PasswordUtils.hashPassword(newPassword);
-    const tenantObjectId = new mongoose.Types.ObjectId(tenantId);
-    
+
+    // Build query based on whether tenantId is valid
+    let query: any = { _id: userId };
+    if (tenantId && tenantId !== 'null' && tenantId !== 'undefined') {
+      const tenantObjectId = new mongoose.Types.ObjectId(tenantId);
+      query.tenantId = tenantObjectId;
+    } else {
+      query.tenantId = null;
+    }
+
     const result = await MultiTenantUser.findOneAndUpdate(
-      { _id: userId, tenantId: tenantObjectId },
-      { 
+      query,
+      {
         password: hashedPassword,
         passwordResetToken: undefined,
         passwordResetExpires: undefined,
@@ -240,15 +268,27 @@ export class MultiTenantDatabaseService {
       },
       { new: true }
     );
-    
+
     return !!result;
   }
 
-  async deleteUser(tenantId: string, userId: string): Promise<boolean> {
+  async deleteUser(tenantId: string | null, userId: string): Promise<boolean> {
     await this.ensureConnection();
-    const tenantObjectId = new mongoose.Types.ObjectId(tenantId);
+
+    // Build query based on whether tenantId is valid
+    let query: any = { _id: userId };
+
+    // Only add tenantId to query if it's valid
+    if (tenantId && tenantId !== 'null' && tenantId !== 'undefined') {
+      const tenantObjectId = new mongoose.Types.ObjectId(tenantId);
+      query.tenantId = tenantObjectId;
+    } else {
+      // For super admins or users without tenants, tenantId should be null
+      query.tenantId = null;
+    }
+
     const result = await MultiTenantUser.findOneAndUpdate(
-      { _id: userId, tenantId: tenantObjectId },
+      query,
       { isActive: false },
       { new: true }
     );
@@ -319,7 +359,7 @@ export class MultiTenantDatabaseService {
     await this.ensureConnection();
     const expiryDate = new Date();
     expiryDate.setDate(expiryDate.getDate() + days);
-    
+
     return await Medicine.find({
       tenantId,
       isActive: true,
@@ -360,21 +400,21 @@ export class MultiTenantDatabaseService {
   async updatePrescriptionStatus(tenantId: string, prescriptionId: string, status: string, dispensedBy?: string): Promise<IPrescription | null> {
     await this.ensureConnection();
     const updates: any = { status };
-    
+
     if (status === 'dispensed') {
       updates['dates.dispensed'] = new Date();
       if (dispensedBy) {
         updates.dispensedBy = dispensedBy;
       }
     }
-    
+
     return await this.updatePrescription(tenantId, prescriptionId, updates);
   }
 
   // Analytics and Reports
   async getTenantStats(tenantId: string) {
     await this.ensureConnection();
-    
+
     const [
       totalUsers,
       totalMedicines,
@@ -438,7 +478,7 @@ export class MultiTenantDatabaseService {
     prescriptions: { current: number; limit: number; exceeded: boolean };
   }> {
     await this.ensureConnection();
-    
+
     const tenant = await this.getTenantById(tenantId);
     if (!tenant) throw new Error('Tenant not found');
 

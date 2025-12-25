@@ -301,6 +301,97 @@ export default function SuperAdminPage() {
                 </div>
               </div>
             </div>
+
+            {/* Registered Pharmacies Section */}
+            {tenants.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900">Registered Pharmacies</h3>
+                    <p className="text-sm text-slate-500 mt-1">All pharmacy tenants in the system</p>
+                  </div>
+                  <div className="text-sm font-semibold text-medi-green">
+                    {tenants.length} {tenants.length === 1 ? 'Pharmacy' : 'Pharmacies'}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {tenants.map((tenant) => {
+                    const userCount = users.filter(u => u.tenantId?.toString() === tenant._id?.toString()).length;
+                    const isOwner = users.find(u => u._id?.toString() === tenant.ownerId?.toString());
+
+                    return (
+                      <div
+                        key={tenant._id}
+                        className={`relative group bg-gradient-to-br ${tenant.isActive
+                            ? 'from-white to-slate-50 border-slate-200'
+                            : 'from-slate-100 to-slate-200 border-slate-300'
+                          } border-2 rounded-xl p-5 hover:shadow-lg transition-all duration-300 ${tenant.isActive ? 'hover:border-medi-green' : ''
+                          }`}
+                      >
+                        <div className="absolute top-3 right-3">
+                          <span className={`inline-flex px-2.5 py-1 text-xs font-bold rounded-full ${tenant.isActive
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-red-100 text-red-700'
+                            }`}>
+                            {tenant.isActive ? '● Active' : '● Inactive'}
+                          </span>
+                        </div>
+                        <div className="w-14 h-14 bg-gradient-to-br from-medi-green to-emerald-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+                          <span className="text-2xl">🏥</span>
+                        </div>
+                        <h4 className="text-lg font-bold text-slate-900 mb-1 pr-16">
+                          {tenant.name}
+                        </h4>
+                        <div className="flex items-center gap-1.5 mb-3">
+                          <span className="text-xs text-slate-500">🌐</span>
+                          <code className="text-xs bg-slate-100 px-2 py-1 rounded font-mono text-slate-700">
+                            {tenant.subdomain}
+                          </code>
+                        </div>
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-slate-500 font-medium">Plan:</span>
+                            <span className={`font-bold px-2 py-0.5 rounded ${tenant.subscriptionPlan === 'starter' ? 'bg-blue-100 text-blue-700' :
+                                tenant.subscriptionPlan === 'professional' ? 'bg-green-100 text-green-700' :
+                                  'bg-purple-100 text-purple-700'
+                              }`}>
+                              {tenant.subscriptionPlan.charAt(0).toUpperCase() + tenant.subscriptionPlan.slice(1)}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-slate-500 font-medium">Users:</span>
+                            <span className="font-bold text-slate-700">{userCount} {userCount === 1 ? 'user' : 'users'}</span>
+                          </div>
+                          {isOwner && (
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-slate-500 font-medium">Owner:</span>
+                              <span className="font-semibold text-slate-700 truncate ml-2">
+                                {isOwner.firstName} {isOwner.lastName}
+                              </span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-slate-500 font-medium">Created:</span>
+                            <span className="text-slate-600">
+                              {new Date(tenant.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="pt-3 border-t border-slate-200">
+                          <button
+                            onClick={() => setActiveTab('tenants')}
+                            className="w-full text-center text-sm font-semibold text-medi-green hover:text-emerald-700 transition-colors"
+                          >
+                            View Details →
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

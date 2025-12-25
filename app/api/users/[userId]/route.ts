@@ -97,12 +97,12 @@ export async function PUT(
     }
 
     // If trying to deactivate an admin user, check if it's the last admin
-    if (updateData.isActive === false && 
-        (userToUpdate.role === 'admin' || userToUpdate.role === 'tenant_admin' || userToUpdate.role === 'super_admin')) {
-      
+    if (updateData.isActive === false &&
+      (userToUpdate.role === 'admin' || userToUpdate.role === 'tenant_admin' || userToUpdate.role === 'super_admin')) {
+
       const allUsers = await multiTenantDb.getUsersByTenant(tenantId);
-      const activeAdminUsers = allUsers.filter(u => 
-        u.isActive && 
+      const activeAdminUsers = allUsers.filter(u =>
+        u.isActive &&
         u._id.toString() !== userId && // Exclude the user being updated
         (u.role === 'admin' || u.role === 'tenant_admin' || u.role === 'super_admin')
       );
@@ -117,7 +117,7 @@ export async function PUT(
 
     // Remove tenantId from update data to prevent changing it
     delete updateData.tenantId;
-    
+
     // Don't allow updating password through this endpoint
     delete updateData.password;
 
@@ -168,23 +168,22 @@ export async function DELETE(
     const { userId } = await params;
     console.log('🗑️ Delete user request:', { userId });
     const { searchParams } = new URL(request.url);
-    const tenantId = searchParams.get('tenantId');
+    let tenantId = searchParams.get('tenantId');
+
+    // Handle 'undefined' string from frontend
+    if (tenantId === 'undefined' || tenantId === 'null' || !tenantId) {
+      tenantId = null;
+    }
 
     console.log('🔍 Delete user params:', { userId, tenantId });
 
-    if (!tenantId) {
-      console.log('❌ Missing tenant ID');
-      return NextResponse.json(
-        { error: 'Tenant ID is required' },
-        { status: 400 }
-      );
-    }
+    // Note: tenantId can be null for super admins, so we don't validate it here
 
     // Get the user to be deleted
     console.log('🔍 Looking up user to delete...');
     const userToDelete = await multiTenantDb.getUserById(tenantId, userId);
     console.log('👤 User to delete:', userToDelete ? `${userToDelete.firstName} ${userToDelete.lastName} (${userToDelete.role})` : 'Not found');
-    
+
     if (!userToDelete) {
       console.log('❌ User not found');
       return NextResponse.json(
@@ -202,20 +201,40 @@ export async function DELETE(
       );
     }
 
+    // Check if user is the tenant owner FIRST (before last admin check)
+    // Only attempt this if tenantId is valid (not null, undefined, or invalid ObjectId string)
+    let tenant = null;
+    let isOwner = false;
+    if (tenantId && tenantId !== 'null' && tenantId !== 'undefined') {
+      try {
+        tenant = await multiTenantDb.getTenantById(tenantId);
+        isOwner = tenant && tenant.ownerId && tenant.ownerId.toString() === userId;
+        if (isOwner) {
+          console.log('👑 User is the tenant owner');
+        }
+      } catch (tenantError) {
+        console.error('⚠️ Error fetching tenant:', tenantError);
+        // Continue with user deletion even if tenant fetch fails
+      }
+    } else {
+      console.log('ℹ️ User has no tenant (likely super admin), skipping tenant deactivation');
+    }
+
     // Check if this is an admin user
-    if (userToDelete.role === 'admin' || userToDelete.role === 'tenant_admin' || userToDelete.role === 'super_admin') {
-      console.log('🔍 User is admin, checking if last admin...');
-      
+    // If they're the tenant owner, skip the "last admin" check since tenant will be deactivated
+    if (!isOwner && (userToDelete.role === 'admin' || userToDelete.role === 'tenant_admin' || userToDelete.role === 'super_admin')) {
+      console.log('🔍 User is admin (not owner), checking if last admin...');
+
       // Get ALL users for this tenant (including inactive ones)
       const allUsers = await multiTenantDb.getAllUsersByTenant(tenantId);
       console.log('📋 All users in tenant:', allUsers.length);
-      
-      const activeAdminUsers = allUsers.filter(u => 
-        u.isActive && 
+
+      const activeAdminUsers = allUsers.filter(u =>
+        u.isActive &&
         u._id.toString() !== userId && // Exclude the user being deleted
         (u.role === 'admin' || u.role === 'tenant_admin' || u.role === 'super_admin')
       );
-      
+
       console.log('👑 Other active admin users:', activeAdminUsers.length);
       activeAdminUsers.forEach(admin => {
         console.log(`   - ${admin.firstName} ${admin.lastName} (${admin.email}) - ${admin.role}`);
@@ -229,11 +248,44 @@ export async function DELETE(
           { status: 400 }
         );
       }
+    } else if (isOwner) {
+      console.log('ℹ️ Skipping last admin check - user is tenant owner and tenant will be deactivated');
     }
 
     console.log('🗑️ Proceeding with user deletion...');
-    const success = await multiTenantDb.deleteUser(tenantId, userId);
-    console.log('🗑️ Delete result:', success);
+
+    // If user is owner, deactivate the tenant
+    if (isOwner) {
+      console.log('👑 Deactivating tenant along with owner...');
+      const tenantDeactivationSuccess = await multiTenantDb.updateTenant(tenantId, { isActive: false });
+      if (!tenantDeactivationSuccess) {
+        console.warn('⚠️ User was deactivated but tenant deactivation failed');
+      } else {
+        console.log('✅ Tenant deactivated along with owner');
+      }
+    }
+
+    let success = false;
+    try {
+      console.log('🗑️ Calling deleteUser with:', { tenantId, userId });
+      success = await multiTenantDb.deleteUser(tenantId, userId);
+      console.log('🗑️ Delete result:', success);
+    } catch (deleteError) {
+      console.error('❌ Error in deleteUser function:', deleteError);
+      console.error('❌ Delete error details:', {
+        message: deleteError instanceof Error ? deleteError.message : 'Unknown error',
+        stack: deleteError instanceof Error ? deleteError.stack : 'No stack trace',
+        tenantId,
+        userId
+      });
+      return NextResponse.json(
+        {
+          error: 'Failed to delete user',
+          details: deleteError instanceof Error ? deleteError.message : 'Unknown error'
+        },
+        { status: 500 }
+      );
+    }
 
     if (!success) {
       console.log('❌ Delete operation failed');
@@ -255,10 +307,10 @@ export async function DELETE(
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : 'No stack trace'
     });
-    
+
     return NextResponse.json(
-      { 
-        error: 'Failed to delete user', 
+      {
+        error: 'Failed to delete user',
         details: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
