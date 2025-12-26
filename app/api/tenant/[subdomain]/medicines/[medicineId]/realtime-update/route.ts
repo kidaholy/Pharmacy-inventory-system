@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { autoSaveDb } from '../../../../../../../../lib/services/auto-save-db';
+import { autoSaveDb } from '../../../../../../lib/services/auto-save-db';
 import mongoose from 'mongoose';
 
 // Real-time update endpoint with immediate feedback
