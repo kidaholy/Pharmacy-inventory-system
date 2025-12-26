@@ -295,6 +295,76 @@ export class MultiTenantDatabaseService {
     return !!result;
   }
 
+  async hardDeleteUser(userId: string): Promise<boolean> {
+    await this.ensureConnection();
+
+    try {
+      console.log('🗑️ Performing hard delete for user:', userId);
+      
+      // Permanently delete the user from MongoDB Atlas
+      const result = await MultiTenantUser.findByIdAndDelete(userId);
+      
+      if (result) {
+        console.log('✅ User permanently deleted from MongoDB Atlas:', result.username);
+        return true;
+      } else {
+        console.log('❌ User not found for hard delete:', userId);
+        return false;
+      }
+    } catch (error) {
+      console.error('❌ Hard delete failed:', error);
+      throw error;
+    }
+  }
+
+  async getUserById(userId: string): Promise<any> {
+    await this.ensureConnection();
+    
+    try {
+      const user = await MultiTenantUser.findById(userId).lean();
+      if (!user) return null;
+      
+      // Convert to the expected format
+      return {
+        id: user._id.toString(),
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        tenantId: user.tenantId?.toString(),
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        lastLogin: user.lastLogin
+      };
+    } catch (error) {
+      console.error('❌ Get user by ID failed:', error);
+      return null;
+    }
+  }
+
+  async getUsersByTenant(tenantId: string): Promise<any[]> {
+    await this.ensureConnection();
+    
+    try {
+      const users = await MultiTenantUser.find({ 
+        tenantId: new mongoose.Types.ObjectId(tenantId) 
+      }).lean();
+      
+      return users.map(user => ({
+        id: user._id.toString(),
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        tenantId: user.tenantId?.toString(),
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        lastLogin: user.lastLogin
+      }));
+    } catch (error) {
+      console.error('❌ Get users by tenant failed:', error);
+      return [];
+    }
+  }
+
   // Medicine Management (Multi-tenant)
   async createMedicine(tenantId: string, medicineData: Partial<IMedicine>): Promise<IMedicine> {
     await this.ensureConnection();

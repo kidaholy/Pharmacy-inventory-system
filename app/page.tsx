@@ -3,6 +3,9 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { Package, CreditCard, Cloud, ArrowRight, BarChart3, Shield, Zap, Users, CheckCircle2, Heart } from 'lucide-react';
+import { useLanguage } from '../lib/contexts/LanguageContext';
+import { useStatsRefresh } from '../lib/utils/refresh-stats';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 const AnimatedCounter = ({ value, label, icon: Icon, delay = 0 }: { value: string, label: string, icon: any, delay?: number }) => {
     const [count, setCount] = useState(0);
@@ -85,6 +88,7 @@ const AnimatedCounter = ({ value, label, icon: Icon, delay = 0 }: { value: strin
 
 // Statistics Grid Component with Real Data
 const StatisticsGrid = () => {
+    const { t } = useLanguage();
     const [stats, setStats] = useState({
         pharmacies: { value: '0', label: 'Pharmacies Trust Us' },
         uptime: { value: '99.9%', label: 'Uptime Guarantee' },
@@ -100,20 +104,35 @@ const StatisticsGrid = () => {
                 const data = await response.json();
                 if (data.success) {
                     setStats({
-                        pharmacies: data.stats.pharmacies,
-                        uptime: data.stats.uptime,
-                        transactions: data.stats.transactions,
-                        support: data.stats.support
+                        pharmacies: { ...data.stats.pharmacies, label: t.stats.pharmaciesTrust },
+                        uptime: { ...data.stats.uptime, label: t.stats.uptimeGuarantee },
+                        transactions: { ...data.stats.transactions, label: t.stats.transactionsProcessed },
+                        support: { ...data.stats.support, label: t.stats.expertSupport }
+                    });
+                } else {
+                    // Set default stats with translations
+                    setStats({
+                        pharmacies: { value: '0', label: t.stats.pharmaciesTrust },
+                        uptime: { value: '99.9%', label: t.stats.uptimeGuarantee },
+                        transactions: { value: '0', label: t.stats.transactionsProcessed },
+                        support: { value: '24/7', label: t.stats.expertSupport }
                     });
                 }
             } catch (error) {
                 console.error('Error fetching stats:', error);
+                // Set default stats with translations on error
+                setStats({
+                    pharmacies: { value: '0', label: t.stats.pharmaciesTrust },
+                    uptime: { value: '99.9%', label: t.stats.uptimeGuarantee },
+                    transactions: { value: '0', label: t.stats.transactionsProcessed },
+                    support: { value: '24/7', label: t.stats.expertSupport }
+                });
             } finally {
                 setLoading(false);
             }
         };
         fetchStats();
-    }, []);
+    }, [t]);
 
     const statsArray = [
         { ...stats.pharmacies, icon: Users },
@@ -153,6 +172,7 @@ const StatisticsGrid = () => {
 
 // Dynamic CTA Component
 const DynamicCTA = () => {
+    const { t } = useLanguage();
     const [pharmacyCount, setPharmacyCount] = useState('500+');
 
     useEffect(() => {
@@ -172,12 +192,13 @@ const DynamicCTA = () => {
 
     return (
         <p className="reveal text-white/70 text-xl mb-10 max-w-2xl mx-auto stagger-1">
-            Join {pharmacyCount} pharmacies already using MediHeal to streamline their operations and boost efficiency.
+            {t.cta.description.replace('{count}', pharmacyCount)}
         </p>
     );
 };
 
 const PharmaciesGrid = () => {
+    const { t } = useLanguage();
     const [pharmacies, setPharmacies] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -218,8 +239,8 @@ const PharmaciesGrid = () => {
                 <div className="w-24 h-24 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
                     <Package className="w-12 h-12 text-slate-300" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-3">No Pharmacies Yet</h3>
-                <p className="text-slate-500">Check back soon for our registered pharmacy network.</p>
+                <h3 className="text-2xl font-bold text-slate-900 mb-3">{t.pharmacies.noPharmacies}</h3>
+                <p className="text-slate-500">{t.pharmacies.noPharmaciesDesc}</p>
             </div>
         );
     }
@@ -303,7 +324,7 @@ const PharmaciesGrid = () => {
                         {/* Visit Button */}
                         <div className="pt-4 border-t border-slate-100">
                             <div className="text-medi-green font-bold text-sm flex items-center gap-2 group-hover:gap-3 transition-all">
-                                Visit Pharmacy
+                                {t.pharmacies.visitPharmacy}
                                 <ArrowRight className="w-4 h-4" />
                             </div>
                         </div>
@@ -315,6 +336,7 @@ const PharmaciesGrid = () => {
 };
 
 export default function LandingPage() {
+    const { t, language } = useLanguage();
     const [isLoaded, setIsLoaded] = useState(false);
     const [scrollY, setScrollY] = useState(0);
 
@@ -363,7 +385,7 @@ export default function LandingPage() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden font-sans">
+        <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden font-sans" lang={language}>
             {/* Custom Animation Styles */}
             <style jsx>{`
                 @keyframes float {
@@ -445,30 +467,31 @@ export default function LandingPage() {
 
                     <div className="hidden lg:flex items-center gap-8 text-sm font-bold text-slate-600">
                         <Link href="#features" className="hover:text-medi-green transition-colors duration-300 relative group">
-                            Core Modules
+                            {t.nav.coreModules}
                             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-medi-green transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                         <Link href="#pharmacies" className="hover:text-medi-green transition-colors duration-300 relative group">
-                            Our Pharmacies
+                            {t.nav.ourPharmacies}
                             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-medi-green transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                         <Link href="#stats" className="hover:text-medi-green transition-colors duration-300 relative group">
-                            Why Us
+                            {t.nav.whyUs}
                             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-medi-green transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                         <Link href="#cta" className="hover:text-medi-green transition-colors duration-300 relative group">
-                            Get Started
+                            {t.nav.getStarted}
                             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-medi-green transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <Link href="/login" className="text-sm font-bold text-medi-green hidden md:block hover:underline transition-all">Client Login</Link>
+                        <LanguageSwitcher />
+                        <Link href="/login" className="text-sm font-bold text-medi-green hidden md:block hover:underline transition-all">{t.nav.clientLogin}</Link>
                         <Link
                             href="/register"
                             className="bg-medi-green text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300 active:scale-95 flex items-center gap-2"
                         >
-                            Start Free Trial
+                            {t.nav.startFreeTrial}
                             <ArrowRight className="w-4 h-4" />
                         </Link>
                     </div>
@@ -491,28 +514,28 @@ export default function LandingPage() {
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-medi-lime opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-medi-lime"></span>
                             </span>
-                            <span className="text-white text-xs font-bold uppercase tracking-widest">Multi-Tenant Cloud Platform</span>
+                            <span className="text-white text-xs font-bold uppercase tracking-widest">{t.hero.multiTenantPlatform}</span>
                         </div>
                         <h1 className="text-5xl lg:text-8xl font-extrabold text-white leading-[0.9] mb-8 tracking-tighter">
-                            Revolutionizing <br />
-                            <span className="text-medi-lime inline-block hover:scale-105 transition-transform duration-300 cursor-default">Pharmacy</span> <br />
-                            Operations.
+                            {t.hero.title.split(' ').slice(0, 1).join(' ')} <br />
+                            <span className="text-medi-lime inline-block hover:scale-105 transition-transform duration-300 cursor-default">{t.hero.title.split(' ').slice(1, 2).join(' ')}</span> <br />
+                            {t.hero.title.split(' ').slice(2).join(' ')}
                         </h1>
                         <p className="text-white/70 text-lg md:text-xl mb-12 max-w-lg leading-relaxed">
-                            Introducing a cloud-based management system for enhanced efficiency in pharmacies. Secure, scalable, and built for growth.
+                            {t.hero.subtitle}
                         </p>
                         <div className="flex flex-wrap gap-4">
                             <Link
                                 href="/register"
                                 className="bg-medi-lime text-medi-green px-10 py-4 rounded-full font-black text-lg hover:shadow-[0_0_40px_rgba(212,240,93,0.5)] transition-all duration-300 inline-block hover:scale-105 active:scale-95 animate-pulse-glow"
                             >
-                                Get Started Free
+                                {t.hero.startTrial}
                             </Link>
                             <Link
                                 href="/demo"
                                 className="bg-white/5 border border-white/20 text-white px-10 py-4 rounded-full font-bold hover:bg-white/15 hover:border-white/40 transition-all duration-300 group flex items-center gap-2"
                             >
-                                Watch Demo
+                                {t.hero.watchDemo}
                                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </Link>
                         </div>
@@ -535,8 +558,8 @@ export default function LandingPage() {
                                 <div className="w-16 h-16 bg-medi-lime rounded-2xl mx-auto mb-4 flex items-center justify-center text-medi-green shadow-lg">
                                     <Package className="w-8 h-8" />
                                 </div>
-                                <h3 className="text-white font-bold text-2xl mb-2">Smart Inventory</h3>
-                                <p className="text-white/80 text-sm">Automated tracking & reordering</p>
+                                <h3 className="text-white font-bold text-2xl mb-2">{t.hero.smartInventory.title}</h3>
+                                <p className="text-white/80 text-sm">{t.hero.smartInventory.description}</p>
                             </div>
                         </div>
 
@@ -547,8 +570,8 @@ export default function LandingPage() {
                                     <BarChart3 className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] text-slate-400 font-bold uppercase">Real-time Tracking</p>
-                                    <p className="text-sm font-black text-slate-800">Inventory Syncing...</p>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase">{t.hero.floatingCards.realTimeTracking.title}</p>
+                                    <p className="text-sm font-black text-slate-800">{t.hero.floatingCards.realTimeTracking.description}</p>
                                 </div>
                             </div>
                         </div>
@@ -560,8 +583,8 @@ export default function LandingPage() {
                                     <Shield className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] text-slate-400 font-bold uppercase">Data Protection</p>
-                                    <p className="text-sm font-black text-slate-800">256-bit Encrypted</p>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase">{t.hero.floatingCards.dataProtection.title}</p>
+                                    <p className="text-sm font-black text-slate-800">{t.hero.floatingCards.dataProtection.description}</p>
                                 </div>
                             </div>
                         </div>
@@ -584,13 +607,13 @@ export default function LandingPage() {
                     <div className="text-center mb-20 reveal">
                         <div className="inline-flex items-center gap-2 bg-medi-green/10 text-medi-green px-5 py-2 rounded-full text-sm font-black mb-6 uppercase tracking-widest border border-medi-green/10">
                             <Package className="w-4 h-4" />
-                            Our Network
+                            {t.nav.ourPharmacies}
                         </div>
                         <h2 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-none">
-                            Trusted <span className="text-medi-green">Pharmacies.</span>
+                            {t.pharmacies.title}
                         </h2>
                         <p className="text-slate-500 text-xl max-w-2xl mx-auto leading-relaxed">
-                            Access quality healthcare services from our network of registered pharmacies across the region.
+                            {t.pharmacies.description}
                         </p>
                     </div>
 
@@ -609,39 +632,38 @@ export default function LandingPage() {
                     <div className="text-center mb-24 reveal">
                         <div className="inline-flex items-center gap-2 bg-medi-green/10 text-medi-green px-5 py-2 rounded-full text-sm font-black mb-6 uppercase tracking-widest border border-medi-green/10">
                             <Cloud className="w-4 h-4" />
-                            Unified Architecture
+                            {t.nav.coreModules}
                         </div>
                         <h2 className="text-5xl md:text-7xl font-black mb-8 tracking-tighter leading-none">
-                            Core System <br />
-                            <span className="text-medi-green">Modules.</span>
+                            {t.features.title}
                         </h2>
                         <p className="text-slate-500 text-xl max-w-2xl mx-auto leading-relaxed">
-                            A next-generation multi-tenant ecosystem designed to simplify complex pharmacy workflows with precision.
+                            {t.features.subtitle}
                         </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                         {[
                             {
-                                title: 'Inventory Control',
+                                title: t.features.inventoryControl.title,
                                 icon: Package,
                                 color: 'medi-green',
-                                features: ['Batch & Expiry tracking', 'Barcode automation', 'Smart stock alerts'],
-                                desc: 'Minimize wastage and optimize stock levels with real-time tracking.'
+                                features: t.features.inventoryControl.features,
+                                desc: t.features.inventoryControl.description
                             },
                             {
-                                title: 'Smart POS',
+                                title: t.features.smartPOS.title,
                                 icon: CreditCard,
                                 color: 'blue-600',
-                                features: ['Fast digital billing', 'Global payment sync', 'Profit/Loss insights'],
-                                desc: 'High-speed checkout with automated tax compliance and reporting.'
+                                features: t.features.smartPOS.features,
+                                desc: t.features.smartPOS.description
                             },
                             {
-                                title: 'Cloud SaaS',
+                                title: t.features.cloudSaaS.title,
                                 icon: Cloud,
                                 color: 'medi-green',
-                                features: ['Multi-tenant isolation', 'Custom white-labeling', 'Scalable chain management'],
-                                desc: 'Enterprise-grade security with a personalized experience for every tenant.'
+                                features: t.features.cloudSaaS.features,
+                                desc: t.features.cloudSaaS.description
                             }
                         ].map((module, i) => (
                             <div
@@ -686,8 +708,8 @@ export default function LandingPage() {
                             {/* Floating Stats on Image */}
                             <div className="absolute top-10 right-10 reveal-scale stagger-2">
                                 <div className="glass-card bg-white/20 backdrop-blur-xl p-4 rounded-2xl border border-white/30 text-white shadow-2xl">
-                                    <p className="text-xs font-bold uppercase tracking-wider opacity-70">Expert Staff</p>
-                                    <p className="text-2xl font-black">Pharmacists</p>
+                                    <p className="text-xs font-bold uppercase tracking-wider opacity-70">{t.features.expertStaff}</p>
+                                    <p className="text-2xl font-black">{t.features.pharmacists}</p>
                                 </div>
                             </div>
                         </div>
@@ -698,8 +720,8 @@ export default function LandingPage() {
                                 <div className="flex items-center gap-3">
                                     <Heart className="w-8 h-8 text-medi-green fill-medi-green/20" />
                                     <div>
-                                        <p className="text-medi-green font-black text-xl">Patient-First</p>
-                                        <p className="text-medi-green/70 text-xs font-bold uppercase">Our Philosophy</p>
+                                        <p className="text-medi-green font-black text-xl">{t.features.patientFirst}</p>
+                                        <p className="text-medi-green/70 text-xs font-bold uppercase">{t.features.ourPhilosophy}</p>
                                     </div>
                                 </div>
                             </div>
@@ -708,22 +730,20 @@ export default function LandingPage() {
 
                     {/* Right: Feature Content */}
                     <div className="reveal-right order-1 lg:order-2">
-                        <span className="inline-block px-4 py-2 bg-medi-lime/20 text-medi-green rounded-full text-sm font-bold mb-6">Built for Professionals</span>
+                        <span className="inline-block px-4 py-2 bg-medi-lime/20 text-medi-green rounded-full text-sm font-bold mb-6">{t.features.builtForProfessionals}</span>
                         <h2 className="text-4xl md:text-6xl font-extrabold mb-8 tracking-tighter leading-none">
-                            Tailored for <br />
-                            <span className="text-medi-green">Professional</span> <br />
-                            Care Excellence.
+                            {t.features.tailoredTitle}
                         </h2>
                         <p className="text-slate-500 text-lg mb-12 max-w-lg leading-relaxed">
-                            MediHeal provides the precision tools needed by pharmacists to deliver exceptional patient outcomes while maximizing operational efficiency.
+                            {t.features.tailoredDescription}
                         </p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             {[
-                                { title: 'Prescription Accuracy', desc: 'Advanced verification systems to eliminate errors.' },
-                                { title: 'Patient Profiles', desc: 'Secure histories & automated interaction checks.' },
-                                { title: 'Compliance Ready', desc: 'Built-in regulatory reporting & documentation.' },
-                                { title: 'Direct Supplier Links', desc: 'One-click reordering for essential medicine.' },
+                                { title: t.features.professionalFeatures.prescriptionAccuracy.title, desc: t.features.professionalFeatures.prescriptionAccuracy.description },
+                                { title: t.features.professionalFeatures.patientProfiles.title, desc: t.features.professionalFeatures.patientProfiles.description },
+                                { title: t.features.professionalFeatures.complianceReady.title, desc: t.features.professionalFeatures.complianceReady.description },
+                                { title: t.features.professionalFeatures.supplierLinks.title, desc: t.features.professionalFeatures.supplierLinks.description },
                             ].map((feature, i) => (
                                 <div key={i} className="flex gap-4 p-4 rounded-2xl border border-slate-50 hover:border-medi-green/20 hover:bg-slate-50/50 transition-all">
                                     <div className="w-10 h-10 bg-medi-green rounded-xl flex items-center justify-center flex-shrink-0">
@@ -750,7 +770,7 @@ export default function LandingPage() {
 
                 <div className="max-w-4xl mx-auto text-center relative z-10">
                     <h2 className="reveal-scale text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">
-                        Ready to Transform Your Pharmacy?
+                        {t.cta.title}
                     </h2>
                     <DynamicCTA />
                     <div className="reveal flex flex-wrap justify-center gap-4 stagger-2">
@@ -758,14 +778,14 @@ export default function LandingPage() {
                             href="/register"
                             className="bg-medi-lime text-medi-green px-12 py-5 rounded-full font-black text-lg hover:shadow-[0_0_50px_rgba(212,240,93,0.5)] transition-all duration-300 hover:scale-105 active:scale-95 inline-flex items-center gap-2"
                         >
-                            Start Your Free Trial
+                            {t.cta.startTrial}
                             <ArrowRight className="w-5 h-5" />
                         </Link>
                         <Link
                             href="/login"
                             className="bg-white/10 border border-white/30 text-white px-12 py-5 rounded-full font-bold text-lg hover:bg-white/20 transition-all duration-300 hover:scale-105"
                         >
-                            Login to Dashboard
+                            {t.cta.loginDashboard}
                         </Link>
                     </div>
                 </div>
@@ -781,7 +801,7 @@ export default function LandingPage() {
                             </div>
                             <span className="font-extrabold text-2xl tracking-tighter text-white">MediHeal</span>
                         </div>
-                        <p className="text-slate-400 text-sm">© 2025 MediHeal Cloud. All rights reserved.</p>
+                        <p className="text-slate-400 text-sm">{t.footer.copyright}</p>
                     </div>
                 </div>
             </footer>

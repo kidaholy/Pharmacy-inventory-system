@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { auth, User } from '../../lib/auth';
 import { formatCurrency } from '../../lib/utils';
+import { Menu, X, BarChart3, Users, Building2, Settings } from 'lucide-react';
 
 interface Tenant {
   _id: string;
@@ -48,6 +49,7 @@ export default function SuperAdminPage() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [users, setUsers] = useState<DatabaseUser[]>([]);
   const [stats, setStats] = useState<any>({});
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const currentUser = auth.requireAuth();
@@ -152,11 +154,12 @@ export default function SuperAdminPage() {
               </div>
               <div className="ml-3">
                 <h1 className="text-lg font-bold text-white">MediHeal Admin</h1>
-                <p className="text-xs text-white/70">System Control Panel</p>
+                <p className="text-xs text-white/70 hidden sm:block">System Control Panel</p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-4">
               <span className="text-sm text-white/80 font-medium">Welcome, {user.firstName}</span>
               <button
                 onClick={handleLogout}
@@ -165,14 +168,112 @@ export default function SuperAdminPage() {
                 Logout
               </button>
             </div>
+
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-white hover:bg-white/10 transition-colors"
+              aria-label="Toggle mobile menu"
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu Overlay */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden fixed inset-0 top-16 bg-black/50 backdrop-blur-sm z-40" onClick={() => setIsMobileMenuOpen(false)} />
+        )}
+
+        {/* Mobile Menu */}
+        <div className={`md:hidden fixed top-16 right-0 h-[calc(100vh-4rem)] w-80 max-w-[85vw] bg-white shadow-2xl transform transition-transform duration-300 z-50 ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="flex flex-col h-full">
+            {/* Mobile Menu Header */}
+            <div className="p-6 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-medi-green/10 rounded-full flex items-center justify-center">
+                  <span className="text-medi-green font-bold text-sm">{user.firstName?.[0]}{user.lastName?.[0]}</span>
+                </div>
+                <div>
+                  <div className="font-bold text-slate-900">{user.firstName} {user.lastName}</div>
+                  <div className="text-sm text-slate-500">Super Admin</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Menu Content */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-6 space-y-4">
+                {/* Navigation Tabs */}
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      setActiveTab('overview');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all ${activeTab === 'overview'
+                      ? 'bg-medi-green text-white shadow-lg'
+                      : 'text-slate-600 hover:bg-slate-50'
+                      }`}
+                  >
+                    <BarChart3 className="w-5 h-5" />
+                    <span className="font-semibold">System Overview</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('tenants');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all ${activeTab === 'tenants'
+                      ? 'bg-medi-green text-white shadow-lg'
+                      : 'text-slate-600 hover:bg-slate-50'
+                      }`}
+                  >
+                    <Building2 className="w-5 h-5" />
+                    <span className="font-semibold">Tenant Management</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('users');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all ${activeTab === 'users'
+                      ? 'bg-medi-green text-white shadow-lg'
+                      : 'text-slate-600 hover:bg-slate-50'
+                      }`}
+                  >
+                    <Users className="w-5 h-5" />
+                    <span className="font-semibold">User Management</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Menu Footer */}
+            <div className="p-6 border-t border-slate-100">
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-center gap-2 p-4 bg-red-50 text-red-600 rounded-xl font-semibold hover:bg-red-100 transition-colors"
+              >
+                <Settings className="w-5 h-5" />
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        {/* Tabs */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 mb-8">
+      <main className="max-w-7xl mx-auto py-6 md:py-8 px-4 sm:px-6 lg:px-8">
+        {/* Desktop Tabs */}
+        <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-slate-100 mb-8">
           <div className="border-b border-slate-100">
             <nav className="flex space-x-1 p-2">
               <button
@@ -206,6 +307,22 @@ export default function SuperAdminPage() {
           </div>
         </div>
 
+        {/* Mobile Tab Indicator */}
+        <div className="md:hidden mb-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+            <div className="flex items-center gap-3">
+              {activeTab === 'overview' && <BarChart3 className="w-5 h-5 text-medi-green" />}
+              {activeTab === 'tenants' && <Building2 className="w-5 h-5 text-medi-green" />}
+              {activeTab === 'users' && <Users className="w-5 h-5 text-medi-green" />}
+              <span className="font-bold text-slate-900">
+                {activeTab === 'overview' && 'System Overview'}
+                {activeTab === 'tenants' && 'Tenant Management'}
+                {activeTab === 'users' && 'User Management'}
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Tab Content */}
         {activeTab === 'overview' && (
           <div className="space-y-8">
@@ -235,72 +352,72 @@ export default function SuperAdminPage() {
             )}
 
             {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-slate-500 mb-1">Total Tenants</p>
-                    <p className="text-3xl font-extrabold text-slate-900">{stats.totalTenants || 0}</p>
+                    <p className="text-2xl md:text-3xl font-extrabold text-slate-900">{stats.totalTenants || 0}</p>
                   </div>
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <span className="text-2xl">🏪</span>
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <span className="text-xl md:text-2xl">🏪</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-slate-500 mb-1">Active Tenants</p>
-                    <p className="text-3xl font-extrabold text-medi-green">{stats.activeTenants || 0}</p>
+                    <p className="text-2xl md:text-3xl font-extrabold text-medi-green">{stats.activeTenants || 0}</p>
                   </div>
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <span className="text-2xl">✅</span>
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                    <span className="text-xl md:text-2xl">✅</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-slate-500 mb-1">Total Users</p>
-                    <p className="text-3xl font-extrabold text-slate-900">{stats.totalUsers || 0}</p>
+                    <p className="text-2xl md:text-3xl font-extrabold text-slate-900">{stats.totalUsers || 0}</p>
                   </div>
-                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <span className="text-2xl">👥</span>
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <span className="text-xl md:text-2xl">👥</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-slate-500 mb-1">Active Users</p>
-                    <p className="text-3xl font-extrabold text-slate-900">{stats.activeUsers || 0}</p>
+                    <p className="text-2xl md:text-3xl font-extrabold text-slate-900">{stats.activeUsers || 0}</p>
                   </div>
-                  <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                    <span className="text-2xl">👤</span>
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+                    <span className="text-xl md:text-2xl">👤</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Subscription Breakdown */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-              <h3 className="text-lg font-bold text-slate-900 mb-6">Subscription Plans</h3>
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-6">
+              <h3 className="text-lg font-bold text-slate-900 mb-4 md:mb-6">Subscription Plans</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-6 bg-blue-50 rounded-2xl border border-blue-100">
-                  <div className="text-3xl font-extrabold text-blue-600">{tenants.filter(t => t.subscriptionPlan === 'starter').length}</div>
+                <div className="text-center p-4 md:p-6 bg-blue-50 rounded-2xl border border-blue-100">
+                  <div className="text-2xl md:text-3xl font-extrabold text-blue-600">{tenants.filter(t => t.subscriptionPlan === 'starter').length}</div>
                   <div className="text-sm font-bold text-blue-800 mt-1">Starter Plan</div>
                   <div className="text-xs text-blue-600 mt-1">{formatCurrency(29)}/month</div>
                 </div>
-                <div className="text-center p-6 bg-medi-green/10 rounded-2xl border border-medi-green/20">
-                  <div className="text-3xl font-extrabold text-medi-green">{tenants.filter(t => t.subscriptionPlan === 'professional').length}</div>
+                <div className="text-center p-4 md:p-6 bg-medi-green/10 rounded-2xl border border-medi-green/20">
+                  <div className="text-2xl md:text-3xl font-extrabold text-medi-green">{tenants.filter(t => t.subscriptionPlan === 'professional').length}</div>
                   <div className="text-sm font-bold text-medi-green mt-1">Professional Plan</div>
                   <div className="text-xs text-medi-green mt-1">{formatCurrency(79)}/month</div>
                 </div>
-                <div className="text-center p-6 bg-purple-50 rounded-2xl border border-purple-100">
-                  <div className="text-3xl font-extrabold text-purple-600">{tenants.filter(t => t.subscriptionPlan === 'enterprise').length}</div>
+                <div className="text-center p-4 md:p-6 bg-purple-50 rounded-2xl border border-purple-100">
+                  <div className="text-2xl md:text-3xl font-extrabold text-purple-600">{tenants.filter(t => t.subscriptionPlan === 'enterprise').length}</div>
                   <div className="text-sm font-bold text-purple-800 mt-1">Enterprise Plan</div>
                   <div className="text-xs text-purple-600 mt-1">{formatCurrency(199)}/month</div>
                 </div>
@@ -309,8 +426,8 @@ export default function SuperAdminPage() {
 
             {/* Registered Pharmacies Section */}
             {tenants.length > 0 && (
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                <div className="flex items-center justify-between mb-6">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 md:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 md:mb-6 gap-4">
                   <div>
                     <h3 className="text-lg font-bold text-slate-900">Registered Pharmacies</h3>
                     <p className="text-sm text-slate-500 mt-1">All pharmacy tenants in the system</p>
@@ -320,22 +437,22 @@ export default function SuperAdminPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {tenants.map((tenant) => {
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {tenants.map((tenant, index) => {
                     const userCount = users.filter(u => u.tenantId?.toString() === tenant._id?.toString()).length;
                     const isOwner = users.find(u => u._id?.toString() === tenant.ownerId?.toString());
 
                     return (
                       <div
-                        key={tenant._id}
+                        key={tenant._id || `tenant-${index}`}
                         className={`relative group bg-gradient-to-br ${tenant.isActive
                             ? 'from-white to-slate-50 border-slate-200'
                             : 'from-slate-100 to-slate-200 border-slate-300'
-                          } border-2 rounded-xl p-5 hover:shadow-lg transition-all duration-300 ${tenant.isActive ? 'hover:border-medi-green' : ''
+                          } border-2 rounded-xl p-4 md:p-5 hover:shadow-lg transition-all duration-300 ${tenant.isActive ? 'hover:border-medi-green' : ''
                           }`}
                       >
                         <div className="absolute top-3 right-3">
-                          <span className={`inline-flex px-2.5 py-1 text-xs font-bold rounded-full ${tenant.isActive
+                          <span className={`inline-flex px-2 py-0.5 md:px-2.5 md:py-1 text-xs font-bold rounded-full ${tenant.isActive
                               ? 'bg-green-100 text-green-700'
                               : 'bg-red-100 text-red-700'
                             }`}>
@@ -344,7 +461,7 @@ export default function SuperAdminPage() {
                         </div>
                         
                         {/* Logo Display */}
-                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 shadow-lg overflow-hidden">
+                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center mb-4 shadow-lg overflow-hidden">
                           {tenant.settings?.branding?.logo ? (
                             <img 
                               src={tenant.settings.branding.logo} 
@@ -359,11 +476,11 @@ export default function SuperAdminPage() {
                             />
                           ) : null}
                           <div className={`w-full h-full bg-gradient-to-br from-medi-green to-emerald-600 rounded-2xl flex items-center justify-center ${tenant.settings?.branding?.logo ? 'hidden' : ''}`}>
-                            <span className="text-2xl">🏥</span>
+                            <span className="text-xl md:text-2xl">🏥</span>
                           </div>
                         </div>
                         
-                        <h4 className="text-lg font-bold text-slate-900 mb-1 pr-16">
+                        <h4 className="text-base md:text-lg font-bold text-slate-900 mb-1 pr-12 md:pr-16">
                           {tenant.name}
                         </h4>
                         <div className="flex items-center gap-1.5 mb-3">
@@ -375,7 +492,7 @@ export default function SuperAdminPage() {
                         <div className="space-y-2 mb-4">
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-slate-500 font-medium">Plan:</span>
-                            <span className={`font-bold px-2 py-0.5 rounded ${tenant.subscriptionPlan === 'starter' ? 'bg-blue-100 text-blue-700' :
+                            <span className={`font-bold px-2 py-0.5 rounded text-xs ${tenant.subscriptionPlan === 'starter' ? 'bg-blue-100 text-blue-700' :
                                 tenant.subscriptionPlan === 'professional' ? 'bg-green-100 text-green-700' :
                                   'bg-purple-100 text-purple-700'
                               }`}>
@@ -389,14 +506,14 @@ export default function SuperAdminPage() {
                           {isOwner && (
                             <div className="flex items-center justify-between text-sm">
                               <span className="text-slate-500 font-medium">Owner:</span>
-                              <span className="font-semibold text-slate-700 truncate ml-2">
+                              <span className="font-semibold text-slate-700 truncate ml-2 text-xs">
                                 {isOwner.firstName} {isOwner.lastName}
                               </span>
                             </div>
                           )}
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-slate-500 font-medium">Created:</span>
-                            <span className="text-slate-600">
+                            <span className="text-slate-600 text-xs">
                               {new Date(tenant.createdAt).toLocaleDateString()}
                             </span>
                           </div>
@@ -504,10 +621,10 @@ export default function SuperAdminPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-slate-100">
-                    {tenants.map((tenant) => {
+                    {tenants.map((tenant, index) => {
                       const tenantUsers = users.filter(u => u.tenantId === tenant._id);
                       return (
-                        <tr key={tenant._id} className="hover:bg-slate-50 transition-colors">
+                        <tr key={tenant._id || `tenant-table-${index}`} className="hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               {/* Logo Display */}
@@ -644,10 +761,10 @@ export default function SuperAdminPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-slate-100">
-                    {users.map((targetUser) => {
+                    {users.map((targetUser, index) => {
                       const userTenant = tenants.find(t => t._id === targetUser.tenantId);
                       return (
-                        <tr key={targetUser._id} className="hover:bg-slate-50 transition-colors">
+                        <tr key={targetUser._id || `user-${index}`} className="hover:bg-slate-50 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <div className="w-10 h-10 bg-medi-green/10 rounded-full flex items-center justify-center mr-3">

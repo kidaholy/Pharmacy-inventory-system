@@ -57,8 +57,7 @@ const MedicineSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: true,
-    enum: ['Pain Relief', 'Antibiotics', 'Digestive', 'Antihistamine', 'Diabetes', 'Cardiovascular', 'Respiratory', 'Vitamins', 'Other']
+    required: true
   },
   stock: {
     type: Number,
@@ -166,7 +165,6 @@ class AtlasDatabase {
       });
       this.isConnected = true;
       console.log('Connected to MongoDB Atlas successfully');
-      await this.initializeSampleData();
     } catch (error) {
       console.error('Failed to connect to MongoDB Atlas:', error);
       this.isConnected = false;
@@ -181,113 +179,6 @@ class AtlasDatabase {
     }
   }
 
-  private async initializeSampleData() {
-    try {
-      // Check if super admin exists
-      const existingSuperAdmin = await User.findOne({ role: 'super_admin' });
-      
-      if (!existingSuperAdmin) {
-        console.log('Initializing sample data in MongoDB Atlas...');
-        
-        // Create super admin
-        const superAdmin = new User({
-          username: 'superadmin',
-          email: 'superadmin@pharmatrack.com',
-          password: 'SuperAdmin123!',
-          role: 'super_admin',
-          isActive: true
-        });
-        await superAdmin.save();
-
-        // Create demo user
-        const demoUser = new User({
-          username: 'demo_admin',
-          email: 'admin@pharmatrack.com',
-          password: 'password',
-          role: 'admin',
-          isActive: true
-        });
-        await demoUser.save();
-
-        // Create sample pharmacy owners
-        const sampleUsers = [
-          {
-            username: 'john_smith',
-            email: 'john.smith@citycentralpharmacy.com',
-            password: 'password123',
-            role: 'admin',
-            isActive: true
-          },
-          {
-            username: 'sarah_johnson',
-            email: 'sarah.johnson@healthpluspharmacy.com',
-            password: 'password123',
-            role: 'admin',
-            isActive: true
-          }
-        ];
-
-        const createdUsers = await User.insertMany(sampleUsers);
-
-        // Create sample pharmacies
-        const samplePharmacies = [
-          {
-            name: 'City Central Pharmacy',
-            ownerId: createdUsers[0]._id,
-            address: '123 Main Street, Downtown, NY 10001',
-            subscriptionPlan: 'professional',
-            isActive: true
-          },
-          {
-            name: 'HealthPlus Pharmacy',
-            ownerId: createdUsers[1]._id,
-            address: '456 Oak Avenue, Midtown, NY 10002',
-            subscriptionPlan: 'enterprise',
-            isActive: true
-          }
-        ];
-
-        const createdPharmacies = await Pharmacy.insertMany(samplePharmacies);
-
-        // Create sample medicines for the first pharmacy
-        const sampleMedicines = [
-          {
-            name: 'Paracetamol 500mg',
-            category: 'Pain Relief',
-            stock: 150,
-            minStock: 50,
-            price: 2.50,
-            expiryDate: new Date('2025-12-31'),
-            supplier: 'PharmaCorp',
-            batchNumber: 'PC2024001',
-            description: 'Pain and fever relief medication',
-            dosage: '500mg tablets',
-            manufacturer: 'PharmaCorp Ltd',
-            pharmacyId: createdPharmacies[0]._id.toString()
-          },
-          {
-            name: 'Amoxicillin 250mg',
-            category: 'Antibiotics',
-            stock: 25,
-            minStock: 30,
-            price: 8.75,
-            expiryDate: new Date('2025-06-15'),
-            supplier: 'MediSupply',
-            batchNumber: 'MS2024002',
-            description: 'Broad-spectrum antibiotic',
-            dosage: '250mg capsules',
-            manufacturer: 'MediSupply Inc',
-            pharmacyId: createdPharmacies[0]._id.toString()
-          }
-        ];
-
-        await Medicine.insertMany(sampleMedicines);
-        console.log('Sample data initialized successfully in MongoDB Atlas');
-      }
-    } catch (error) {
-      console.error('Error initializing sample data:', error);
-    }
-  }
 
   private convertUserToData(user: IUser): UserData {
     return {
@@ -519,7 +410,7 @@ class AtlasDatabase {
         updateData.expiryDate = new Date(updates.expiryDate) as any;
       }
       updateData.updatedAt = new Date() as any;
-      
+
       const medicine = await Medicine.findByIdAndUpdate(id, updateData, { new: true });
       return medicine ? this.convertMedicineToData(medicine) : null;
     } catch (error) {
@@ -546,7 +437,7 @@ class AtlasDatabase {
       const totalUsers = await User.countDocuments({ role: { $ne: 'super_admin' } });
       const totalPharmacies = await Pharmacy.countDocuments({});
       const activePharmacies = await Pharmacy.countDocuments({ isActive: true });
-      
+
       const subscriptionBreakdown = await Pharmacy.aggregate([
         {
           $group: {
@@ -584,6 +475,142 @@ class AtlasDatabase {
           enterprise: 0
         }
       };
+    }
+  }
+
+  // Debug methods
+  private async initializeSampleData(): Promise<void> {
+    try {
+      // Super Admin
+      const superAdmin = new User({
+        username: 'superadmin',
+        email: 'superadmin@pharmatrack.com',
+        password: 'SuperAdmin123!',
+        role: 'super_admin',
+        isActive: true,
+        createdAt: new Date()
+      });
+      await superAdmin.save();
+
+      // Demo User
+      const demoUser = new User({
+        username: 'demo_admin',
+        email: 'admin@pharmatrack.com',
+        password: 'password',
+        role: 'admin',
+        isActive: true,
+        createdAt: new Date('2024-01-01')
+      });
+      await demoUser.save();
+
+      // Sample Users and Pharmacies
+      const sampleData = [
+        {
+          user: {
+            username: 'john_smith',
+            email: 'john.smith@citycentralpharmacy.com',
+            password: 'password123',
+            role: 'admin',
+            isActive: true
+          },
+          pharmacy: {
+            name: 'City Central Pharmacy',
+            address: '123 Main Street, Downtown, NY 10001',
+            phone: '+1 (555) 123-4567',
+            email: 'admin@citycentralpharmacy.com',
+            subscriptionPlan: 'professional',
+            isActive: true
+          }
+        },
+        {
+          user: {
+            username: 'sarah_johnson',
+            email: 'sarah.johnson@healthpluspharmacy.com',
+            password: 'password123',
+            role: 'admin',
+            isActive: true
+          },
+          pharmacy: {
+            name: 'HealthPlus Pharmacy',
+            address: '456 Oak Avenue, Midtown, NY 10002',
+            phone: '+1 (555) 234-5678',
+            email: 'contact@healthpluspharmacy.com',
+            subscriptionPlan: 'enterprise',
+            isActive: true
+          }
+        },
+        {
+          user: {
+            username: 'mike_davis',
+            email: 'mike.davis@communitycarepharmacy.com',
+            password: 'password123',
+            role: 'admin',
+            isActive: true
+          },
+          pharmacy: {
+            name: 'Community Care Pharmacy',
+            address: '789 Pine Street, Uptown, NY 10003',
+            phone: '+1 (555) 345-6789',
+            email: 'info@communitycarepharmacy.com',
+            subscriptionPlan: 'starter',
+            isActive: true
+          }
+        },
+        {
+          user: {
+            username: 'lisa_wilson',
+            email: 'lisa.wilson@mediquickpharmacy.com',
+            password: 'password123',
+            role: 'admin',
+            isActive: false
+          },
+          pharmacy: {
+            name: 'MediQuick Pharmacy',
+            address: '321 Elm Street, Eastside, NY 10004',
+            phone: '+1 (555) 456-7890',
+            email: 'support@mediquickpharmacy.com',
+            subscriptionPlan: 'professional',
+            isActive: false
+          }
+        },
+        {
+          user: {
+            username: 'david_brown',
+            email: 'david.brown@wellnesspharmacy.com',
+            password: 'password123',
+            role: 'admin',
+            isActive: true
+          },
+          pharmacy: {
+            name: 'Wellness Pharmacy',
+            address: '654 Maple Avenue, Westside, NY 10005',
+            phone: '+1 (555) 567-8901',
+            email: 'hello@wellnesspharmacy.com',
+            subscriptionPlan: 'starter',
+            isActive: true
+          }
+        }
+      ];
+
+      for (const data of sampleData) {
+        const user = new User({
+          ...data.user,
+          createdAt: new Date()
+        });
+        const savedUser = await user.save();
+
+        const pharmacy = new Pharmacy({
+          ...data.pharmacy,
+          ownerId: savedUser._id,
+          createdAt: new Date()
+        });
+        await pharmacy.save();
+      }
+
+      console.log('Sample data initialized successfully');
+    } catch (error) {
+      console.error('Error initializing sample data:', error);
+      throw error;
     }
   }
 

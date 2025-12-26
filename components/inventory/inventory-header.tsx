@@ -6,15 +6,27 @@ import { Input } from "@/components/ui/input"
 import { Plus, Search, Filter, Download } from "lucide-react"
 import { AddMedicineDialog } from "./add-medicine-dialog"
 
-export function InventoryHeader() {
+interface InventoryHeaderProps {
+  subdomain: string
+  onMedicineAdded?: () => void
+}
+
+export function InventoryHeader({ subdomain, onMedicineAdded }: InventoryHeaderProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+
+  const handleMedicineAdded = () => {
+    setIsAddDialogOpen(false)
+    onMedicineAdded?.()
+  }
 
   return (
     <>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Inventory</h1>
-          <p className="text-muted-foreground mt-1">Manage your medicine stock and suppliers</p>
+          <p className="text-muted-foreground mt-1">
+            Manage your medicine stock and suppliers • Auto-save to MongoDB Atlas
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm">
@@ -39,7 +51,12 @@ export function InventoryHeader() {
         </Button>
       </div>
 
-      <AddMedicineDialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} />
+      <AddMedicineDialog 
+        open={isAddDialogOpen} 
+        onOpenChange={setIsAddDialogOpen}
+        subdomain={subdomain}
+        onMedicineAdded={handleMedicineAdded}
+      />
     </>
   )
 }
